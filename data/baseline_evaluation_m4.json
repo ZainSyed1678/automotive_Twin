@@ -1,0 +1,35 @@
+[
+  {
+    "mode": "LLM-Only",
+    "total_cases": 140,
+    "diagnosable_cases": 126,
+    "top1_accuracy": 0.5317,
+    "top3_accuracy": 0.5873,
+    "ambiguity_rate": 0.4,
+    "insufficient_evidence_accuracy": 0.5,
+    "avg_citations_per_case": 0.0,
+    "unsupported_claim_rate": 1.0
+  },
+  {
+    "mode": "RAG-Only",
+    "total_cases": 140,
+    "diagnosable_cases": 126,
+    "top1_accuracy": 0.8095,
+    "top3_accuracy": 0.9206,
+    "ambiguity_rate": 0.3429,
+    "insufficient_evidence_accuracy": 0.8571,
+    "avg_citations_per_case": 5.07,
+    "unsupported_claim_rate": 0.0238
+  },
+  {
+    "mode": "Full-System",
+    "total_cases": 140,
+    "diagnosable_cases": 126,
+    "top1_accuracy": 0.746,
+    "top3_accuracy": 0.8095,
+    "ambiguity_rate": 0.3286,
+    "insufficient_evidence_accuracy": 1.0,
+    "avg_citations_per_case": 5.44,
+    "unsupported_claim_rate": 0.0
+  }
+]
