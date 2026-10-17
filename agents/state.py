@@ -24,6 +24,11 @@ class DiagnosticReport(BaseModel):
     contradictory_evidence: List[str] = Field(default_factory=list)
     recommended_tests: List[str] = Field(default_factory=list)
     citations: List[str] = Field(default_factory=list)
+    follow_up_question: Optional[Dict[str, Any]] = Field(
+        None, description="Targeted follow-up question selected via Expected Information Gain (EIG)"
+    )
+    review_status: str = Field("PASSED", description="Outcome of the review gate (PASSED, MODIFIED, FLAGGED)")
+    review_notes: List[str] = Field(default_factory=list, description="Verification checks performed during review")
     executive_summary: str = ""
 
 
@@ -40,4 +45,7 @@ class DiagnosticState(TypedDict, total=False):
     simulation_results: Dict[str, Dict[str, Any]]
     diagnostic_result: Optional[Dict[str, Any]]
     citations: List[str]
+    follow_up_question: Optional[Dict[str, Any]]
+    review_result: Optional[Dict[str, Any]]
+    turn_count: int
     final_report: Optional[Dict[str, Any]]

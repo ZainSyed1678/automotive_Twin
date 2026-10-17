@@ -1,12 +1,15 @@
 """
 LangGraph workflow nodes for Automotive Digital Twin Diagnosis.
-Pure functions implementing Intake, Retrieval, Hypotheses, Simulation/Scoring, and Reporting.
+Pure functions implementing Intake, Retrieval, Hypotheses, Simulation/Scoring,
+Adaptive Questioning (EIG), Review, and Reporting.
 """
 
 from typing import Any, Dict, List, Optional
 from model.engine import FaultModel
 from model.schema import Observations
 from rag.store import KnowledgeBase, SimilarCaseIndex
+from .eig import select_best_follow_up_question
+from .review import review_diagnostic_report
 from .state import DiagnosticReport, DiagnosticState
 
 
@@ -177,17 +180,65 @@ def simulation_scoring_node(state: DiagnosticState) -> Dict[str, Any]:
 
 
 # -----------------------------------------------------------------------------
-# Node 5: Reporting
+# Node 5: Adaptive Question Selection (Expected Information Gain)
+# -----------------------------------------------------------------------------
+
+def question_selection_node(state: DiagnosticState) -> Dict[str, Any]:
+    """
+    Selects the optimal follow-up diagnostic test using Expected Information Gain (EIG)
+    to actively reduce uncertainty between leading hypotheses.
+    """
+    model = get_fault_model()
+    diag_data = state.get("diagnostic_result") or {}
+    obs_data = state.get("observations", {})
+    ranked_hyps = diag_data.get("ranked_hypotheses") or []
+    confidence_gap = diag_data.get("confidence_gap", 0.0)
+    is_ambiguous = diag_data.get("is_ambiguous", False)
+    insufficient_evidence = diag_data.get("insufficient_evidence", False)
+
+    best_question = select_best_follow_up_question(
+        ranked_hypotheses=ranked_hyps,
+        current_observations=obs_data,
+        fault_model=model,
+        confidence_gap=confidence_gap,
+        is_ambiguous=is_ambiguous,
+        insufficient_evidence=insufficient_evidence,
+        min_eig_threshold=0.04,
+    )
+
+    question_dict = best_question.model_dump() if best_question else None
+    return {"follow_up_question": question_dict}
+
+
+# -----------------------------------------------------------------------------
+# Node 6: Review (Self-Review / Verification Gate)
+# -----------------------------------------------------------------------------
+
+def review_node(state: DiagnosticState) -> Dict[str, Any]:
+    """
+    Verification gate that validates evidence grounding, checks subsystem boundaries,
+    and enforces epistemic modesty on ambiguous or insufficient evidence cases.
+    """
+    model = get_fault_model()
+    review_res = review_diagnostic_report(state, model)
+    return {"review_result": review_res.model_dump()}
+
+
+# -----------------------------------------------------------------------------
+# Node 7: Reporting
 # -----------------------------------------------------------------------------
 
 def reporting_node(state: DiagnosticState) -> Dict[str, Any]:
     """
-    Compiles evidence, citations, simulation predictions, and uncertainty into an actionable report.
+    Compiles evidence, citations, simulation predictions, review verification,
+    and adaptive question recommendations into an actionable report.
     """
     diag_data = state.get("diagnostic_result") or {}
     sim_dict = state.get("simulation_results") or {}
     citations = state.get("citations") or []
     ranked_hyps = diag_data.get("ranked_hypotheses") or []
+    follow_up_q = state.get("follow_up_question")
+    review_data = state.get("review_result") or {}
 
     top_hyp = ranked_hyps[0] if ranked_hyps else {}
     top_fault_id = top_hyp.get("fault_id")
@@ -203,17 +254,20 @@ def reporting_node(state: DiagnosticState) -> Dict[str, Any]:
     contradictions: List[str] = top_hyp.get("evidence_contradictions", [])
 
     # Compose executive summary
-    if insufficient_evidence:
+    if review_data.get("adjusted_summary"):
+        summary = review_data["adjusted_summary"]
+    elif insufficient_evidence:
         summary = (
             "INSUFFICIENT EVIDENCE: The reported observations are too sparse or non-specific "
             "to reliably isolate a single root cause. Follow-up physical inspection is required."
         )
     elif is_ambiguous:
         runner_up = ranked_hyps[1].get("fault_name") if len(ranked_hyps) > 1 else "alternative fault"
+        q_hint = f" Recommended next test: {follow_up_q['test_name']}." if follow_up_q else ""
         summary = (
             f"AMBIGUOUS DIAGNOSIS: Primary candidate is '{top_fault_name}' ({confidence_score * 100:.1f}%), "
             f"closely competed by '{runner_up}' (margin: {confidence_gap * 100:.1f}%). "
-            f"Distinguishing tests must be performed before component replacement."
+            f"Distinguishing tests must be performed before component replacement.{q_hint}"
         )
     else:
         summary = (
@@ -236,6 +290,9 @@ def reporting_node(state: DiagnosticState) -> Dict[str, Any]:
         contradictory_evidence=contradictions,
         recommended_tests=suggested_tests[:4],
         citations=citations,
+        follow_up_question=follow_up_q,
+        review_status=review_data.get("review_status", "PASSED"),
+        review_notes=review_data.get("review_notes", []),
         executive_summary=summary,
     )
 

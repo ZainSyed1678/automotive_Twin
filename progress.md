@@ -121,3 +121,58 @@ Evaluated via `python -m eval.evaluate` on `data/cases_dev.json`:
 
 ### Test Verification (`tests/test_agent_and_eval.py`)
 - 35 total tests passing across M1, M2, M3, and M4 in 8.09s.
+
+---
+
+## 7. Milestone 5 — Adaptive Questioning & Evidence Review Gate
+
+### Mathematical Formulation of Expected Information Gain (EIG) (`agents/eig.py`)
+When candidate faults compete closely (`is_ambiguous == True` or `confidence_gap < 0.25`), the diagnostic agent determines the most informative physical test to perform instead of guessing:
+
+1. **Prior Shannon Entropy**:
+   $$H(F) = -\sum_{i=1}^K P(F_i) \log_2 P(F_i)$$
+2. **Marginal Predictive Probability for Test Variable $X$**:
+   $$P(X = v) = \sum_{i=1}^K P(F_i) \cdot P(X = v \mid F_i)$$
+3. **Posterior Conditional Distribution**:
+   $$P(F_i \mid X = v) = \frac{P(F_i) \cdot P(X = v \mid F_i)}{P(X = v)}$$
+4. **Conditional Entropy**:
+   $$H(F \mid X = v) = -\sum_{i=1}^K P(F_i \mid X = v) \log_2 P(F_i \mid X = v)$$
+5. **Expected Information Gain (Mutual Information $I(F; X)$)**:
+   $$\text{EIG}(X) = H(F) - \sum_{v \in \mathcal{V}_X} P(X = v) \cdot H(F \mid X = v)$$
+
+The engine selects the candidate test $X^* = \arg\max_X \text{EIG}(X)$ that has not yet been observed.
+
+### Actionable Test Catalogue (`agents/eig.py`)
+Codified 11 physical inspection and scanner test procedures with baseline distributions, technician-facing questions, and discrimination targets:
+- `fuel_pressure` (Mechanical gauge test: normal / low / high)
+- `fuel_trim_at_high_rpm` (2500 RPM steady state: normalizes / worsens / unchanged)
+- `audible_hiss` (Plenum stethoscope check: present / absent)
+- `misfire_pattern` (Scanner counter: cylinder_specific / random / none)
+- `maf_reading` (WOT g/s check: normal / underreporting / overreporting)
+- `map_reading_key_on_engine_off` (KOEO baro check: normal / inaccurate)
+- `o2_sensor_switching_rate` (Oscilloscope 2000 RPM check: normal / sluggish)
+- `throttle_sweep_test` (Potentiometer sweep: normal / dropouts_at_low_throttle)
+- `connector_pin_inspection` (Visual & resistance check: clean / corroded_green)
+- `coolant_temp_scan` (Cold ambient sanity check: normal / abnormally_low)
+- `fuel_pressure_bleed_down` (10-min rail retention test: holds_steady / rapid_bleed_down)
+
+### Self-Review Verification Gate (`agents/review.py`)
+Before any report is emitted, an automated review audit validates three safety criteria:
+1. **Scope Boundary**: Confirms all candidate faults and components belong strictly to the supported subsystem (`air_intake_and_fuel_control` on a generic petrol car).
+2. **Evidence Grounding**: Verifies that every asserted symptom and DTC match exists in the raw input observations. Flags ungrounded claims.
+3. **Epistemic Humility**: Ensures insufficient evidence cases suppress premature confidence and ambiguous cases warn technicians against unverified parts replacement.
+
+### LangGraph Workflow Integration (`agents/workflow.py`, `agents/nodes.py`)
+- Expanded StateGraph from 5 to 7 logical nodes:
+  $$\text{START} \to \text{intake} \to \text{retrieval} \to \text{hypothesis\_generation} \to \text{simulation\_scoring} \to \text{question\_selection} \to \text{review} \to \text{reporting} \to \text{END}$$
+- Implemented `run_interactive_diagnosis(initial_observations, answer_callback, max_turns=3)` enabling multi-turn conversational disambiguation.
+
+### Test Verification (`tests/test_adaptive_questioning.py`)
+- 9 dedicated unit and scenario tests covering:
+  - Analytical Shannon entropy calculations (0.0 bits for deterministic, 1.0 bit for 2-state, 2.0 bits for 4-state).
+  - P0171 lean ambiguity test: verifies EIG prioritizes `fuel_pressure` ($\text{EIG} = 0.6417$ bits) over irrelevant tests.
+  - Stopping condition: halts follow-up questions when confidence and gap are high.
+  - Review gate verification: passes valid reports, flags out-of-scope components, and detects ungrounded evidence assertions.
+  - Multi-turn interactive disambiguation: resolves ambiguous P0171 case in 2 turns when fuel pressure is reported as low.
+- Total test suite: **44 passed in 7.34s**.
+

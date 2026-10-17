@@ -147,31 +147,21 @@ python run_demo.py
 ```
 
 ### 2. Run the Full Test Suite
-Runs all 17 automated tests (M1 regression + M2 casegen):
+Runs all 44 automated tests across M1 to M5:
 ```powershell
 pytest -v
 ```
 
 Expected output:
 ```text
-tests/test_casegen.py::test_ground_truth_case_schema PASSED              [  5%]
-tests/test_casegen.py::test_agent_case_forbids_extra_fields PASSED       [ 11%]
-tests/test_casegen.py::test_agent_projection_and_allowlist_serialization PASSED [ 17%]
-tests/test_casegen.py::test_exported_agent_files_contain_no_ground_truth PASSED [ 23%]
-tests/test_casegen.py::test_generator_reproducibility PASSED             [ 29%]
-tests/test_casegen.py::test_different_seeds_produce_different_datasets PASSED [ 35%]
-tests/test_casegen.py::test_fingerprint_order_insensitivity PASSED       [ 41%]
-tests/test_casegen.py::test_split_target_and_anti_leakage PASSED         [ 47%]
-tests/test_casegen.py::test_straightforward_cases_feasibility PASSED     [ 52%]
-tests/test_casegen.py::test_ambiguous_cases_feasibility PASSED           [ 58%]
-tests/test_casegen.py::test_insufficient_evidence_cases_feasibility PASSED [ 64%]
-tests/test_model.py::test_catalogue_structure_and_counts PASSED          [ 70%]
-tests/test_model.py::test_simulate_fault PASSED                          [ 76%]
-tests/test_model.py::test_missing_evidence_neutrality PASSED             [ 82%]
-tests/test_model.py::test_contradictory_evidence_downranks PASSED        [ 88%]
-tests/test_model.py::test_insufficient_evidence_flag PASSED              [ 94%]
-tests/test_model.py::test_handwritten_diagnostic_scenarios PASSED        [100%]
-====== 17 passed in 0.93s ======
+tests/test_adaptive_questioning.py::test_entropy_calculation PASSED      [  2%]
+tests/test_adaptive_questioning.py::test_eig_prioritizes_fuel_pressure_on_lean_ambiguity PASSED [  4%]
+tests/test_adaptive_questioning.py::test_stopping_condition_on_confident_case PASSED [  6%]
+tests/test_adaptive_questioning.py::test_review_gate_passes_on_valid_case PASSED [  9%]
+tests/test_adaptive_questioning.py::test_review_gate_catches_out_of_scope_component PASSED [ 11%]
+...
+tests/test_rag_and_mcp.py::test_mcp_score_hypotheses PASSED              [100%]
+============================= 44 passed in 7.34s ==============================
 ```
 
 ### 3. Regenerate Datasets
@@ -189,8 +179,8 @@ python generate_data.py
 | | **M2: Case Generator** | 200 synthetic cases (140/60 split), anti-leakage checks, label isolation | **Complete** |
 | | **M3: Knowledge Base & MCP** | Ingestion of synthetic repair manuals & TSBs, hybrid search, Python MCP server | **Complete** |
 | | **M4: Diagnostic Agent** | LangGraph orchestration (intake, retrieve, simulate, score), LLM/RAG baselines | **Complete** |
-| | **M5: Adaptive Questioning** | Expected Information Gain question selection, evidence critique, review step | Next |
-| | **M6: Interface & Tracing** | FastAPI backend, Streamlit diagnostic UI, Docker containerization | Pending |
+| | **M5: Adaptive Questioning** | Expected Information Gain question selection, evidence critique, review step | **Complete** |
+| | **M6: Interface & Tracing** | FastAPI backend, Streamlit diagnostic UI, Docker containerization | Next |
 | | **M7: Evaluation & Audit** | Full held-out benchmark across 3 modes, calibration (ECE/Brier), honest audit | Pending |
 | **Phase 2** | Multi-Vehicle Support | Vehicle-specific configuration layer (Hyundai i20, etc.) | Future |
 
