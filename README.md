@@ -187,8 +187,8 @@ python generate_data.py
 |---|---|---|---|
 | **Phase 1** | **M1: Fault Model** | Causal catalogue, `simulate_fault`, likelihood scoring, scenario tests | **Complete** |
 | | **M2: Case Generator** | 200 synthetic cases (140/60 split), anti-leakage checks, label isolation | **Complete** |
-| | **M3: Knowledge Base & MCP** | Ingestion of synthetic repair manuals & TSBs, hybrid search, Python MCP server | Next |
-| | **M4: Diagnostic Agent** | LangGraph orchestration (intake, retrieve, simulate, score), LLM/RAG baselines | Pending |
+| | **M3: Knowledge Base & MCP** | Ingestion of synthetic repair manuals & TSBs, hybrid search, Python MCP server | **Complete** |
+| | **M4: Diagnostic Agent** | LangGraph orchestration (intake, retrieve, simulate, score), LLM/RAG baselines | Next |
 | | **M5: Adaptive Questioning** | Expected Information Gain question selection, evidence critique, review step | Pending |
 | | **M6: Interface & Tracing** | FastAPI backend, Streamlit diagnostic UI, Docker containerization | Pending |
 | | **M7: Evaluation & Audit** | Full held-out benchmark across 3 modes, calibration (ECE/Brier), honest audit | Pending |

@@ -3,7 +3,7 @@
 ## 1. Project Overview & Architecture Status
 - **Goal**: Portfolio-grade AI-powered digital twin for simulation-driven vehicle fault diagnosis.
 - **Domain**: Air-intake and fuel-control subsystem of a generic petrol vehicle.
-- **Methodology**: Transparent Bayesian likelihood scoring (Good's weight of evidence / Bayes factor), simulation-driven hypothesis testing, synthetic case evaluation, and RAG knowledge retrieval.
+- **Methodology**: Transparent Bayesian likelihood scoring (Good's weight of evidence / Bayes factor), simulation-driven hypothesis testing, synthetic case evaluation, hybrid RAG knowledge retrieval, and standardized MCP tools.
 - **Guiding Principles**: Ponytail engineering (YAGNI, minimal dependencies, stdlib-first, transparent math over black boxes, rigorous test coverage).
 
 ---
@@ -14,11 +14,11 @@
 |---|---|---|---|
 | **M1** | **Fault Model & Scoring Engine** | **Completed** | 10 components, 12 faults, causal catalogue, log-likelihood ratio scoring, 6/6 tests passing, demo runner verified. |
 | **M2** | **Diagnostic Case Generator** | **Completed** | 200 synthetic cases (140 dev, 60 eval), 5 difficulty tiers, 0 fingerprint collisions, allowlist agent isolation, 17/17 tests passing. |
-| **M3** | **Knowledge Base & MCP Tools** | Pending | Repair manuals, TSBs, generic OBD-II info, vector/hybrid retrieval, read-only MCP server. |
-| **M4** | **Diagnostic Agent Core** | Pending | LangGraph orchestration (intake, retrieve, hypothesize, score, report), LLM-only & RAG-only baselines. |
+| **M3** | **Knowledge Base & MCP Tools** | **Completed** | 24 technical documents (OBD/Manuals/TSBs), TF-IDF hybrid search, isolated similar-case search, Python MCP server with 5 read-only tools, 28/28 tests passing. |
+| **M4** | **Diagnostic Agent Core** | *Next* | LangGraph orchestration (intake, retrieve, hypothesize, score, report), LLM-only & RAG-only baselines. |
 | **M5** | **Adaptive Questioning & Review** | Pending | Information-gain question selection, evidence critique, insufficient-evidence handling. |
 | **M6** | **Interface & Observability** | Pending | FastAPI backend, Streamlit diagnostic UI, Docker containerization. |
-| **M7** | **Evaluation & Documentation** | Pending | Held-out benchmarking across 3 modes, calibration scoring, README accuracy audit. |
+| **M7** | **Evaluation & Documentation** | Pending | Held-out benchmarking across 3 modes, calibration scoring, honest audit. |
 
 ---
 
@@ -75,18 +75,43 @@
   - Exactly 140 unique fingerprints in dev.
   - Exactly 60 unique fingerprints in eval.
   - Exactly **0 collisions** between dev and eval.
-- **Documented Limitation**: An empty fingerprint intersection proves that zero exact duplicate observation sets exist across the split; it does not claim complete statistical independence of synthetic draws generated from the same underlying causal model.
 
-### Test Verification (`tests/test_casegen.py`)
-- 17 total tests passing (11 M2 tests + 6 M1 regression tests) in 0.93s:
-  - `test_ground_truth_case_schema`: Valid GT cases accepted; missing required fields rejected.
-  - `test_agent_case_forbids_extra_fields`: Extra fields on `AgentCase` forbidden.
-  - `test_agent_projection_and_allowlist_serialization`: In-memory projection and allowlist dictionary verified.
-  - `test_exported_agent_files_contain_no_ground_truth`: On-disk agent files verified for zero ground-truth keys.
-  - `test_generator_reproducibility`: Bitwise identical generation under seed 42.
-  - `test_different_seeds_produce_different_datasets`: Distinct seeds produce different cases.
-  - `test_fingerprint_order_insensitivity`: Invariant to DTC/symptom ordering.
-  - `test_split_target_and_anti_leakage`: 140/60 target and 0 fingerprint collision verified.
-  - `test_straightforward_cases_feasibility`: Straightforward cases achieve $\ge 85\%$ Top-1 accuracy under M1 model.
-  - `test_ambiguous_cases_feasibility`: Ambiguous cases demonstrate low confidence gaps and flag ambiguity.
-  - `test_insufficient_evidence_cases_feasibility`: Insufficient-evidence cases do not falsely reveal confident diagnosis.
+---
+
+## 5. Milestone 3 — Knowledge Base & MCP Tools
+
+### Technical Document Store (`rag/documents.yaml`, `rag/schema.py`)
+- **24 Technical Documents**:
+  - **12 OBD-II Code Reference Guides**: `P0171`, `P0101`, `P0106`, `P0133`, `P0087`, `P0117`, `P0121`, `P0507`, `P0300`, `P0102`, `P0103`, `P0100`.
+  - **6 OEM-Style Repair Manual Procedures**: Smoke machine testing, fuel rail static/dynamic testing, MAF WOT flow check, TPS oscilloscope sweep, ECT bench resistance, harness terminal drag/voltage drop.
+  - **6 Technical Service Bulletins (TSBs)**: Idle vs 2500 RPM trim diagnostic rule, MAF silicone vapor contamination, terminal fretting corrosion, ethanol varnish injector clogging, O2 sensor delay hunting, bellhousing ground reference shift.
+
+### Hybrid Search & Similar-Case Retrieval Engine (`rag/store.py`)
+- **`KnowledgeBase`**:
+  - `get_code_info(code)`: Fast direct O(1) lookup returning structured definitions and diagnostic procedures.
+  - `search(query, doc_type, component_id, top_k)`: TF-IDF vector space retrieval with sublinear term frequency scaling, metadata keyword boosts (+0.25 on related DTC hits), and structural category filtering.
+  - All results return verifiable citation handles (e.g. `[DOC-TSB-2023-01]`) and concise snippets.
+- **`SimilarCaseIndex`**:
+  - Indexes strictly from `data/cases_dev.json`.
+  - **Security Guard**: Raises `PermissionError` if pointed to evaluation files.
+  - `find_similar(observations, top_k)`: Computes Jaccard DTC similarity and symptom key-value overlap to find nearest historical workshop cases, returning verified historical resolution summaries without exposing generator internals.
+
+### Python MCP Server (`mcp_server/server.py`)
+- Implemented with modern Python MCP SDK (`mcp 2.2.0`, `MCPServer`).
+- Exposes 5 read-only tools:
+  1. `get_code_info(code: str) -> dict`
+  2. `search_knowledge(query: str, doc_type: Optional[str], component_id: Optional[str], top_k: int) -> list[dict]`
+  3. `find_similar_cases(dtc_codes: list[str], symptoms: dict, top_k: int) -> list[dict]`
+  4. `simulate_fault(fault_id: str) -> dict`
+  5. `score_hypotheses(dtc_codes: list[str], symptoms: dict, notes: str) -> dict`
+- Validates external inputs, provides error dictionaries for unknown codes/faults, and runs over standard stdio transport.
+
+### Test Verification (`tests/test_rag_and_mcp.py`)
+- 28 total tests passing across M1, M2, and M3 in 7.43s:
+  - `test_knowledge_base_loading_and_counts`: 24 documents loaded.
+  - `test_get_code_info`: Direct OBD lookup verified.
+  - `test_hybrid_search`: Natural language queries + category filtering verified.
+  - `test_similar_case_index_security`: Evaluation dataset access forbidden.
+  - `test_find_similar_cases`: Case matching and repair summaries verified.
+  - `test_mcp_tool_registration`: All 5 tools registered.
+  - `test_mcp_get_code_info`, `test_mcp_search_knowledge`, `test_mcp_find_similar_cases`, `test_mcp_simulate_fault`, `test_mcp_score_hypotheses`: Full tool execution verified.

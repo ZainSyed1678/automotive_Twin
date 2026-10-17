@@ -1,0 +1,359 @@
+# ==============================================================================
+# Technical Knowledge Base: OBD-II Definitions, Repair Manuals, and TSBs
+# Generic Petrol Engine: Air-Intake & Fuel-Control Subsystem
+# ==============================================================================
+
+documents:
+  # ----------------------------------------------------------------------------
+  # 1. OBD-II Fault Code Reference Documents
+  # ----------------------------------------------------------------------------
+  - doc_id: "DOC-OBD-P0171"
+    title: "OBD-II Code P0171: Fuel System Too Lean (Bank 1)"
+    doc_type: "obd_code"
+    component_id: "fuel_pump"
+    related_dtcs: ["P0171", "P0087", "P0507"]
+    summary: "ECU closed-loop fuel trim correction exceeds maximum lean threshold (> +20% to +25%)."
+    content: |
+      DTC Description: System Too Lean (Bank 1).
+      Enabling Conditions: Engine at operating temperature (> 75°C), closed-loop fuel control active, steady cruise or idle.
+      Diagnostic Logic: The upstream oxygen sensor detects continuous excess oxygen in the exhaust. The ECU increases Long Term Fuel Trim (LTFT) to maximum limit (> +20% to +25%). If lean condition persists for 2 drive cycles, P0171 is stored.
+      Primary Root Causes:
+      1. Intake vacuum leak downstream of the throttle body (intake gasket, PCV hose, brake booster hose).
+      2. Low fuel delivery pressure or flow (failing fuel pump, clogged fuel filter, stuck-open pressure regulator).
+      3. Contaminated MAF sensor hot wire under-reporting incoming air mass.
+      4. Partially restricted or clogged fuel injector nozzle.
+      Diagnostic Priority:
+      Check fuel pressure at rail. If pressure is normal and LTFT normalizes at 2500 RPM, suspect intake vacuum leak. If LTFT worsens at high RPM, suspect fuel supply restriction or MAF contamination.
+
+  - doc_id: "DOC-OBD-P0101"
+    title: "OBD-II Code P0101: Mass Air Flow (MAF) Circuit Range/Performance"
+    doc_type: "obd_code"
+    component_id: "maf_sensor"
+    related_dtcs: ["P0101", "P0171"]
+    summary: "MAF signal voltage deviates from calculated engine volumetric efficiency."
+    content: |
+      DTC Description: MAF Sensor Circuit Range/Performance Problem.
+      Enabling Conditions: Engine running between 1000 and 3000 RPM, TPS angle stable, MAP sensor cross-check active.
+      Diagnostic Logic: The ECU calculates theoretical airflow based on engine RPM, throttle angle, and manifold absolute pressure. If the measured MAF frequency/voltage differs from theoretical airflow by > 30% for 5 seconds, P0101 triggers.
+      Primary Causes:
+      1. Contamination on hot wire sensing element (oil from aftermarket filters, carbon residue).
+      2. Air leak between MAF sensor and throttle body.
+      3. MAF signal ground resistance or terminal pin fretting.
+      Recommended Test:
+      Inspect hot-wire with optical magnifier. Measure MAF grams/sec at idle (typical: 2.0 to 4.5 g/s for 1.6-2.0L engine) and at wide-open throttle (WOT) redline.
+
+  - doc_id: "DOC-OBD-P0106"
+    title: "OBD-II Code P0106: Manifold Absolute Pressure (MAP) Circuit Range/Performance"
+    doc_type: "obd_code"
+    component_id: "map_sensor"
+    related_dtcs: ["P0106", "P0107"]
+    summary: "MAP sensor voltage offset or sluggish response during transient engine load."
+    content: |
+      DTC Description: MAP Sensor Circuit Range/Performance.
+      Diagnostic Logic: Key On Engine Off (KOEO), the MAP sensor reading must match atmospheric barometric pressure (approx. 101 kPa / 14.7 psi at sea level). During idle, MAP should drop to 28-35 kPa due to manifold vacuum. If KOEO pressure drifts or transient response lags throttle changes, P0106 is logged.
+      Primary Causes:
+      1. MAP sensor internal diaphragm drift or silicone gel contamination.
+      2. Vacuum hose kinked, cracked, or restricted.
+      3. Reference 5V circuit voltage instability.
+
+  - doc_id: "DOC-OBD-P0133"
+    title: "OBD-II Code P0133: Oxygen Sensor Circuit Slow Response (Bank 1 Sensor 1)"
+    doc_type: "obd_code"
+    component_id: "oxygen_sensor"
+    related_dtcs: ["P0133", "P0171"]
+    summary: "Upstream O2 sensor transition frequency between lean and rich is below minimum specification."
+    content: |
+      DTC Description: O2 Sensor Circuit Slow Response (Bank 1, Sensor 1).
+      Enabling Conditions: Closed-loop fuel feedback active, steady engine speed (1800-2200 RPM), engine coolant > 80°C.
+      Diagnostic Logic: The ECU monitors the frequency of voltage transitions across the 450 mV stoichiometric midpoint. A healthy zirconia sensor switches rapidly (> 8-10 times in 10 seconds). If switching cycle time exceeds 300 ms, P0133 is flagged.
+      Primary Causes:
+      1. Silica or phosphorus poisoning of sensor porous ceramic element.
+      2. Exhaust gas soot coating from prolonged rich running.
+      3. Sensor internal heater circuit degradation.
+
+  - doc_id: "DOC-OBD-P0087"
+    title: "OBD-II Code P0087: Fuel Rail/System Pressure Too Low"
+    doc_type: "obd_code"
+    component_id: "fuel_pump"
+    related_dtcs: ["P0087", "P0171"]
+    summary: "Fuel rail pressure measured below target operating range under load."
+    content: |
+      DTC Description: Fuel Rail/System Pressure Too Low.
+      Diagnostic Logic: Fuel rail pressure falls below target threshold by > 15% for more than 3 seconds during high fuel demand.
+      Primary Causes:
+      1. Weak or worn electric in-tank fuel pump motor brushes.
+      2. Clogged in-tank fuel strainer sock or restricted inline fuel filter.
+      3. Fuel pressure regulator internal bypass valve stuck open.
+      4. Fuel line pinching or internal vapor lock.
+
+  - doc_id: "DOC-OBD-P0117"
+    title: "OBD-II Code P0117: Engine Coolant Temperature (ECT) Circuit Low Input"
+    doc_type: "obd_code"
+    component_id: "engine_coolant_temp_sensor"
+    related_dtcs: ["P0117", "P0128"]
+    summary: "ECT sensor signal voltage falls below 0.15V indicating open circuit or extreme high temperature."
+    content: |
+      DTC Description: Engine Coolant Temperature Circuit Low Input / Range Fault.
+      Diagnostic Logic: ECT thermistor resistance decreases as temperature increases (NTC). Voltage below 0.15V represents extreme cold or high electrical resistance. When sensor is stuck cold, the ECU locks in cold-start fuel enrichment (+30%), resulting in black exhaust smoke and negative fuel trims.
+      Primary Causes:
+      1. Internal open circuit in ECT thermistor bead.
+      2. Disconnected or corroded harness plug.
+      3. Broken signal conductor in harness.
+
+  - doc_id: "DOC-OBD-P0121"
+    title: "OBD-II Code P0121: Throttle Position Sensor (TPS) Circuit Range/Performance"
+    doc_type: "obd_code"
+    component_id: "throttle_position_sensor"
+    related_dtcs: ["P0121", "P2135"]
+    summary: "TPS potentiometer output voltage does not correlate with calculated airflow or pedal position."
+    content: |
+      DTC Description: Throttle Position Sensor Circuit Range/Performance.
+      Diagnostic Logic: The ECU correlates TPS Track 1 (0.5V to 4.5V) with Track 2 (4.5V to 0.5V) or MAP sensor reading. If wiper output voltage shows erratic spikes, dropouts, or non-linear jumps, P0121 is recorded.
+      Primary Causes:
+      1. Mechanical wear of carbon resistive track near idle position.
+      2. Loose throttle body pivot shaft or return spring fatigue.
+      3. Terminal pin fretting at throttle body multi-pin connector.
+
+  - doc_id: "DOC-OBD-P0507"
+    title: "OBD-II Code P0507: Idle Air Control System RPM Higher Than Expected"
+    doc_type: "obd_code"
+    component_id: "intake_vacuum_line"
+    related_dtcs: ["P0507", "P0171"]
+    summary: "Idle engine speed exceeds target idle RPM by more than 200 RPM with closed throttle."
+    content: |
+      DTC Description: Idle Control System RPM Higher Than Expected.
+      Diagnostic Logic: Throttle blade commanded to idle stop, but engine RPM remains elevated (> 950-1100 RPM).
+      Primary Causes:
+      1. False air bypass through intake vacuum leak (intake manifold gasket, vacuum line).
+      2. PCV valve stuck open allowing crankcase unmetered air into intake.
+      3. Throttle body carbon buildup preventing complete plate closure.
+
+  - doc_id: "DOC-OBD-P0300"
+    title: "OBD-II Code P0300: Random/Multiple Cylinder Misfire Detected"
+    doc_type: "obd_code"
+    component_id: "fuel_injector"
+    related_dtcs: ["P0300", "P0171"]
+    summary: "Crankshaft angular velocity variations indicate irregular combustion across cylinders."
+    content: |
+      DTC Description: Random / Multiple Cylinder Misfire.
+      Diagnostic Logic: The ECU measures crankshaft reluctor wheel rotational acceleration after each spark event. Deceleration indicates lack of combustion power stroke.
+      Primary Causes:
+      1. Lean air-fuel mixture starvation (weak fuel pump, severe vacuum leak).
+      2. Restricted fuel injectors causing unequal fuel atomization across cylinders.
+      3. Ignition coil or spark plug degradation.
+
+  - doc_id: "DOC-OBD-P0102"
+    title: "OBD-II Code P0102: MAF Circuit Low Input"
+    doc_type: "obd_code"
+    component_id: "wiring_harness"
+    related_dtcs: ["P0102", "P0100"]
+    summary: "MAF sensor signal wire voltage drops below 0.2V flatline."
+    content: |
+      DTC Description: Mass Air Flow Circuit Low Input.
+      Diagnostic Logic: Signal line voltage is less than 0.2V for > 1.5 seconds while engine is running.
+      Primary Causes:
+      1. Broken signal wire (open circuit) between MAF pin and ECU pin.
+      2. Short circuit to chassis ground on signal wire.
+      3. Loss of 12V or 5V power supply to MAF sensor connector.
+
+  - doc_id: "DOC-OBD-P0103"
+    title: "OBD-II Code P0103: MAF Circuit High Input"
+    doc_type: "obd_code"
+    component_id: "wiring_harness"
+    related_dtcs: ["P0103", "P0100"]
+    summary: "MAF sensor signal wire shorted to 5V reference or battery 12V."
+    content: |
+      DTC Description: Mass Air Flow Circuit High Input.
+      Diagnostic Logic: Signal line voltage exceeds 4.90V for > 1.5 seconds.
+      Primary Causes:
+      1. Short circuit between MAF signal line and adjacent 5V/12V power wire.
+      2. Loss of sensor signal ground (causing output to float to reference rail).
+      3. Internal MAF sensor circuit failure.
+
+  - doc_id: "DOC-OBD-P0100"
+    title: "OBD-II Code P0100: Mass Air Flow Circuit Malfunction"
+    doc_type: "obd_code"
+    component_id: "wiring_harness"
+    related_dtcs: ["P0100", "P0110", "P0120"]
+    summary: "Intermittent loss of electrical continuity in MAF circuit."
+    content: |
+      DTC Description: Mass Air Flow Sensor Circuit General Malfunction.
+      Diagnostic Logic: Intermittent signal drops and voltage spikes detected during vehicle movement.
+      Primary Causes:
+      1. Terminal pin corrosion or fretting wear in harness connector plug.
+      2. Damaged wiring insulation rubbing on engine chassis bracket.
+      3. Loose engine ground strap causing reference float.
+
+  # ----------------------------------------------------------------------------
+  # 2. Repair Manual Excerpts & Procedures
+  # ----------------------------------------------------------------------------
+  - doc_id: "DOC-MAN-SMOKE-TEST"
+    title: "Repair Procedure: Intake Manifold Smoke Machine Pressure Testing"
+    doc_type: "repair_manual"
+    component_id: "intake_vacuum_line"
+    related_dtcs: ["P0171", "P0507"]
+    summary: "Standard diagnostic procedure to pinpoint unmetered air leaks in intake plenum and vacuum hoses."
+    content: |
+      Procedure:
+      1. Ensure engine is cold and ignition is OFF.
+      2. Disconnect intake air duct at the MAF sensor outlet. Seal the duct using universal bladder adapter.
+      3. Connect automotive smoke machine to engine manifold vacuum port (e.g. brake booster hose).
+      4. Regulate smoke generator to 1.0 to 1.5 psi (do not exceed 2.0 psi to prevent intake seal damage).
+      5. Introduce test smoke for 60 seconds while illuminating engine bay with high-intensity ultraviolet/LED inspection lamp.
+      Evaluation Criteria:
+      - Any smoke plume escaping from intake manifold runners, throttle body base gasket, PCV hose connections, or EVAP purge line confirms an unmetered intake vacuum leak.
+      - A sealed intake must hold 1.0 psi pressure for at least 3 minutes without decay.
+
+  - doc_id: "DOC-MAN-FUEL-PRESS"
+    title: "Repair Procedure: Mechanical Fuel Rail Pressure & Residual Hold Testing"
+    doc_type: "repair_manual"
+    component_id: "fuel_pump"
+    related_dtcs: ["P0087", "P0171"]
+    summary: "Testing fuel pump static delivery pressure, running pressure, and residual hold."
+    content: |
+      Procedure:
+      1. Relieve fuel system pressure via fuel pump fuse removal and cranking engine until stall.
+      2. Connect 0-100 psi mechanical pressure gauge to fuel rail schrader test port.
+      3. Cycle ignition key ON (engine OFF) to prime pump. Record static prime pressure (Spec: 45 to 55 psi).
+      4. Start engine and observe idle fuel pressure (Spec: 40 to 50 psi).
+      5. Snap throttle to 3500 RPM: pressure must spike upwards by 3-5 psi instantly.
+      6. Shut off engine and observe residual pressure drop over 10 minutes (Spec: must hold > 30 psi for 10 min).
+      Diagnosis:
+      - If running pressure drops under throttle snap: weak fuel pump or clogged fuel filter.
+      - If pressure drops immediately to 0 psi upon shutoff: fuel pressure regulator bypass stuck open or injector leaking.
+
+  - doc_id: "DOC-MAN-MAF-WOT"
+    title: "Repair Procedure: MAF Sensor Dynamic WOT Flow Calculation & Inspection"
+    doc_type: "repair_manual"
+    component_id: "maf_sensor"
+    related_dtcs: ["P0101", "P0171"]
+    summary: "Quantitative check of MAF grams-per-second airflow under wide-open throttle load."
+    content: |
+      Procedure:
+      1. Rule of thumb for calculated MAF flow: Engine peak flow (g/s) at redline under Wide Open Throttle (WOT) should equal approximately 80% to 90% of engine rated horsepower.
+         Formula: Peak g/s ≈ Rated Horsepower × 0.80.
+         (Example: 150 HP engine should read ~120 g/s at 6000 RPM).
+      2. Record scan tool live data PID 'MAF (g/s)' during 2nd gear full-throttle acceleration run.
+      3. If measured airflow peaks at less than 70% of expected value, inspect MAF sensing hot-wire element.
+      4. Clean element only with approved zero-residue MAF solvent spray. Never touch hot-wire with cotton swab or mechanical probe.
+
+  - doc_id: "DOC-MAN-TPS-OSC"
+    title: "Repair Procedure: Throttle Position Sensor Oscilloscope Waveform Sweep"
+    doc_type: "repair_manual"
+    component_id: "throttle_position_sensor"
+    related_dtcs: ["P0121", "P2135"]
+    summary: "Oscilloscope voltage capture across throttle sweep to detect resistive track fretting."
+    content: |
+      Procedure:
+      1. Connect digital storage oscilloscope channel 1 to TPS signal wire (Track 1) and channel 2 to reference ground.
+      2. Set timebase to 500 ms/div, voltage scale to 1V/div. Ignition ON, engine OFF.
+      3. Slowly depress accelerator pedal from idle to 100% full throttle over a 3-second period, then release.
+      4. Observe waveform trace:
+         - A healthy sensor produces an unbroken, smooth monotonic rise from ~0.5V to ~4.5V without dropouts.
+         - Worn wiper track exhibits sharp downward voltage dropouts (drop to 0V) or erratic electrical noise near low throttle angles (10-25% opening).
+
+  - doc_id: "DOC-MAN-ECT-BENCH"
+    title: "Repair Procedure: Engine Coolant Temperature Sensor Bench Resistance Check"
+    doc_type: "repair_manual"
+    component_id: "engine_coolant_temp_sensor"
+    related_dtcs: ["P0117", "P0128"]
+    summary: "Resistance calibration check of NTC thermistor across temperature gradient."
+    content: |
+      Procedure:
+      1. Remove ECT sensor from cylinder head cooling jacket.
+      2. Connect digital multimeter set to ohms scale across the two sensor pins.
+      3. Submerge sensor tip in water bath while measuring temperature with laboratory thermometer:
+         - At 20°C (ambient room temp): 2,400 to 2,800 ohms.
+         - At 80°C (operating temp): 300 to 350 ohms.
+         - At 100°C (boiling point): 170 to 190 ohms.
+      4. If resistance remains fixed at > 20,000 ohms or displays infinite resistance (OL), thermistor is open circuit (stuck cold).
+
+  - doc_id: "DOC-MAN-WIRING-DRAG"
+    title: "Repair Procedure: Harness Connector Terminal Drag & Voltage Drop Testing"
+    doc_type: "repair_manual"
+    component_id: "wiring_harness"
+    related_dtcs: ["P0100", "P0102", "P0103"]
+    summary: "Pin drag and dynamic voltage drop testing across automotive harness connectors."
+    content: |
+      Procedure:
+      1. Inspect connector housing for green copper carbonate crust, bent male pins, or oil ingress.
+      2. Perform Terminal Drag Test: Insert manufacturer pin terminal gauge into female terminal socket. The terminal must exert firm physical retention drag when withdrawn. Loose terminal tension creates intermittent open circuit under engine vibration.
+      3. Perform Dynamic Voltage Drop Test on 5V reference and sensor ground circuits:
+         - With circuit energized under load, measure voltage between sensor ground pin and battery negative terminal.
+         - Maximum allowable voltage drop: < 50 mV (0.050V). If > 100 mV, high-resistance ground path exists.
+
+  # ----------------------------------------------------------------------------
+  # 3. Technical Service Bulletins (TSBs)
+  # ----------------------------------------------------------------------------
+  - doc_id: "DOC-TSB-2023-01"
+    title: "TSB 2023-01: Disambiguating Vacuum Leaks vs. Fuel Delivery Starvation on P0171"
+    doc_type: "tsb"
+    component_id: "intake_vacuum_line"
+    related_dtcs: ["P0171", "P0087"]
+    summary: "Diagnostic rule comparing Long Term Fuel Trims (LTFT) at Idle vs 2500 RPM."
+    content: |
+      Condition: Vehicle presents with DTC P0171 and rough engine idle.
+      Technical Principle:
+      - At IDLE: Manifold depression (vacuum) is maximum (~20 in-Hg / -65 kPa). A vacuum leak introduces significant unmetered false air relative to low idle airflow, driving positive fuel trims (LTFT > +20%).
+      - At 2500 RPM: Throttle opens, intake depression drops, and engine airflow increases fivefold. The leak volume becomes a negligible fraction of total air, causing fuel trims to normalize (LTFT drops back to +2% to +6%).
+      Diagnostic Rule:
+      - If LTFT is high at idle (+20%) but NORMALIZES at 2500 RPM: Root cause is an Intake Vacuum Leak.
+      - If LTFT is elevated at idle and WORSENS under engine load / high RPM: Root cause is Fuel Starvation (weak fuel pump, restricted filter) or MAF under-reporting.
+
+  - doc_id: "DOC-TSB-2023-02"
+    title: "TSB 2023-02: Silicone Vapor Contamination of MAF Hot-Wire Sensing Element"
+    doc_type: "tsb"
+    component_id: "maf_sensor"
+    related_dtcs: ["P0101", "P0171"]
+    summary: "Silicone film contamination insulating heated platinum wire causing low airflow readings."
+    content: |
+      Condition: Engine hesitation during tip-in throttle acceleration, occasional lean code P0171.
+      Root Cause: Silicone aerosol lubricants used on air filter housing gaskets or aftermarket oiled gauze filters release volatile vapors. These vapors polymerize into a glassy silicone dioxide glaze on the 200°C platinum wire.
+      Symptoms: The insulated wire loses thermal transfer efficiency, causing the circuit to register lower airflow than actual engine intake. Fuel injection pulse width is reduced, leading to lean hesitation.
+      Remedy: Inspect element under magnification. Replace MAF sensor if cleaning with solvent fails to restore baseline idle flow (2.5 g/s).
+
+  - doc_id: "DOC-TSB-2023-03"
+    title: "TSB 2023-03: Connector Terminal Fretting Corrosion Causing Spurious DTCs"
+    doc_type: "tsb"
+    component_id: "wiring_harness"
+    related_dtcs: ["P0100", "P0110", "P0120"]
+    summary: "Micro-motion fretting corrosion on tin-plated connector pins producing intermittent resistance."
+    content: |
+      Condition: Sporadic sensor DTCs stored with no current fault found during static shop testing.
+      Mechanism: Engine vibration causes microscopic relative movement (< 50 microns) between mating male and female tin-plated terminals. This abrasion wears through the tin plating, exposing underlying copper to atmospheric oxidation and producing insulating tin oxide debris.
+      Verification: Monitor live sensor voltage waveform on scanner while gently wiggling harness bundle (Wiggle Test). Sudden signal flatline or jump confirms pin fretting.
+      Correction: Replace damaged terminal pins with gold-plated service terminals and apply dielectric synthetic grease.
+
+  - doc_id: "DOC-TSB-2023-04"
+    title: "TSB 2023-04: Fuel Injector Internal Basket Screen Restriction from Ethanol Varnish"
+    doc_type: "tsb"
+    component_id: "fuel_injector"
+    related_dtcs: ["P0171", "P0300"]
+    summary: "Ethanol-blended fuel separation producing gummy deposit in individual injector inlet baskets."
+    content: |
+      Condition: Single-cylinder misfire (e.g. P0301) accompanied by overall bank lean code P0171.
+      Diagnostic Clue: Fuel rail pressure remains completely normal (45-50 psi). However, cylinder power balance testing reveals one weak cylinder. Spark plug on affected cylinder displays chalk-white lean appearance.
+      Confirmation: Perform fuel injector balance pressure-drop test: pulse each injector for 100 ms with pressure gauge installed. A healthy injector drops rail pressure by 12-15 psi. A restricted injector drops < 5 psi.
+
+  - doc_id: "DOC-TSB-2023-05"
+    title: "TSB 2023-05: Aging Oxygen Sensor Response Delay Leading to Cyclic Hunting"
+    doc_type: "tsb"
+    component_id: "oxygen_sensor"
+    related_dtcs: ["P0133", "P0171"]
+    summary: "Sluggish O2 sensor switching causing ECU fuel trim overshoot and hunting idle."
+    content: |
+      Condition: Engine hunting or surging at idle (RPM cycling +/- 100 RPM), rich exhaust odor, DTC P0133.
+      Mechanism: As zirconia O2 sensors exceed 80,000 miles, external ceramic porosity degrades. The sensor develops response hysteresis: it takes 600-900 ms to switch from lean to rich instead of the nominal < 150 ms.
+      Diagnostic Clue: The ECU over-corrects closed-loop fueling while waiting for delayed sensor feedback, producing an oscillatory fuel trim pattern.
+
+  - doc_id: "DOC-TSB-2023-06"
+    title: "TSB 2023-06: MAP Sensor Ground Reference Shift from Engine Bellhousing Ground Corrosion"
+    doc_type: "tsb"
+    component_id: "map_sensor"
+    related_dtcs: ["P0106", "P0107"]
+    summary: "Ground circuit voltage elevation causing false MAP pressure readings and erratic shifting."
+    content: |
+      Condition: Inaccurate MAP readings under Key On Engine Off (KOEO), vehicle hesitation and hunting idle.
+      Root Cause: Corrosion on main engine-to-chassis grounding strap elevates sensor ground return voltage by +300 mV above battery ground.
+      Diagnosis: At KOEO, sensor reports 112 kPa instead of actual local barometric pressure (101 kPa). Voltage between sensor ground pin and battery negative terminal exceeds 250 mV.
+      Correction: Clean and polish chassis ground ring eyelets to bare metal; apply protective anti-corrosion sealant.
