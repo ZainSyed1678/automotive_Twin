@@ -194,15 +194,3 @@ python generate_data.py
 | | **M7: Evaluation & Audit** | Full held-out benchmark across 3 modes, calibration (ECE/Brier), honest audit | Pending |
 | **Phase 2** | Multi-Vehicle Support | Vehicle-specific configuration layer (Hyundai i20, etc.) | Future |
 
----
-
-## 8. Explicit Limitations & Engineering Honesty
-
-In strict compliance with engineering ethics:
-- **Independent Portfolio Project**: This project is an independent engineering prototype, not a commercial product or replica of proprietary OEM software.
-- **Synthetic Data**: The initial fault model, repair manuals, technical notes, and diagnostic cases are synthetic or derived from generic public OBD-II standards (SAE J1979 / ISO 15031).
-- **Subsystem Boundary**: The prototype is strictly restricted to the air-intake and fuel-control subsystem of a generic port/direct-injected petrol engine. It does not diagnose transmission, EV/hybrid powertrain, chassis, or exhaust aftertreatment faults.
-- **Not Synchronized with Physical Hardware**: The system is not connected to a live ECU, CAN bus, or physical test bench. It must never be used as the sole authority for physical vehicle repair. A qualified technician must confirm all physical conditions.
-- **Vehicle Compatibility**: Support for a generic fault code (e.g. `P0171`) does not imply compatibility with any specific OEM manufacturer or engine trim.
-- **Synthetic Metrics vs. Real-World Accuracy**: Performance metrics reported in this project describe synthetic benchmark cases only; they do not establish empirical accuracy on real-world workshop vehicles.
-- **Fingerprint Collision Limitation**: An empty fingerprint intersection ($\text{dev} \cap \text{eval} = \emptyset$) proves that no identical observation profile crosses the split. It does not establish complete statistical independence between cases sampled from the same underlying causal model.
