@@ -1,0 +1,363 @@
+# ==============================================================================
+# Generic Petrol Engine: Air-Intake and Fuel-Control Subsystem Fault Catalogue
+#
+# NOTE: Modeled likelihoods represent engineering domain prior distributions
+# and conditional likelihoods P(evidence | fault). They are transparent,
+# inspectable domain estimates rather than field-calibrated empirical frequencies.
+# ==============================================================================
+
+components:
+  - id: "maf_sensor"
+    name: "Mass Air Flow (MAF) Sensor"
+    subsystem: "air_intake_and_fuel_control"
+    description: "Measures mass rate of air entering the engine for fuel injection calculation."
+
+  - id: "map_sensor"
+    name: "Manifold Absolute Pressure (MAP) Sensor"
+    subsystem: "air_intake_and_fuel_control"
+    description: "Measures pressure inside the intake manifold to infer engine load and air density."
+
+  - id: "throttle_position_sensor"
+    name: "Throttle Position Sensor (TPS)"
+    subsystem: "air_intake_and_fuel_control"
+    description: "Monitors throttle plate angle to determine driver demand and engine transient state."
+
+  - id: "oxygen_sensor"
+    name: "Upstream Heated Oxygen Sensor (O2S1)"
+    subsystem: "air_intake_and_fuel_control"
+    description: "Monitors post-combustion exhaust oxygen content for closed-loop air-fuel feedback."
+
+  - id: "engine_coolant_temp_sensor"
+    name: "Engine Coolant Temperature (ECT) Sensor"
+    subsystem: "air_intake_and_fuel_control"
+    description: "Provides engine operating temperature for cold-start enrichment and closed-loop entry."
+
+  - id: "fuel_injector"
+    name: "Fuel Injector Assembly"
+    subsystem: "air_intake_and_fuel_control"
+    description: "Solenoid-operated valves that spray pressurized fuel into the intake runner or cylinder."
+
+  - id: "fuel_pump"
+    name: "Fuel Pump & Delivery Assembly"
+    subsystem: "air_intake_and_fuel_control"
+    description: "Electric in-tank pump delivering pressurized fuel through lines to the fuel rail."
+
+  - id: "intake_vacuum_line"
+    name: "Intake Manifold & Vacuum Lines"
+    subsystem: "air_intake_and_fuel_control"
+    description: "Plenum, gaskets, and vacuum hoses distributing filtered air to cylinders under negative pressure."
+
+  - id: "wiring_harness"
+    name: "Subsystem Wiring Harness & Connectors"
+    subsystem: "air_intake_and_fuel_control"
+    description: "Electrical conductors, ground rings, and weather-pack pin terminals connecting sensors and actuators."
+
+  - id: "ecu"
+    name: "Engine Control Unit (ECU)"
+    subsystem: "air_intake_and_fuel_control"
+    description: "Microcontroller running fuel trim, ignition timing, and diagnostic algorithms."
+
+faults:
+  - fault_id: "maf_contamination"
+    name: "MAF Sensor Hot-Wire Contamination"
+    component_id: "maf_sensor"
+    description: "Oil, dust, or silicone film deposits on the heated sensing wire, insulating it and causing under-reporting of incoming air mass."
+    prior: 0.10
+    dtcs:
+      P0101: 0.85
+      P0171: 0.70
+    symptoms:
+      fuel_trim_ltft:
+        high_positive: 0.85
+        normal: 0.10
+        negative: 0.05
+      maf_reading:
+        underreporting: 0.90
+        normal: 0.08
+        overreporting: 0.02
+      idle_quality:
+        rough: 0.65
+        normal: 0.35
+      acceleration:
+        hesitation: 0.80
+        normal: 0.20
+    distinguishing_tests:
+      - "Inspect MAF hot wire under magnification for dirt/oil contamination."
+      - "Compare MAF g/s reading at wide-open throttle (WOT) against engine calculated displacement rule."
+
+  - fault_id: "intake_vacuum_leak"
+    name: "Intake Manifold / Vacuum Line Leak"
+    component_id: "intake_vacuum_line"
+    description: "Unmetered false air ingress downstream of the throttle body/MAF, leaning out idle air-fuel ratio."
+    prior: 0.12
+    dtcs:
+      P0171: 0.90
+      P0507: 0.65
+    symptoms:
+      fuel_trim_ltft:
+        high_positive: 0.92
+        normal: 0.05
+        negative: 0.03
+      fuel_trim_at_high_rpm:
+        normalizes: 0.88
+        worsens: 0.04
+        unchanged: 0.08
+      idle_quality:
+        rough: 0.85
+        normal: 0.15
+      audible_hiss:
+        present: 0.65
+        absent: 0.35
+      fuel_pressure:
+        normal: 0.94
+        low: 0.04
+        high: 0.02
+    distinguishing_tests:
+      - "Perform intake smoke machine leak test to pinpoint escaping smoke."
+      - "Monitor short term fuel trims (STFT) while raising engine RPM to 2500 (trims should normalize if leak)."
+
+  - fault_id: "map_sensor_drift"
+    name: "MAP Sensor Calibration Drift"
+    component_id: "map_sensor"
+    description: "Internal diaphragm degradation or offset drift reporting inaccurate intake manifold pressure."
+    prior: 0.06
+    dtcs:
+      P0106: 0.88
+      P0107: 0.30
+    symptoms:
+      map_reading_key_on_engine_off:
+        inaccurate: 0.90
+        normal: 0.10
+      fuel_trim_ltft:
+        high_positive: 0.45
+        high_negative: 0.40
+        normal: 0.15
+      idle_quality:
+        rough: 0.60
+        normal: 0.40
+      engine_response:
+        surging: 0.70
+        normal: 0.30
+    distinguishing_tests:
+      - "Verify Key On Engine Off (KOEO) MAP sensor reading matches ambient barometric pressure."
+      - "Measure MAP sensor reference 5V and ground with multimeter."
+
+  - fault_id: "o2_sensor_slow_response"
+    name: "Upstream O2 Sensor Aging / Sluggish Response"
+    component_id: "oxygen_sensor"
+    description: "Silica/carbon poisoning causing zirconia element to switch slowly between rich and lean states."
+    prior: 0.09
+    dtcs:
+      P0133: 0.92
+      P0171: 0.35
+    symptoms:
+      o2_sensor_switching_rate:
+        sluggish: 0.92
+        normal: 0.08
+      fuel_trim_ltft:
+        fluctuating: 0.75
+        normal: 0.20
+        high_positive: 0.05
+      exhaust_odor:
+        rich_odor: 0.50
+        normal: 0.50
+    distinguishing_tests:
+      - "Capture live O2S1 voltage waveform on oscilloscope during 2000 RPM steady state."
+      - "Perform artificial propane enrichment and vacuum leak snap throttle response test."
+
+  - fault_id: "fuel_injector_clogged"
+    name: "Clogged / Restricted Fuel Injector"
+    component_id: "fuel_injector"
+    description: "Varnish or particulate obstruction in injector pintle/basket screen restricting fuel delivery to an individual cylinder."
+    prior: 0.08
+    dtcs:
+      P0171: 0.75
+      P0300: 0.60
+      P0301: 0.55
+    symptoms:
+      misfire_pattern:
+        cylinder_specific: 0.88
+        random: 0.08
+        none: 0.04
+      fuel_pressure:
+        normal: 0.92
+        low: 0.06
+        high: 0.02
+      idle_quality:
+        rough: 0.82
+        normal: 0.18
+      fuel_trim_ltft:
+        high_positive: 0.78
+        normal: 0.18
+        negative: 0.04
+    distinguishing_tests:
+      - "Perform injector balance pressure-drop test using scanner actuation and fuel pressure gauge."
+      - "Inspect spark plugs across cylinders for single-cylinder lean discoloration."
+
+  - fault_id: "fuel_pump_weak"
+    name: "Weak / Degraded Electric Fuel Pump"
+    component_id: "fuel_pump"
+    description: "Motor brush wear or impeller cavitation leading to inadequate rail pressure and flow volume under load."
+    prior: 0.09
+    dtcs:
+      P0171: 0.90
+      P0087: 0.82
+    symptoms:
+      fuel_pressure:
+        low: 0.95
+        normal: 0.04
+        high: 0.01
+      fuel_trim_at_high_rpm:
+        worsens: 0.92
+        normalizes: 0.02
+        unchanged: 0.06
+      engine_load_behavior:
+        loss_of_power: 0.88
+        normal: 0.12
+      hard_start:
+        present: 0.70
+        absent: 0.30
+    distinguishing_tests:
+      - "Attach mechanical pressure gauge to fuel rail schrader valve and measure static and running psi."
+      - "Perform fuel volume delivery test (minimum 1 pint in 30 seconds)."
+
+  - fault_id: "connector_corrosion"
+    name: "Wiring Connector Terminal Corrosion / Fretting"
+    component_id: "wiring_harness"
+    description: "Oxidation, moisture ingress, or terminal fretting creating intermittent high-resistance connection."
+    prior: 0.07
+    dtcs:
+      P0100: 0.45
+      P0110: 0.45
+      P0120: 0.40
+    symptoms:
+      signal_stability:
+        intermittent_dropouts: 0.88
+        stable: 0.12
+      wiggle_test_response:
+        induced_glitch: 0.85
+        no_effect: 0.15
+      visual_inspection:
+        green_crust_or_pin_fretting: 0.80
+        clean: 0.20
+    distinguishing_tests:
+      - "Perform physical harness wiggle test while monitoring live sensor telemetry graph."
+      - "Disconnect plug and perform terminal drag test using female pin gauge."
+
+  - fault_id: "wiring_open_circuit"
+    name: "Sensor Signal Wiring Open Circuit"
+    component_id: "wiring_harness"
+    description: "Broken copper conductor or pushed-out terminal resulting in infinite resistance on sensor circuit."
+    prior: 0.06
+    dtcs:
+      P0102: 0.82
+      P0113: 0.80
+      P0122: 0.78
+    symptoms:
+      sensor_voltage:
+        reference_ground_or_0v: 0.94
+        normal: 0.03
+        stuck_5v_or_high: 0.03
+      signal_stability:
+        dead_flatline: 0.96
+        intermittent_dropouts: 0.04
+    distinguishing_tests:
+      - "Measure end-to-end wire continuity with DMM (should be < 0.5 ohms)."
+      - "Check 5V reference and sensor ground at harness connector with ignition ON."
+
+  - fault_id: "wiring_short_circuit"
+    name: "Sensor Signal Wiring Short Circuit"
+    component_id: "wiring_harness"
+    description: "Harness insulation chafing causing conductor contact to ground or adjacent 12V/5V power circuits."
+    prior: 0.05
+    dtcs:
+      P0103: 0.82
+      P0112: 0.80
+      P0123: 0.78
+    symptoms:
+      sensor_voltage:
+        stuck_5v_or_high: 0.92
+        reference_ground_or_0v: 0.04
+        normal: 0.04
+      blown_fuse:
+        present: 0.55
+        absent: 0.45
+    distinguishing_tests:
+      - "Test sensor signal wire for continuity to chassis ground and power feed."
+      - "Inspect harness rub points near engine brackets and exhaust shielding."
+
+  - fault_id: "coolant_sensor_stuck_low"
+    name: "Engine Coolant Temp (ECT) Sensor Stuck Cold"
+    component_id: "engine_coolant_temp_sensor"
+    description: "Sensor internal thermistor fixed at high resistance, signaling sub-zero temperature to ECU permanently."
+    prior: 0.07
+    dtcs:
+      P0117: 0.78
+      P0128: 0.82
+    symptoms:
+      live_coolant_temp:
+        sub_zero_or_frozen: 0.92
+        normal: 0.06
+        high: 0.02
+      fuel_trim_ltft:
+        high_negative: 0.80
+        normal: 0.12
+        high_positive: 0.08
+      radiator_fan:
+        constantly_on: 0.70
+        cycling_normally: 0.30
+      black_smoke:
+        light: 0.55
+        none: 0.45
+    distinguishing_tests:
+      - "Read live scanner ECT reading on cold engine vs fully warmed up engine."
+      - "Measure ECT sensor resistance across temperature range with multimeter and heat gun."
+
+  - fault_id: "throttle_sensor_drift"
+    name: "Throttle Position Sensor (TPS) Wiper Track Wear"
+    component_id: "throttle_position_sensor"
+    description: "Resistive potentiometer wiper track worn out at idle/low cruise angle causing jumpy or erratic output voltage."
+    prior: 0.07
+    dtcs:
+      P0121: 0.88
+      P2135: 0.72
+    symptoms:
+      tps_voltage_sweep:
+        erratic_jumps: 0.90
+        smooth: 0.10
+      engine_response:
+        hesitation_or_surging: 0.82
+        normal: 0.18
+      idle_quality:
+        hunting: 0.75
+        normal: 0.25
+    distinguishing_tests:
+      - "Slowly actuate throttle while plotting TPS voltage on laboratory oscilloscope."
+      - "Verify throttle correlation between TPS Track 1 and Track 2 in live data."
+
+  - fault_id: "fuel_pressure_regulator_stuck_open"
+    name: "Fuel Pressure Regulator Valve Stuck Open"
+    component_id: "fuel_pump"
+    description: "Internal spring fatigue or foreign matter causing pressure relief valve to bypass excess fuel back to tank."
+    prior: 0.06
+    dtcs:
+      P0171: 0.85
+      P0087: 0.75
+    symptoms:
+      fuel_pressure:
+        low: 0.93
+        normal: 0.05
+        high: 0.02
+      residual_fuel_pressure_hold:
+        bleeds_down_instantly: 0.92
+        holds_spec: 0.08
+      fuel_trim_ltft:
+        high_positive: 0.88
+        normal: 0.08
+        negative: 0.04
+      hard_start:
+        present: 0.75
+        absent: 0.25
+    distinguishing_tests:
+      - "Clamp fuel return line briefly while observing rail gauge (pressure should spike if regulator stuck open)."
+      - "Monitor fuel residual pressure drop after engine shutoff (must hold > 30 psi for 10 minutes)."

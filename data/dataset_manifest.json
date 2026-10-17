@@ -1,0 +1,9 @@
+{
+  "version": "1.0.0",
+  "total_cases": 200,
+  "dev_cases_count": 140,
+  "eval_cases_count": 60,
+  "unique_dev_fingerprints": 140,
+  "unique_eval_fingerprints": 60,
+  "leakage_collision_count": 0
+}

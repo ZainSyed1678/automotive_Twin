@@ -1,0 +1,1900 @@
+[
+  {
+    "case_id": "CASE-0001",
+    "observations": {
+      "dtc_codes": [
+        "P0101",
+        "P0171"
+      ],
+      "symptoms": {
+        "acceleration": "hesitation",
+        "fuel_trim_ltft": "high_positive",
+        "idle_quality": "normal",
+        "maf_reading": "underreporting"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0002",
+    "observations": {
+      "dtc_codes": [
+        "P0171",
+        "P0507"
+      ],
+      "symptoms": {
+        "audible_hiss": "present",
+        "fuel_pressure": "normal",
+        "fuel_trim_at_high_rpm": "normalizes",
+        "fuel_trim_ltft": "high_positive",
+        "idle_quality": "rough"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0004",
+    "observations": {
+      "dtc_codes": [
+        "P0133"
+      ],
+      "symptoms": {
+        "exhaust_odor": "rich_odor",
+        "fuel_trim_ltft": "fluctuating",
+        "o2_sensor_switching_rate": "sluggish"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0007",
+    "observations": {
+      "dtc_codes": [
+        "P0100"
+      ],
+      "symptoms": {
+        "signal_stability": "intermittent_dropouts",
+        "visual_inspection": "green_crust_or_pin_fretting",
+        "wiggle_test_response": "induced_glitch"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0008",
+    "observations": {
+      "dtc_codes": [
+        "P0102",
+        "P0113",
+        "P0122"
+      ],
+      "symptoms": {
+        "sensor_voltage": "reference_ground_or_0v",
+        "signal_stability": "dead_flatline"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0010",
+    "observations": {
+      "dtc_codes": [
+        "P0128"
+      ],
+      "symptoms": {
+        "black_smoke": "light",
+        "fuel_trim_ltft": "high_negative",
+        "live_coolant_temp": "sub_zero_or_frozen",
+        "radiator_fan": "cycling_normally"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0011",
+    "observations": {
+      "dtc_codes": [
+        "P0121"
+      ],
+      "symptoms": {
+        "engine_response": "hesitation_or_surging",
+        "idle_quality": "hunting",
+        "tps_voltage_sweep": "erratic_jumps"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0012",
+    "observations": {
+      "dtc_codes": [
+        "P0171"
+      ],
+      "symptoms": {
+        "fuel_pressure": "low",
+        "fuel_trim_ltft": "high_positive",
+        "hard_start": "present",
+        "residual_fuel_pressure_hold": "bleeds_down_instantly"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0013",
+    "observations": {
+      "dtc_codes": [
+        "P0101"
+      ],
+      "symptoms": {
+        "acceleration": "hesitation",
+        "fuel_trim_ltft": "normal",
+        "idle_quality": "normal",
+        "maf_reading": "underreporting"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0015",
+    "observations": {
+      "dtc_codes": [
+        "P0106"
+      ],
+      "symptoms": {
+        "engine_response": "surging",
+        "fuel_trim_ltft": "normal",
+        "idle_quality": "rough",
+        "map_reading_key_on_engine_off": "inaccurate"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0017",
+    "observations": {
+      "dtc_codes": [
+        "P0171",
+        "P0300"
+      ],
+      "symptoms": {
+        "fuel_pressure": "low",
+        "fuel_trim_ltft": "high_positive",
+        "idle_quality": "normal",
+        "misfire_pattern": "cylinder_specific"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0019",
+    "observations": {
+      "dtc_codes": [
+        "P0100",
+        "P0110"
+      ],
+      "symptoms": {
+        "signal_stability": "intermittent_dropouts",
+        "visual_inspection": "green_crust_or_pin_fretting",
+        "wiggle_test_response": "induced_glitch"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0020",
+    "observations": {
+      "dtc_codes": [
+        "P0102"
+      ],
+      "symptoms": {
+        "sensor_voltage": "reference_ground_or_0v",
+        "signal_stability": "dead_flatline"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0021",
+    "observations": {
+      "dtc_codes": [
+        "P0103",
+        "P0112"
+      ],
+      "symptoms": {
+        "blown_fuse": "present",
+        "sensor_voltage": "stuck_5v_or_high"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0022",
+    "observations": {
+      "dtc_codes": [
+        "P0117",
+        "P0128"
+      ],
+      "symptoms": {
+        "black_smoke": "none",
+        "fuel_trim_ltft": "high_negative",
+        "live_coolant_temp": "sub_zero_or_frozen",
+        "radiator_fan": "cycling_normally"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0024",
+    "observations": {
+      "dtc_codes": [
+        "P0087",
+        "P0171"
+      ],
+      "symptoms": {
+        "fuel_pressure": "low",
+        "fuel_trim_ltft": "high_positive",
+        "hard_start": "present",
+        "residual_fuel_pressure_hold": "bleeds_down_instantly"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0025",
+    "observations": {
+      "dtc_codes": [
+        "P0101"
+      ],
+      "symptoms": {
+        "acceleration": "hesitation",
+        "fuel_trim_ltft": "high_positive",
+        "idle_quality": "normal",
+        "maf_reading": "underreporting"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0026",
+    "observations": {
+      "dtc_codes": [
+        "P0171"
+      ],
+      "symptoms": {
+        "audible_hiss": "absent",
+        "fuel_pressure": "normal",
+        "fuel_trim_at_high_rpm": "normalizes",
+        "fuel_trim_ltft": "high_positive",
+        "idle_quality": "rough"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0027",
+    "observations": {
+      "dtc_codes": [
+        "P0106"
+      ],
+      "symptoms": {
+        "engine_response": "surging",
+        "fuel_trim_ltft": "high_negative",
+        "idle_quality": "normal",
+        "map_reading_key_on_engine_off": "inaccurate"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0028",
+    "observations": {
+      "dtc_codes": [
+        "P0171"
+      ],
+      "symptoms": {
+        "exhaust_odor": "normal",
+        "fuel_trim_ltft": "fluctuating",
+        "o2_sensor_switching_rate": "sluggish"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0030",
+    "observations": {
+      "dtc_codes": [
+        "P0171"
+      ],
+      "symptoms": {
+        "engine_load_behavior": "normal",
+        "fuel_pressure": "low",
+        "fuel_trim_at_high_rpm": "worsens",
+        "hard_start": "absent"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0032",
+    "observations": {
+      "dtc_codes": [
+        "P0102",
+        "P0113"
+      ],
+      "symptoms": {
+        "sensor_voltage": "stuck_5v_or_high",
+        "signal_stability": "dead_flatline"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0033",
+    "observations": {
+      "dtc_codes": [
+        "P0103",
+        "P0112",
+        "P0123"
+      ],
+      "symptoms": {
+        "blown_fuse": "absent",
+        "sensor_voltage": "normal"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0034",
+    "observations": {
+      "dtc_codes": [
+        "P0117",
+        "P0128"
+      ],
+      "symptoms": {
+        "black_smoke": "none",
+        "fuel_trim_ltft": "high_negative",
+        "live_coolant_temp": "sub_zero_or_frozen",
+        "radiator_fan": "constantly_on"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0035",
+    "observations": {
+      "dtc_codes": [
+        "P0121",
+        "P2135"
+      ],
+      "symptoms": {
+        "engine_response": "normal",
+        "idle_quality": "hunting",
+        "tps_voltage_sweep": "erratic_jumps"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0039",
+    "observations": {
+      "dtc_codes": [
+        "P0106",
+        "P0107"
+      ],
+      "symptoms": {
+        "engine_response": "normal",
+        "fuel_trim_ltft": "high_positive",
+        "idle_quality": "normal",
+        "map_reading_key_on_engine_off": "inaccurate"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0040",
+    "observations": {
+      "dtc_codes": [
+        "P0133"
+      ],
+      "symptoms": {
+        "exhaust_odor": "normal",
+        "fuel_trim_ltft": "fluctuating",
+        "o2_sensor_switching_rate": "sluggish"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0041",
+    "observations": {
+      "dtc_codes": [
+        "P0300",
+        "P0301"
+      ],
+      "symptoms": {
+        "fuel_pressure": "normal",
+        "fuel_trim_ltft": "high_positive",
+        "idle_quality": "rough",
+        "misfire_pattern": "cylinder_specific"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0042",
+    "observations": {
+      "dtc_codes": [
+        "P0171"
+      ],
+      "symptoms": {
+        "engine_load_behavior": "loss_of_power",
+        "fuel_pressure": "low",
+        "fuel_trim_at_high_rpm": "worsens",
+        "hard_start": "present"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0043",
+    "observations": {
+      "dtc_codes": [
+        "P0100",
+        "P0110"
+      ],
+      "symptoms": {
+        "signal_stability": "intermittent_dropouts",
+        "visual_inspection": "clean",
+        "wiggle_test_response": "no_effect"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0046",
+    "observations": {
+      "dtc_codes": [
+        "P0128"
+      ],
+      "symptoms": {
+        "black_smoke": "light",
+        "fuel_trim_ltft": "high_negative",
+        "live_coolant_temp": "normal",
+        "radiator_fan": "cycling_normally"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0047",
+    "observations": {
+      "dtc_codes": [
+        "P2135"
+      ],
+      "symptoms": {
+        "engine_response": "hesitation_or_surging",
+        "idle_quality": "hunting",
+        "tps_voltage_sweep": "smooth"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0048",
+    "observations": {
+      "dtc_codes": [
+        "P0087",
+        "P0171"
+      ],
+      "symptoms": {
+        "fuel_pressure": "low",
+        "fuel_trim_ltft": "normal",
+        "hard_start": "absent",
+        "residual_fuel_pressure_hold": "bleeds_down_instantly"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0049",
+    "observations": {
+      "dtc_codes": [
+        "P0101",
+        "P0171"
+      ],
+      "symptoms": {
+        "acceleration": "normal",
+        "fuel_trim_ltft": "high_positive",
+        "idle_quality": "rough",
+        "maf_reading": "underreporting"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0050",
+    "observations": {
+      "dtc_codes": [
+        "P0171"
+      ],
+      "symptoms": {
+        "audible_hiss": "present",
+        "fuel_pressure": "normal",
+        "fuel_trim_at_high_rpm": "normalizes",
+        "fuel_trim_ltft": "high_positive",
+        "idle_quality": "rough"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0051",
+    "observations": {
+      "dtc_codes": [
+        "P0106",
+        "P0107"
+      ],
+      "symptoms": {
+        "engine_response": "surging",
+        "fuel_trim_ltft": "high_negative",
+        "idle_quality": "rough",
+        "map_reading_key_on_engine_off": "inaccurate"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0054",
+    "observations": {
+      "dtc_codes": [
+        "P0171"
+      ],
+      "symptoms": {
+        "engine_load_behavior": "loss_of_power",
+        "fuel_pressure": "low",
+        "fuel_trim_at_high_rpm": "worsens",
+        "hard_start": "absent"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0055",
+    "observations": {
+      "dtc_codes": [
+        "P0100",
+        "P0110",
+        "P0120"
+      ],
+      "symptoms": {
+        "signal_stability": "intermittent_dropouts",
+        "visual_inspection": "green_crust_or_pin_fretting",
+        "wiggle_test_response": "induced_glitch"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0056",
+    "observations": {
+      "dtc_codes": [
+        "P0102",
+        "P0113"
+      ],
+      "symptoms": {
+        "sensor_voltage": "reference_ground_or_0v",
+        "signal_stability": "dead_flatline"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0057",
+    "observations": {
+      "dtc_codes": [
+        "P0103",
+        "P0112"
+      ],
+      "symptoms": {
+        "blown_fuse": "absent",
+        "sensor_voltage": "stuck_5v_or_high"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0059",
+    "observations": {
+      "dtc_codes": [
+        "P0121"
+      ],
+      "symptoms": {
+        "engine_response": "hesitation_or_surging",
+        "idle_quality": "normal",
+        "tps_voltage_sweep": "erratic_jumps"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0060",
+    "observations": {
+      "dtc_codes": [
+        "P0087",
+        "P0171"
+      ],
+      "symptoms": {
+        "fuel_pressure": "low",
+        "fuel_trim_ltft": "normal",
+        "hard_start": "present",
+        "residual_fuel_pressure_hold": "bleeds_down_instantly"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0063",
+    "observations": {
+      "dtc_codes": [
+        "P0106"
+      ],
+      "symptoms": {
+        "engine_response": "normal",
+        "fuel_trim_ltft": "high_negative",
+        "idle_quality": "rough",
+        "map_reading_key_on_engine_off": "inaccurate"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0064",
+    "observations": {
+      "dtc_codes": [
+        "P0171"
+      ],
+      "symptoms": {
+        "exhaust_odor": "rich_odor",
+        "fuel_trim_ltft": "fluctuating",
+        "o2_sensor_switching_rate": "sluggish"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0066",
+    "observations": {
+      "dtc_codes": [
+        "P0087",
+        "P0171"
+      ],
+      "symptoms": {
+        "engine_load_behavior": "loss_of_power",
+        "fuel_pressure": "low",
+        "fuel_trim_at_high_rpm": "worsens",
+        "hard_start": "absent"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0067",
+    "observations": {
+      "dtc_codes": [
+        "P0100",
+        "P0110"
+      ],
+      "symptoms": {
+        "signal_stability": "intermittent_dropouts",
+        "visual_inspection": "green_crust_or_pin_fretting",
+        "wiggle_test_response": "no_effect"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0068",
+    "observations": {
+      "dtc_codes": [
+        "P0102",
+        "P0113",
+        "P0122"
+      ],
+      "symptoms": {
+        "sensor_voltage": "stuck_5v_or_high",
+        "signal_stability": "dead_flatline"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0069",
+    "observations": {
+      "dtc_codes": [
+        "P0112"
+      ],
+      "symptoms": {
+        "blown_fuse": "present",
+        "sensor_voltage": "stuck_5v_or_high"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0070",
+    "observations": {
+      "dtc_codes": [
+        "P0117",
+        "P0128"
+      ],
+      "symptoms": {
+        "black_smoke": "light",
+        "fuel_trim_ltft": "high_negative",
+        "live_coolant_temp": "sub_zero_or_frozen",
+        "radiator_fan": "constantly_on"
+      },
+      "notes": "Reported symptoms for difficulty straightforward."
+    }
+  },
+  {
+    "case_id": "CASE-0073",
+    "observations": {
+      "dtc_codes": [
+        "P0101"
+      ],
+      "symptoms": {
+        "acceleration": "normal",
+        "maf_reading": "underreporting"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0074",
+    "observations": {
+      "dtc_codes": [
+        "P0507"
+      ],
+      "symptoms": {
+        "audible_hiss": "present",
+        "fuel_trim_ltft": "high_positive"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0075",
+    "observations": {
+      "dtc_codes": [
+        "P0106"
+      ],
+      "symptoms": {
+        "engine_response": "surging",
+        "idle_quality": "rough"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0076",
+    "observations": {
+      "dtc_codes": [
+        "P0133"
+      ],
+      "symptoms": {
+        "exhaust_odor": "normal",
+        "fuel_trim_ltft": "high_positive"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0077",
+    "observations": {
+      "dtc_codes": [
+        "P0301"
+      ],
+      "symptoms": {
+        "fuel_pressure": "normal",
+        "misfire_pattern": "cylinder_specific"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0078",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "engine_load_behavior": "loss_of_power",
+        "hard_start": "present"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0079",
+    "observations": {
+      "dtc_codes": [
+        "P0100"
+      ],
+      "symptoms": {
+        "visual_inspection": "clean",
+        "wiggle_test_response": "induced_glitch"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0082",
+    "observations": {
+      "dtc_codes": [
+        "P0128"
+      ],
+      "symptoms": {
+        "fuel_trim_ltft": "high_negative",
+        "radiator_fan": "cycling_normally"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0083",
+    "observations": {
+      "dtc_codes": [
+        "P0121"
+      ],
+      "symptoms": {
+        "engine_response": "hesitation_or_surging",
+        "idle_quality": "normal"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0085",
+    "observations": {
+      "dtc_codes": [
+        "P0101"
+      ],
+      "symptoms": {
+        "acceleration": "normal",
+        "idle_quality": "rough"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0087",
+    "observations": {
+      "dtc_codes": [
+        "P0106"
+      ],
+      "symptoms": {
+        "fuel_trim_ltft": "high_negative",
+        "map_reading_key_on_engine_off": "inaccurate"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0089",
+    "observations": {
+      "dtc_codes": [
+        "P0171"
+      ],
+      "symptoms": {
+        "idle_quality": "rough",
+        "misfire_pattern": "cylinder_specific"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0090",
+    "observations": {
+      "dtc_codes": [
+        "P0171"
+      ],
+      "symptoms": {
+        "fuel_pressure": "low",
+        "fuel_trim_at_high_rpm": "worsens"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0091",
+    "observations": {
+      "dtc_codes": [
+        "P0110"
+      ],
+      "symptoms": {
+        "signal_stability": "intermittent_dropouts",
+        "visual_inspection": "green_crust_or_pin_fretting"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0092",
+    "observations": {
+      "dtc_codes": [
+        "P0113"
+      ],
+      "symptoms": {
+        "sensor_voltage": "stuck_5v_or_high",
+        "signal_stability": "dead_flatline"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0093",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "blown_fuse": "present",
+        "sensor_voltage": "stuck_5v_or_high"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0094",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "live_coolant_temp": "sub_zero_or_frozen",
+        "radiator_fan": "cycling_normally"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0095",
+    "observations": {
+      "dtc_codes": [
+        "P0121"
+      ],
+      "symptoms": {
+        "idle_quality": "hunting",
+        "tps_voltage_sweep": "smooth"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0098",
+    "observations": {
+      "dtc_codes": [
+        "P0171"
+      ],
+      "symptoms": {
+        "audible_hiss": "absent",
+        "fuel_trim_ltft": "high_positive"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0100",
+    "observations": {
+      "dtc_codes": [
+        "P0171"
+      ],
+      "symptoms": {
+        "exhaust_odor": "normal",
+        "fuel_trim_ltft": "fluctuating"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0101",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "fuel_trim_ltft": "high_positive",
+        "idle_quality": "normal"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0103",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "signal_stability": "stable",
+        "wiggle_test_response": "induced_glitch"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0104",
+    "observations": {
+      "dtc_codes": [
+        "P0122"
+      ],
+      "symptoms": {
+        "sensor_voltage": "stuck_5v_or_high",
+        "signal_stability": "dead_flatline"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0105",
+    "observations": {
+      "dtc_codes": [
+        "P0123"
+      ],
+      "symptoms": {
+        "blown_fuse": "absent",
+        "sensor_voltage": "stuck_5v_or_high"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0106",
+    "observations": {
+      "dtc_codes": [
+        "P0117"
+      ],
+      "symptoms": {
+        "live_coolant_temp": "normal",
+        "radiator_fan": "constantly_on"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0107",
+    "observations": {
+      "dtc_codes": [
+        "P0121"
+      ],
+      "symptoms": {
+        "engine_response": "hesitation_or_surging",
+        "tps_voltage_sweep": "erratic_jumps"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0109",
+    "observations": {
+      "dtc_codes": [
+        "P0171"
+      ],
+      "symptoms": {
+        "fuel_trim_ltft": "high_positive",
+        "maf_reading": "underreporting"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0110",
+    "observations": {
+      "dtc_codes": [
+        "P0171"
+      ],
+      "symptoms": {
+        "audible_hiss": "present",
+        "fuel_trim_ltft": "high_positive"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0111",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "fuel_trim_ltft": "high_negative",
+        "map_reading_key_on_engine_off": "inaccurate"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0112",
+    "observations": {
+      "dtc_codes": [
+        "P0133"
+      ],
+      "symptoms": {
+        "exhaust_odor": "rich_odor",
+        "fuel_trim_ltft": "fluctuating"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0113",
+    "observations": {
+      "dtc_codes": [
+        "P0300"
+      ],
+      "symptoms": {
+        "fuel_trim_ltft": "high_positive",
+        "misfire_pattern": "cylinder_specific"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0115",
+    "observations": {
+      "dtc_codes": [
+        "P0120"
+      ],
+      "symptoms": {
+        "signal_stability": "intermittent_dropouts",
+        "visual_inspection": "green_crust_or_pin_fretting"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0116",
+    "observations": {
+      "dtc_codes": [
+        "P0113"
+      ],
+      "symptoms": {
+        "sensor_voltage": "reference_ground_or_0v",
+        "signal_stability": "dead_flatline"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0118",
+    "observations": {
+      "dtc_codes": [
+        "P0117"
+      ],
+      "symptoms": {
+        "live_coolant_temp": "sub_zero_or_frozen",
+        "radiator_fan": "constantly_on"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0120",
+    "observations": {
+      "dtc_codes": [
+        "P0087"
+      ],
+      "symptoms": {
+        "hard_start": "present",
+        "residual_fuel_pressure_hold": "bleeds_down_instantly"
+      },
+      "notes": "Reported symptoms for difficulty incomplete."
+    }
+  },
+  {
+    "case_id": "CASE-0121",
+    "observations": {
+      "dtc_codes": [
+        "P0171"
+      ],
+      "symptoms": {},
+      "notes": "Reported symptoms for difficulty ambiguous."
+    }
+  },
+  {
+    "case_id": "CASE-0122",
+    "observations": {
+      "dtc_codes": [
+        "P0171"
+      ],
+      "symptoms": {
+        "hard_start": "absent"
+      },
+      "notes": "Reported symptoms for difficulty ambiguous."
+    }
+  },
+  {
+    "case_id": "CASE-0123",
+    "observations": {
+      "dtc_codes": [
+        "P0171"
+      ],
+      "symptoms": {
+        "visual_inspection": "clean"
+      },
+      "notes": "Reported symptoms for difficulty ambiguous."
+    }
+  },
+  {
+    "case_id": "CASE-0126",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "idle_quality": "rough"
+      },
+      "notes": "Reported symptoms for difficulty ambiguous."
+    }
+  },
+  {
+    "case_id": "CASE-0127",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "fuel_trim_ltft": "high_positive"
+      },
+      "notes": "Reported symptoms for difficulty ambiguous."
+    }
+  },
+  {
+    "case_id": "CASE-0128",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "hard_start": "present"
+      },
+      "notes": "Reported symptoms for difficulty ambiguous."
+    }
+  },
+  {
+    "case_id": "CASE-0129",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "fuel_pressure": "normal",
+        "idle_quality": "rough"
+      },
+      "notes": "Reported symptoms for difficulty ambiguous."
+    }
+  },
+  {
+    "case_id": "CASE-0133",
+    "observations": {
+      "dtc_codes": [
+        "P0171"
+      ],
+      "symptoms": {
+        "ambient_obs_133": "standard",
+        "audible_hiss": "absent"
+      },
+      "notes": "Reported symptoms for difficulty ambiguous."
+    }
+  },
+  {
+    "case_id": "CASE-0134",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "ambient_obs_134": "standard",
+        "idle_quality": "rough"
+      },
+      "notes": "Reported symptoms for difficulty ambiguous."
+    }
+  },
+  {
+    "case_id": "CASE-0135",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "ambient_obs_135": "standard",
+        "fuel_trim_ltft": "high_positive"
+      },
+      "notes": "Reported symptoms for difficulty ambiguous."
+    }
+  },
+  {
+    "case_id": "CASE-0136",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "ambient_obs_136": "standard",
+        "hard_start": "present"
+      },
+      "notes": "Reported symptoms for difficulty ambiguous."
+    }
+  },
+  {
+    "case_id": "CASE-0137",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "ambient_obs_137": "standard",
+        "fuel_pressure": "normal",
+        "idle_quality": "rough"
+      },
+      "notes": "Reported symptoms for difficulty ambiguous."
+    }
+  },
+  {
+    "case_id": "CASE-0138",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "ambient_obs_138": "standard",
+        "fuel_trim_ltft": "high_positive",
+        "visual_inspection": "clean"
+      },
+      "notes": "Reported symptoms for difficulty ambiguous."
+    }
+  },
+  {
+    "case_id": "CASE-0139",
+    "observations": {
+      "dtc_codes": [
+        "P0171"
+      ],
+      "symptoms": {
+        "ambient_obs_139": "standard",
+        "radiator_fan": "cycling_normally"
+      },
+      "notes": "Reported symptoms for difficulty ambiguous."
+    }
+  },
+  {
+    "case_id": "CASE-0140",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "ambient_obs_140": "standard",
+        "audible_hiss": "absent",
+        "idle_quality": "rough"
+      },
+      "notes": "Reported symptoms for difficulty ambiguous."
+    }
+  },
+  {
+    "case_id": "CASE-0141",
+    "observations": {
+      "dtc_codes": [
+        "P0171"
+      ],
+      "symptoms": {
+        "ambient_obs_141": "standard"
+      },
+      "notes": "Reported symptoms for difficulty ambiguous."
+    }
+  },
+  {
+    "case_id": "CASE-0143",
+    "observations": {
+      "dtc_codes": [
+        "P0171"
+      ],
+      "symptoms": {
+        "ambient_obs_143": "standard",
+        "visual_inspection": "clean"
+      },
+      "notes": "Reported symptoms for difficulty ambiguous."
+    }
+  },
+  {
+    "case_id": "CASE-0144",
+    "observations": {
+      "dtc_codes": [
+        "P0171"
+      ],
+      "symptoms": {
+        "ambient_obs_144": "standard",
+        "residual_fuel_pressure_hold": "holds_spec"
+      },
+      "notes": "Reported symptoms for difficulty ambiguous."
+    }
+  },
+  {
+    "case_id": "CASE-0147",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "ambient_obs_147": "standard",
+        "fuel_trim_ltft": "high_positive"
+      },
+      "notes": "Reported symptoms for difficulty ambiguous."
+    }
+  },
+  {
+    "case_id": "CASE-0148",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "ambient_obs_148": "standard",
+        "hard_start": "present"
+      },
+      "notes": "Reported symptoms for difficulty ambiguous."
+    }
+  },
+  {
+    "case_id": "CASE-0150",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "ambient_obs_150": "standard",
+        "fuel_trim_ltft": "high_positive",
+        "visual_inspection": "clean"
+      },
+      "notes": "Reported symptoms for difficulty ambiguous."
+    }
+  },
+  {
+    "case_id": "CASE-0152",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "ambient_obs_152": "standard",
+        "audible_hiss": "absent",
+        "idle_quality": "rough"
+      },
+      "notes": "Reported symptoms for difficulty ambiguous."
+    }
+  },
+  {
+    "case_id": "CASE-0154",
+    "observations": {
+      "dtc_codes": [
+        "P0171"
+      ],
+      "symptoms": {
+        "ambient_obs_154": "standard",
+        "hard_start": "absent"
+      },
+      "notes": "Reported symptoms for difficulty ambiguous."
+    }
+  },
+  {
+    "case_id": "CASE-0155",
+    "observations": {
+      "dtc_codes": [
+        "P0171"
+      ],
+      "symptoms": {
+        "ambient_obs_155": "standard",
+        "visual_inspection": "clean"
+      },
+      "notes": "Reported symptoms for difficulty ambiguous."
+    }
+  },
+  {
+    "case_id": "CASE-0156",
+    "observations": {
+      "dtc_codes": [
+        "P0171"
+      ],
+      "symptoms": {
+        "ambient_obs_156": "standard",
+        "residual_fuel_pressure_hold": "holds_spec"
+      },
+      "notes": "Reported symptoms for difficulty ambiguous."
+    }
+  },
+  {
+    "case_id": "CASE-0158",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "ambient_obs_158": "standard",
+        "idle_quality": "rough"
+      },
+      "notes": "Reported symptoms for difficulty ambiguous."
+    }
+  },
+  {
+    "case_id": "CASE-0159",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "ambient_obs_159": "standard",
+        "fuel_trim_ltft": "high_positive"
+      },
+      "notes": "Reported symptoms for difficulty ambiguous."
+    }
+  },
+  {
+    "case_id": "CASE-0160",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "ambient_obs_160": "standard",
+        "hard_start": "present"
+      },
+      "notes": "Reported symptoms for difficulty ambiguous."
+    }
+  },
+  {
+    "case_id": "CASE-0161",
+    "observations": {
+      "dtc_codes": [
+        "P0120",
+        "P0171",
+        "P0301"
+      ],
+      "symptoms": {
+        "fuel_pressure": "normal",
+        "fuel_trim_ltft": "high_positive",
+        "idle_quality": "rough",
+        "misfire_pattern": "cylinder_specific",
+        "visual_inspection": "clean"
+      },
+      "notes": "Reported symptoms for difficulty misleading."
+    }
+  },
+  {
+    "case_id": "CASE-0162",
+    "observations": {
+      "dtc_codes": [
+        "P0087",
+        "P0120",
+        "P0171"
+      ],
+      "symptoms": {
+        "engine_load_behavior": "loss_of_power",
+        "fuel_pressure": "low",
+        "fuel_trim_at_high_rpm": "worsens",
+        "hard_start": "present",
+        "visual_inspection": "clean"
+      },
+      "notes": "Reported symptoms for difficulty misleading."
+    }
+  },
+  {
+    "case_id": "CASE-0163",
+    "observations": {
+      "dtc_codes": [
+        "P0100",
+        "P0507"
+      ],
+      "symptoms": {
+        "signal_stability": "intermittent_dropouts",
+        "visual_inspection": "green_crust_or_pin_fretting",
+        "wiggle_test_response": "induced_glitch"
+      },
+      "notes": "Reported symptoms for difficulty misleading."
+    }
+  },
+  {
+    "case_id": "CASE-0164",
+    "observations": {
+      "dtc_codes": [
+        "P0102",
+        "P0113",
+        "P0122",
+        "P0507"
+      ],
+      "symptoms": {
+        "sensor_voltage": "reference_ground_or_0v",
+        "signal_stability": "dead_flatline",
+        "visual_inspection": "clean"
+      },
+      "notes": "Reported symptoms for difficulty misleading."
+    }
+  },
+  {
+    "case_id": "CASE-0166",
+    "observations": {
+      "dtc_codes": [
+        "P0117",
+        "P0128",
+        "P0507"
+      ],
+      "symptoms": {
+        "black_smoke": "none",
+        "fuel_trim_ltft": "high_negative",
+        "live_coolant_temp": "sub_zero_or_frozen",
+        "radiator_fan": "constantly_on",
+        "visual_inspection": "clean"
+      },
+      "notes": "Reported symptoms for difficulty misleading."
+    }
+  },
+  {
+    "case_id": "CASE-0168",
+    "observations": {
+      "dtc_codes": [
+        "P0110",
+        "P0171"
+      ],
+      "symptoms": {
+        "fuel_pressure": "low",
+        "fuel_trim_ltft": "high_positive",
+        "hard_start": "present",
+        "residual_fuel_pressure_hold": "holds_spec",
+        "visual_inspection": "clean"
+      },
+      "notes": "Reported symptoms for difficulty misleading."
+    }
+  },
+  {
+    "case_id": "CASE-0169",
+    "observations": {
+      "dtc_codes": [
+        "P0100",
+        "P0101",
+        "P0171"
+      ],
+      "symptoms": {
+        "acceleration": "normal",
+        "fuel_trim_ltft": "normal",
+        "idle_quality": "normal",
+        "maf_reading": "underreporting",
+        "visual_inspection": "clean"
+      },
+      "notes": "Reported symptoms for difficulty misleading."
+    }
+  },
+  {
+    "case_id": "CASE-0170",
+    "observations": {
+      "dtc_codes": [
+        "P0110",
+        "P0171"
+      ],
+      "symptoms": {
+        "audible_hiss": "present",
+        "fuel_pressure": "normal",
+        "fuel_trim_at_high_rpm": "unchanged",
+        "fuel_trim_ltft": "high_positive",
+        "idle_quality": "rough",
+        "visual_inspection": "clean"
+      },
+      "notes": "Reported symptoms for difficulty misleading."
+    }
+  },
+  {
+    "case_id": "CASE-0171",
+    "observations": {
+      "dtc_codes": [
+        "P0106",
+        "P0107",
+        "P0507"
+      ],
+      "symptoms": {
+        "engine_response": "normal",
+        "fuel_trim_ltft": "high_negative",
+        "idle_quality": "rough",
+        "map_reading_key_on_engine_off": "inaccurate",
+        "visual_inspection": "clean"
+      },
+      "notes": "Reported symptoms for difficulty misleading."
+    }
+  },
+  {
+    "case_id": "CASE-0173",
+    "observations": {
+      "dtc_codes": [
+        "P0110",
+        "P0300"
+      ],
+      "symptoms": {
+        "fuel_pressure": "normal",
+        "fuel_trim_ltft": "high_positive",
+        "idle_quality": "rough",
+        "misfire_pattern": "cylinder_specific",
+        "visual_inspection": "clean"
+      },
+      "notes": "Reported symptoms for difficulty misleading."
+    }
+  },
+  {
+    "case_id": "CASE-0174",
+    "observations": {
+      "dtc_codes": [
+        "P0087",
+        "P0100",
+        "P0171"
+      ],
+      "symptoms": {
+        "engine_load_behavior": "normal",
+        "fuel_pressure": "low",
+        "fuel_trim_at_high_rpm": "worsens",
+        "hard_start": "present",
+        "visual_inspection": "clean"
+      },
+      "notes": "Reported symptoms for difficulty misleading."
+    }
+  },
+  {
+    "case_id": "CASE-0178",
+    "observations": {
+      "dtc_codes": [
+        "P0110",
+        "P0117",
+        "P0128"
+      ],
+      "symptoms": {
+        "black_smoke": "none",
+        "fuel_trim_ltft": "high_negative",
+        "live_coolant_temp": "sub_zero_or_frozen",
+        "radiator_fan": "cycling_normally",
+        "visual_inspection": "clean"
+      },
+      "notes": "Reported symptoms for difficulty misleading."
+    }
+  },
+  {
+    "case_id": "CASE-0179",
+    "observations": {
+      "dtc_codes": [
+        "P0120",
+        "P0121",
+        "P2135"
+      ],
+      "symptoms": {
+        "engine_response": "hesitation_or_surging",
+        "idle_quality": "hunting",
+        "tps_voltage_sweep": "erratic_jumps",
+        "visual_inspection": "clean"
+      },
+      "notes": "Reported symptoms for difficulty misleading."
+    }
+  },
+  {
+    "case_id": "CASE-0180",
+    "observations": {
+      "dtc_codes": [
+        "P0087",
+        "P0171",
+        "P0507"
+      ],
+      "symptoms": {
+        "fuel_pressure": "low",
+        "fuel_trim_ltft": "normal",
+        "hard_start": "present",
+        "residual_fuel_pressure_hold": "bleeds_down_instantly",
+        "visual_inspection": "clean"
+      },
+      "notes": "Reported symptoms for difficulty misleading."
+    }
+  },
+  {
+    "case_id": "CASE-0182",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "audible_hiss": "absent",
+        "fuel_pressure": "normal"
+      },
+      "notes": "Reported symptoms for difficulty insufficient_evidence."
+    }
+  },
+  {
+    "case_id": "CASE-0184",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "fuel_trim_ltft": "normal"
+      },
+      "notes": "Reported symptoms for difficulty insufficient_evidence."
+    }
+  },
+  {
+    "case_id": "CASE-0185",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "visual_inspection": "clean"
+      },
+      "notes": "Reported symptoms for difficulty insufficient_evidence."
+    }
+  },
+  {
+    "case_id": "CASE-0186",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "radiator_fan": "cycling_normally"
+      },
+      "notes": "Reported symptoms for difficulty insufficient_evidence."
+    }
+  },
+  {
+    "case_id": "CASE-0187",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "audible_hiss": "absent"
+      },
+      "notes": "Reported symptoms for difficulty insufficient_evidence."
+    }
+  },
+  {
+    "case_id": "CASE-0188",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "fuel_pressure": "normal"
+      },
+      "notes": "Reported symptoms for difficulty insufficient_evidence."
+    }
+  },
+  {
+    "case_id": "CASE-0190",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "signal_stability": "stable"
+      },
+      "notes": "Reported symptoms for difficulty insufficient_evidence."
+    }
+  },
+  {
+    "case_id": "CASE-0191",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "idle_quality": "rough",
+        "visual_inspection": "clean"
+      },
+      "notes": "Reported symptoms for difficulty insufficient_evidence."
+    }
+  },
+  {
+    "case_id": "CASE-0193",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "engine_load_behavior": "normal",
+        "hard_start": "absent"
+      },
+      "notes": "Reported symptoms for difficulty insufficient_evidence."
+    }
+  },
+  {
+    "case_id": "CASE-0196",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "engine_response": "normal"
+      },
+      "notes": "Reported symptoms for difficulty insufficient_evidence."
+    }
+  },
+  {
+    "case_id": "CASE-0197",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "audible_hiss": "absent",
+        "visual_inspection": "clean"
+      },
+      "notes": "Reported symptoms for difficulty insufficient_evidence."
+    }
+  },
+  {
+    "case_id": "CASE-0198",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "fuel_pressure": "normal",
+        "signal_stability": "stable"
+      },
+      "notes": "Reported symptoms for difficulty insufficient_evidence."
+    }
+  },
+  {
+    "case_id": "CASE-0199",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "engine_load_behavior": "normal",
+        "radiator_fan": "cycling_normally"
+      },
+      "notes": "Reported symptoms for difficulty insufficient_evidence."
+    }
+  },
+  {
+    "case_id": "CASE-0200",
+    "observations": {
+      "dtc_codes": [],
+      "symptoms": {
+        "hard_start": "absent",
+        "visual_inspection": "clean"
+      },
+      "notes": "Reported symptoms for difficulty insufficient_evidence."
+    }
+  }
+]
