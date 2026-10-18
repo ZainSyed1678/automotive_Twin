@@ -147,26 +147,39 @@ python run_demo.py
 ```
 
 ### 2. Run the Full Test Suite
-Runs all 44 automated tests across M1 to M5:
+Runs all 54 automated tests across M1 to M6:
 ```powershell
 pytest -v
 ```
 
 Expected output:
 ```text
-tests/test_adaptive_questioning.py::test_entropy_calculation PASSED      [  2%]
-tests/test_adaptive_questioning.py::test_eig_prioritizes_fuel_pressure_on_lean_ambiguity PASSED [  4%]
-tests/test_adaptive_questioning.py::test_stopping_condition_on_confident_case PASSED [  6%]
-tests/test_adaptive_questioning.py::test_review_gate_passes_on_valid_case PASSED [  9%]
-tests/test_adaptive_questioning.py::test_review_gate_catches_out_of_scope_component PASSED [ 11%]
+tests/test_adaptive_questioning.py::test_entropy_calculation PASSED      [  1%]
+tests/test_adaptive_questioning.py::test_eig_prioritizes_fuel_pressure_on_lean_ambiguity PASSED [  3%]
+tests/test_adaptive_questioning.py::test_stopping_condition_on_confident_case PASSED [  5%]
+tests/test_api.py::test_healthcheck PASSED                               [ 31%]
+tests/test_api.py::test_diagnose_endpoint_straightforward PASSED         [ 42%]
+tests/test_api.py::test_diagnose_interactive_endpoint PASSED             [ 46%]
 ...
 tests/test_rag_and_mcp.py::test_mcp_score_hypotheses PASSED              [100%]
-============================= 44 passed in 7.34s ==============================
+============================= 54 passed in 9.34s ==============================
 ```
 
-### 3. Regenerate Datasets
+### 3. Launch Interactive Streamlit Dashboard
 ```powershell
-python generate_data.py
+streamlit run app/ui.py
+```
+*Access in browser at `http://localhost:8501` to test intake, presets, probability graphs, and live active questioning.*
+
+### 4. Launch FastAPI REST Backend
+```powershell
+uvicorn app.api:app --reload --port 8000
+```
+*Interactive Swagger docs available at `http://localhost:8000/docs`.*
+
+### 5. Launch via Docker Compose
+```powershell
+docker-compose up --build
 ```
 
 ---
@@ -180,7 +193,7 @@ python generate_data.py
 | | **M3: Knowledge Base & MCP** | Ingestion of synthetic repair manuals & TSBs, hybrid search, Python MCP server | **Complete** |
 | | **M4: Diagnostic Agent** | LangGraph orchestration (intake, retrieve, simulate, score), LLM/RAG baselines | **Complete** |
 | | **M5: Adaptive Questioning** | Expected Information Gain question selection, evidence critique, review step | **Complete** |
-| | **M6: Interface & Tracing** | FastAPI backend, Streamlit diagnostic UI, Docker containerization | Next |
-| | **M7: Evaluation & Audit** | Full held-out benchmark across 3 modes, calibration (ECE/Brier), honest audit | Pending |
+| | **M6: Interface & Tracing** | FastAPI backend, Streamlit diagnostic UI, Docker containerization | **Complete** |
+| | **M7: Evaluation & Audit** | Full held-out benchmark across 3 modes, calibration (ECE/Brier), honest audit | Next |
 | **Phase 2** | Multi-Vehicle Support | Vehicle-specific configuration layer (Hyundai i20, etc.) | Future |
 

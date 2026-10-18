@@ -176,3 +176,53 @@ Before any report is emitted, an automated review audit validates three safety c
   - Multi-turn interactive disambiguation: resolves ambiguous P0171 case in 2 turns when fuel pressure is reported as low.
 - Total test suite: **44 passed in 7.34s**.
 
+---
+
+## 8. Milestone 6 — Interface & Observability
+
+### FastAPI REST Backend (`app/api.py`)
+Implemented a high-performance RESTful API orchestrating the full diagnostic workflow:
+- `GET /health` — Verifies system liveness, subsystem boundary (`air_intake_and_fuel_control`), and loaded component/fault counts.
+- `POST /diagnose` — Accepts technician observations (`dtc_codes`, `symptoms`, `notes`), runs the 7-node LangGraph pipeline, records telemetry, and returns the validated `DiagnosticReport`.
+- `POST /diagnose/interactive` — Accepts initial observations plus sequential answered follow-up tests, executing multi-turn disambiguation until resolution.
+- `GET /model/components` & `GET /model/faults` — Exposes catalogue definitions for the 10 components and 12 failure modes.
+- `POST /simulate/{fault_id}` — Runs forward digital twin simulation, returning expected DTCs and symptom state likelihoods.
+- `GET /knowledge/search` — Hybrid lexical/semantic retrieval over technical documents and TSBs.
+- `GET /telemetry/traces` — Exposes recent structured diagnostic traces with latency metrics.
+
+### Streamlit Technician Dashboard (`app/ui.py`)
+Built a full-featured, responsive diagnostic station with 4 specialized tabs:
+1. **Diagnostic Workbench**:
+   - One-click benchmark preset loader (Straightforward MAF Contamination, Ambiguous P0171 Lean, Weak Fuel Pump, Vacuum Leak, Insufficient Evidence).
+   - OBD-II code multiselect and physical symptom selectors.
+   - Primary hypothesis metric card with confidence margin delta and review status badge (`🛡️ PASSED`).
+   - Executive summary and horizontal posterior probability bar chart.
+   - **Active Questioning Wizard**: Displays EIG-selected follow-up test with one-click result buttons that dynamically update observations and recalculate posteriors in real time.
+   - Verifiable citations drawer and evidence breakdown.
+2. **Digital Twin Model**:
+   - Catalogue viewer and interactive forward simulation sandbox.
+3. **Technical Documents (RAG)**:
+   - Search engine over synthetic repair manuals, OBD guides, and TSBs.
+4. **Telemetry & Traces**:
+   - Live audit table of diagnostic runs, request latencies, and review outcomes.
+
+### Observability & Telemetry Tracing (`app/tracing.py`)
+- Emits structured JSON telemetry records capturing:
+  - `trace_id`, `timestamp`, `duration_ms`
+  - Input DTC and symptom counts
+  - Top hypothesis, posterior confidence, and margin gap
+  - Epistemic review status (`PASSED`, `FLAGGED`, `MODIFIED`)
+  - Adaptive questioning EIG score and selected test ID
+- 100% offline-compatible local buffer with opt-in Langfuse cloud tracing when environment credentials are provided.
+
+### Docker Containerization (`Dockerfile`, `docker-compose.yml`, `.dockerignore`, `requirements.txt`)
+- Lean `python:3.11-slim` container definition with curl healthcheck.
+- Multi-service Docker Compose orchestrating:
+  - `backend`: FastAPI API service on port `8000`.
+  - `frontend`: Streamlit interactive dashboard on port `8501`.
+
+### Test Verification (`tests/test_api.py`)
+- 10 automated endpoint tests using `fastapi.testclient.TestClient`.
+- Complete test suite: **54 passed in 9.34s** across M1 to M6.
+
+
