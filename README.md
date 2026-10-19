@@ -147,7 +147,7 @@ python run_demo.py
 ```
 
 ### 2. Run the Full Test Suite
-Runs all 54 automated tests across M1 to M6:
+Runs all 58 automated tests across M1 to M7:
 ```powershell
 pytest -v
 ```
@@ -157,27 +157,33 @@ Expected output:
 tests/test_adaptive_questioning.py::test_entropy_calculation PASSED      [  1%]
 tests/test_adaptive_questioning.py::test_eig_prioritizes_fuel_pressure_on_lean_ambiguity PASSED [  3%]
 tests/test_adaptive_questioning.py::test_stopping_condition_on_confident_case PASSED [  5%]
-tests/test_api.py::test_healthcheck PASSED                               [ 31%]
-tests/test_api.py::test_diagnose_endpoint_straightforward PASSED         [ 42%]
-tests/test_api.py::test_diagnose_interactive_endpoint PASSED             [ 46%]
+tests/test_calibration_and_m7.py::test_brier_score_perfect_prediction PASSED [ 46%]
+tests/test_calibration_and_m7.py::test_ece_bins_calculation PASSED       [ 50%]
+tests/test_calibration_and_m7.py::test_heldout_evaluation_runner_execution PASSED [ 51%]
 ...
 tests/test_rag_and_mcp.py::test_mcp_score_hypotheses PASSED              [100%]
-============================= 54 passed in 9.34s ==============================
+============================= 58 passed in 10.16s =============================
 ```
 
-### 3. Launch Interactive Streamlit Dashboard
+### 3. Run the Final Held-Out Evaluation Benchmark
+```powershell
+python -m eval.evaluate_heldout
+```
+*Evaluates LLM-Only, RAG-Only, and Full-System across the 60 isolated held-out cases with Brier score, ECE calibration, and multi-turn adaptive questioning metrics.*
+
+### 4. Launch Interactive Streamlit Dashboard
 ```powershell
 streamlit run app/ui.py
 ```
 *Access in browser at `http://localhost:8501` to test intake, presets, probability graphs, and live active questioning.*
 
-### 4. Launch FastAPI REST Backend
+### 5. Launch FastAPI REST Backend
 ```powershell
 uvicorn app.api:app --reload --port 8000
 ```
 *Interactive Swagger docs available at `http://localhost:8000/docs`.*
 
-### 5. Launch via Docker Compose
+### 6. Launch via Docker Compose
 ```powershell
 docker-compose up --build
 ```
@@ -194,6 +200,6 @@ docker-compose up --build
 | | **M4: Diagnostic Agent** | LangGraph orchestration (intake, retrieve, simulate, score), LLM/RAG baselines | **Complete** |
 | | **M5: Adaptive Questioning** | Expected Information Gain question selection, evidence critique, review step | **Complete** |
 | | **M6: Interface & Tracing** | FastAPI backend, Streamlit diagnostic UI, Docker containerization | **Complete** |
-| | **M7: Evaluation & Audit** | Full held-out benchmark across 3 modes, calibration (ECE/Brier), honest audit | Next |
+| | **M7: Evaluation & Audit** | Full held-out benchmark across 3 modes, calibration (ECE/Brier), honest audit | **Complete** |
 | **Phase 2** | Multi-Vehicle Support | Vehicle-specific configuration layer (Hyundai i20, etc.) | Future |
 

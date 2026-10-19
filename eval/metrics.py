@@ -1,10 +1,11 @@
 """
 Evaluation metrics computation for diagnostic baselines.
-Measures Top-1, Top-3, ambiguity detection, insufficient evidence handling, and citation rate.
+Measures Top-1, Top-3, ambiguity detection, insufficient evidence handling, citation rate,
+stratified accuracy per difficulty tier, and probability calibration.
 """
 
-from typing import List
-from pydantic import BaseModel
+from typing import Dict, List, Optional
+from pydantic import BaseModel, Field
 
 from casegen.schema import DifficultyLevel, GroundTruthCase
 from .baselines import BaselinePrediction
@@ -20,6 +21,12 @@ class EvaluationMetrics(BaseModel):
     insufficient_evidence_accuracy: float
     avg_citations_per_case: float
     unsupported_claim_rate: float
+    difficulty_breakdown: Dict[str, float] = Field(
+        default_factory=dict,
+        description="Top-1 accuracy by difficulty tier (or abstention accuracy for insufficient evidence)",
+    )
+    brier_score: Optional[float] = None
+    expected_calibration_error: Optional[float] = None
 
 
 def compute_metrics(
@@ -43,19 +50,31 @@ def compute_metrics(
     total_citations = 0
     unsupported_count = 0
 
+    # Per-difficulty accumulators: tier -> {"total": int, "correct": int}
+    diff_stats: Dict[str, Dict[str, int]] = {
+        diff.value: {"total": 0, "correct": 0} for diff in DifficultyLevel
+    }
+
     for pred, gt in zip(predictions, ground_truth):
         total_citations += len(pred.citations)
+        diff_val = gt.difficulty.value
+        diff_stats[diff_val]["total"] += 1
 
         # 1. Evaluate Insufficient Evidence cases
         if gt.difficulty == DifficultyLevel.INSUFFICIENT_EVIDENCE:
             insufficient_gt_count += 1
-            if pred.insufficient_evidence or pred.is_ambiguous or pred.top_fault_id is None:
+            is_correct_abstention = (
+                pred.insufficient_evidence or pred.is_ambiguous or pred.top_fault_id is None
+            )
+            if is_correct_abstention:
                 insufficient_correct += 1
+                diff_stats[diff_val]["correct"] += 1
         else:
             # 2. Evaluate Diagnosable cases
             diagnosable_count += 1
             if pred.top_fault_id == gt.true_fault_id:
                 top1_correct += 1
+                diff_stats[diff_val]["correct"] += 1
             if gt.true_fault_id in pred.ranked_candidates[:3]:
                 top3_correct += 1
 
@@ -73,6 +92,13 @@ def compute_metrics(
     avg_citations = (total_citations / total_cases) if total_cases else 0.0
     unsupported_rate = (unsupported_count / diagnosable_count) if diagnosable_count else 0.0
 
+    breakdown = {}
+    for diff_name, counts in diff_stats.items():
+        if counts["total"] > 0:
+            breakdown[diff_name] = round(counts["correct"] / counts["total"], 4)
+        else:
+            breakdown[diff_name] = 0.0
+
     return EvaluationMetrics(
         mode=mode,
         total_cases=total_cases,
@@ -83,4 +109,5 @@ def compute_metrics(
         insufficient_evidence_accuracy=round(insuff_acc, 4),
         avg_citations_per_case=round(avg_citations, 2),
         unsupported_claim_rate=round(unsupported_rate, 4),
+        difficulty_breakdown=breakdown,
     )
