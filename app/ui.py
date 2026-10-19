@@ -5,6 +5,14 @@ real-time Bayesian likelihood visualization, EIG follow-up questioning wizard,
 and verifiable citation drawer.
 """
 
+import sys
+from pathlib import Path
+
+# Ensure project root is in sys.path when launched via Streamlit CLI
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 import streamlit as st
 from typing import Dict, List, Optional
 import pandas as pd
