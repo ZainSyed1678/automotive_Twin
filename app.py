@@ -8,6 +8,20 @@ from pathlib import Path
 from typing import Dict, List, Optional
 import pandas as pd
 
+# ZeroGPU compatibility for Hugging Face Spaces
+try:
+    import spaces
+except ImportError:
+    class _MockSpaces:
+        @staticmethod
+        def GPU(fn=None, **kwargs):
+            if fn is not None:
+                return fn
+            def decorator(func):
+                return func
+            return decorator
+    spaces = _MockSpaces()
+
 # Ensure project root is in sys.path
 PROJECT_ROOT = Path(__file__).resolve().parent
 if str(PROJECT_ROOT) not in sys.path:
@@ -96,6 +110,7 @@ def load_preset(preset_name: str):
     )
 
 
+@spaces.GPU
 def diagnose(
     dtcs: List[str],
     idle_quality: str,
