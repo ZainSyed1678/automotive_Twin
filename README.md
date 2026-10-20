@@ -1,3 +1,13 @@
+---
+title: Automotive Digital Twin Diagnostic Station
+emoji: 🚗
+colorFrom: blue
+colorTo: indigo
+sdk: gradio
+app_file: app.py
+pinned: false
+---
+
 # AI-Powered Automotive Digital Twin for Fault Diagnosis
 
 > **Simulation-Driven Fault Diagnosis for Vehicle Air-Intake & Fuel-Control Subsystems**  
