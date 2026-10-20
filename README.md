@@ -157,7 +157,7 @@ python run_demo.py
 ```
 
 ### 2. Run the Full Test Suite
-Runs all 67 automated tests across Phase 1 and Phase 2:
+Runs all 77 automated tests across Phase 1, Phase 2, and Phase 3:
 ```powershell
 pytest -v
 ```
@@ -166,11 +166,12 @@ Expected output:
 ```text
 tests/test_adaptive_questioning.py::test_entropy_calculation PASSED      [  1%]
 tests/test_adaptive_questioning.py::test_eig_prioritizes_fuel_pressure_on_lean_ambiguity PASSED [  3%]
-tests/test_calibration_and_m7.py::test_brier_score_perfect_prediction PASSED [ 38%]
-tests/test_multi_vehicle.py::test_hyundai_evap_purge_valve_surfacing PASSED [ 55%]
-tests/test_multi_vehicle.py::test_vw_gdi_intake_valve_carbon_deposit PASSED [ 60%]
+tests/test_calibration_and_m7.py::test_brier_score_perfect_prediction PASSED [ 33%]
+tests/test_multi_vehicle.py::test_hyundai_evap_purge_valve_surfacing PASSED [ 48%]
+tests/test_multi_subsystem.py::test_ignition_coil_breakdown_scoring PASSED [ 62%]
+tests/test_multi_subsystem.py::test_cross_subsystem_cascade_simulation PASSED [ 68%]
 tests/test_rag_and_mcp.py::test_mcp_score_hypotheses PASSED              [100%]
-============================= 67 passed in 8.39s =============================
+============================= 77 passed in 6.87s =============================
 ```
 
 ### 3. Run the Final Held-Out Evaluation Benchmark
@@ -210,5 +211,6 @@ docker-compose up --build
 | | **M6: Interface & Tracing** | FastAPI backend, Streamlit diagnostic UI, Docker containerization | **Complete** |
 | | **M7: Evaluation & Audit** | Full held-out benchmark across 3 modes, calibration (ECE/Brier), honest audit | **Complete** |
 | **Phase 2** | **Multi-Vehicle Support** | Vehicle profile registry (Hyundai i20 MPI, VW Golf 1.4 TSI GDI), platform TSBs | **Complete** |
-| **Phase 3** | Subsystem Expansion | Transmission & EV/Hybrid powertrain digital twin modules | Future |
+| **Phase 3** | **Multi-Subsystem Expansion** | Ignition & Combustion + Exhaust & Aftertreatment subsystems, cross-subsystem cascading hazards | **Complete** |
+| **Phase 4** | Advanced Powertrain | Transmission & EV/Hybrid powertrain digital twin modules | Future |
 

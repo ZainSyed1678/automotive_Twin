@@ -104,6 +104,34 @@ TEST_QUESTION_METADATA: Dict[str, Dict[str, Any]] = {
         "default_baseline": {"holds_steady": 0.85, "rapid_bleed_down": 0.15},
         "rationale": "A stuck-open pressure regulator or leaking check valve causes immediate rail pressure collapse.",
     },
+    "ignition_coil_swap": {
+        "test_name": "Ignition Coil Pack Cylinder Swap Test",
+        "question_text": "Swap suspect cylinder coil pack to adjacent cylinder and clear codes. Does misfire follow coil pack, or stay at original cylinder?",
+        "possible_answers": ["misfire_follows_coil", "misfire_stays_at_cylinder"],
+        "default_baseline": {"misfire_stays_at_cylinder": 0.50, "misfire_follows_coil": 0.50},
+        "rationale": "Definitively isolates an ignition coil internal insulation breakdown from spark plug or cylinder mechanical issues.",
+    },
+    "spark_plug_condition": {
+        "test_name": "Spark Plug Visual & Gap Inspection",
+        "question_text": "Remove spark plug and inspect electrode gap and ceramic nose. Is the plug clean, or fouled/eroded?",
+        "possible_answers": ["clean", "fouled_or_eroded"],
+        "default_baseline": {"clean": 0.85, "fouled_or_eroded": 0.15},
+        "rationale": "Identifies carbon soot accumulation, fuel wash, or excessive ground gap causing spark quenching.",
+    },
+    "downstream_o2_switching": {
+        "test_name": "Downstream O2S2 Voltage Switching Frequency Test",
+        "question_text": "Graph downstream oxygen sensor (O2S2) voltage at 2500 RPM. Does voltage remain steady (0.55-0.75V) or actively switch mirroring upstream O2S1?",
+        "possible_answers": ["steady_voltage", "active_mirroring_upstream", "fixed_bias"],
+        "default_baseline": {"steady_voltage": 0.85, "active_mirroring_upstream": 0.10, "fixed_bias": 0.05},
+        "rationale": "A functional catalytic converter stores oxygen and flatlines downstream O2; oscillating voltage confirms catalyst degradation.",
+    },
+    "catalytic_temp_delta": {
+        "test_name": "Catalytic Converter Inlet vs Outlet Temperature Differential",
+        "question_text": "Measure catalytic converter inlet and outlet temperatures with an infrared pyrometer. Is outlet significantly hotter (>25°C), or inlet hotter/same?",
+        "possible_answers": ["outlet_significantly_hotter", "inlet_hotter_or_same"],
+        "default_baseline": {"outlet_significantly_hotter": 0.85, "inlet_hotter_or_same": 0.15},
+        "rationale": "Exothermic redox reactions inside a working converter cause outlet temperature to exceed inlet temperature.",
+    },
 }
 
 

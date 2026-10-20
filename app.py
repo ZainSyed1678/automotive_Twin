@@ -126,7 +126,35 @@ PRESET_SCENARIOS = {
         "fuel_trim_at_high_rpm": "Unobserved",
         "maf_reading": "Unobserved",
         "audible_hiss": "Unobserved",
+        "ignition_coil_swap": "Unobserved",
+        "downstream_o2": "Unobserved",
         "notes": "VW 1.4 TSI EA211 rough idle on cold start. Direct injection intake valve carbon buildup suspected.",
+    },
+    "Scenario 8: Ignition Coil Breakdown with Catalyst Risk (P0301, Misfire Under Load)": {
+        "vehicle": "Generic 4-Stroke Petrol Engine (MPI Baseline)",
+        "dtcs": ["P0300", "P0301"],
+        "idle_quality": "rough",
+        "fuel_pressure": "normal",
+        "fuel_trim_ltft": "Unobserved",
+        "fuel_trim_at_high_rpm": "Unobserved",
+        "maf_reading": "Unobserved",
+        "audible_hiss": "Unobserved",
+        "ignition_coil_swap": "misfire_follows_coil",
+        "downstream_o2": "Unobserved",
+        "notes": "Engine hesitates sharply under acceleration. Misfire moves with swapped coil pack. High risk of catalyst meltdown.",
+    },
+    "Scenario 9: Catalytic Converter Degradation (P0420, Downstream O2 Active)": {
+        "vehicle": "Generic 4-Stroke Petrol Engine (MPI Baseline)",
+        "dtcs": ["P0420"],
+        "idle_quality": "normal",
+        "fuel_pressure": "normal",
+        "fuel_trim_ltft": "normal",
+        "fuel_trim_at_high_rpm": "Unobserved",
+        "maf_reading": "Unobserved",
+        "audible_hiss": "Unobserved",
+        "ignition_coil_swap": "Unobserved",
+        "downstream_o2": "active_mirroring_upstream",
+        "notes": "Catalyst efficiency DTC stored. Post-catalytic O2 sensor oscillates in tandem with upstream sensor.",
     },
 }
 
@@ -142,6 +170,8 @@ def load_preset(preset_name: str):
         data["fuel_trim_at_high_rpm"],
         data["maf_reading"],
         data["audible_hiss"],
+        data.get("ignition_coil_swap", "Unobserved"),
+        data.get("downstream_o2", "Unobserved"),
         data["notes"],
     )
 
@@ -156,6 +186,8 @@ def diagnose(
     fuel_trim_at_high_rpm: str,
     maf_reading: str,
     audible_hiss: str,
+    ignition_coil_swap: str,
+    downstream_o2: str,
     notes: str,
 ):
     vehicle_id = VEHICLE_OPTIONS.get(vehicle_name, "generic_petrol")
@@ -174,6 +206,10 @@ def diagnose(
         symptoms["maf_reading"] = maf_reading
     if audible_hiss and audible_hiss != "Unobserved":
         symptoms["audible_hiss"] = audible_hiss
+    if ignition_coil_swap and ignition_coil_swap != "Unobserved":
+        symptoms["ignition_coil_swap"] = ignition_coil_swap
+    if downstream_o2 and downstream_o2 != "Unobserved":
+        symptoms["downstream_o2_switching"] = downstream_o2
 
     obs = Observations(
         dtc_codes=dtcs or [],
@@ -191,6 +227,12 @@ def diagnose(
         badge = f"### ⚠️ **Self-Review Gate: {report.review_status}**"
 
     # 2. Executive summary
+    cascading_str = ""
+    if report.ranked_hypotheses and report.ranked_hypotheses[0].get("cascading_risks"):
+        risks = report.ranked_hypotheses[0]["cascading_risks"]
+        risk_bullets = "\n".join([f"- ⚠️ **Cross-Subsystem Hazard:** {r}" for r in risks])
+        cascading_str = f"\n\n### ⚡ Cross-Subsystem Cascading Effects\n{risk_bullets}\n"
+
     summary_md = f"""
 {badge}
 
@@ -200,6 +242,7 @@ def diagnose(
 **Diagnostic Status:** `{'Insufficient Evidence' if report.insufficient_evidence else ('Ambiguous' if report.is_ambiguous else 'High Confidence')}`
 
 > **Summary:** {report.executive_summary}
+{cascading_str}
 """
 
     # 3. Ranked hypotheses table
@@ -208,6 +251,7 @@ def diagnose(
         table_rows.append({
             "Rank": idx,
             "Failure Mode": h.get("fault_name", ""),
+            "Subsystem": h.get("subsystem", "air_intake_and_fuel_control"),
             "Component": h.get("component_id", ""),
             "Posterior Probability": f"{h.get('posterior_prob', 0.0) * 100:.1f}%",
             "Weight of Evidence (Score)": round(h.get("log_likelihood", 0.0), 2),
@@ -237,9 +281,9 @@ def diagnose(
     return summary_md, hyp_df, q_md, cit_md, ev_md
 
 
-with gr.Blocks(title="Automotive Digital Twin Diagnostic Station") as demo:
-    gr.Markdown("# 🚗 Automotive Digital Twin Diagnostic Station")
-    gr.Markdown("**Subsystem:** Air-Intake & Fuel-Control *(Generic 4-Stroke Petrol Engine)*")
+with gr.Blocks(title="Automotive Multi-Subsystem Digital Twin") as demo:
+    gr.Markdown("# 🚗 Automotive Multi-Subsystem Digital Twin Diagnostic Station")
+    gr.Markdown("**Subsystems:** Air-Intake & Fuel-Control | Ignition & Combustion | Exhaust & Aftertreatment")
 
     with gr.Row():
         preset_dropdown = gr.Dropdown(
@@ -258,7 +302,7 @@ with gr.Blocks(title="Automotive Digital Twin Diagnostic Station") as demo:
             )
             dtc_input = gr.CheckboxGroup(
                 label="OBD-II Diagnostic Trouble Codes",
-                choices=["P0101", "P0102", "P0106", "P0107", "P0117", "P0121", "P0128", "P0133", "P0171", "P0300", "P0301", "P0507"],
+                choices=["P0101", "P0102", "P0106", "P0107", "P0117", "P0121", "P0128", "P0133", "P0136", "P0171", "P0300", "P0301", "P0335", "P0420", "P0507"],
                 value=[],
             )
             idle_q = gr.Dropdown(
@@ -291,6 +335,16 @@ with gr.Blocks(title="Automotive Digital Twin Diagnostic Station") as demo:
                 choices=["Unobserved", "present", "absent"],
                 value="Unobserved",
             )
+            coil_swap = gr.Dropdown(
+                label="Ignition Coil Cylinder Swap Result",
+                choices=["Unobserved", "misfire_follows_coil", "misfire_stays_at_cylinder"],
+                value="Unobserved",
+            )
+            o2_post = gr.Dropdown(
+                label="Downstream O2S2 Voltage Switching Behavior",
+                choices=["Unobserved", "steady_voltage", "active_mirroring_upstream", "fixed_bias"],
+                value="Unobserved",
+            )
             notes_box = gr.Textbox(
                 label="Inspection Notes",
                 placeholder="Technician observations...",
@@ -311,13 +365,13 @@ with gr.Blocks(title="Automotive Digital Twin Diagnostic Station") as demo:
     preset_dropdown.change(
         fn=load_preset,
         inputs=[preset_dropdown],
-        outputs=[vehicle_input, dtc_input, idle_q, fuel_p, fuel_trim, high_rpm_trim, maf_read, hiss, notes_box],
+        outputs=[vehicle_input, dtc_input, idle_q, fuel_p, fuel_trim, high_rpm_trim, maf_read, hiss, coil_swap, o2_post, notes_box],
     )
 
     # Wire diagnosis button
     run_btn.click(
         fn=diagnose,
-        inputs=[vehicle_input, dtc_input, idle_q, fuel_p, fuel_trim, high_rpm_trim, maf_read, hiss, notes_box],
+        inputs=[vehicle_input, dtc_input, idle_q, fuel_p, fuel_trim, high_rpm_trim, maf_read, hiss, coil_swap, o2_post, notes_box],
         outputs=[summary_output, hyp_output, question_output, cit_output, ev_output],
     )
 

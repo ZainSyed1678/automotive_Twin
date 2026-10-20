@@ -12,12 +12,19 @@ def model():
 
 
 def test_catalogue_structure_and_counts(model: FaultModel):
-    """Verify that exactly 10 components and 12 faults are loaded with valid priors."""
+    """Verify that baseline and multi-subsystem components/faults are loaded with valid priors."""
     components = model.list_components()
     faults = model.list_faults()
 
-    assert len(components) == 10, f"Expected 10 components, got {len(components)}"
-    assert len(faults) == 12, f"Expected 12 faults, got {len(faults)}"
+    assert len(components) >= 10, f"Expected at least 10 components, got {len(components)}"
+    assert len(faults) >= 12, f"Expected at least 12 faults, got {len(faults)}"
+
+    # Verify baseline air-intake & fuel-control subsystem counts remain intact
+    air_fuel_comps = [c for c in components if c.subsystem == "air_intake_and_fuel_control"]
+    assert len(air_fuel_comps) == 10
+
+    air_fuel_faults = [f for f in faults if model.get_component(f.component_id) and model.get_component(f.component_id).subsystem == "air_intake_and_fuel_control"]
+    assert len(air_fuel_faults) == 12
 
     for fault in faults:
         assert 0.0 < fault.prior <= 1.0, f"Invalid prior for {fault.fault_id}"

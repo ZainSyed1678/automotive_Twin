@@ -82,22 +82,27 @@ class FaultModel:
                 best_state = max(states.items(), key=lambda item: item[1])[0]
                 dominant[symptom_name] = best_state
 
+        comp = self.get_component(fault.component_id)
+        subsystem = comp.subsystem if comp else "air_intake_and_fuel_control"
         return SimulationResult(
             fault_id=fault.fault_id,
             fault_name=fault.name,
             component_id=fault.component_id,
+            subsystem=subsystem,
             description=fault.description,
             expected_dtcs=fault.dtcs,
             expected_symptoms=fault.symptoms,
             dominant_symptoms=dominant,
             distinguishing_tests=fault.distinguishing_tests,
+            cascading_effects=getattr(fault, "cascading_effects", []),
         )
 
     # Baseline frequencies of observations in healthy/ambient condition
     BASELINE_DTC = 0.02
     NORMAL_STATES = {
         "normal", "none", "clean", "absent", "stable", "smooth",
-        "holds_spec", "cycling_normally"
+        "holds_spec", "cycling_normally", "steady_voltage",
+        "outlet_significantly_hotter", "misfire_stays_at_cylinder",
     }
 
     def _get_baseline_prob(self, state: str) -> float:
@@ -194,19 +199,27 @@ class FaultModel:
         ranked: List[HypothesisScore] = []
         for fault_id, score in sorted(raw_scores.items(), key=lambda item: item[1], reverse=True):
             fault = candidate_faults[fault_id]
+            comp = self.get_component(fault.component_id)
+            subsystem = comp.subsystem if comp else "air_intake_and_fuel_control"
             prior_val = fault.prior
             if profile and fault_id in profile.prior_overrides:
                 prior_val = profile.prior_overrides[fault_id]
+            cascading_risks = [
+                f"Risk of secondary {e.get('target_fault')}: {e.get('mechanism')}"
+                for e in getattr(fault, "cascading_effects", [])
+            ]
             ranked.append(
                 HypothesisScore(
                     fault_id=fault_id,
                     fault_name=fault.name,
                     component_id=fault.component_id,
+                    subsystem=subsystem,
                     prior=prior_val,
                     log_likelihood=round(score, 4),
                     posterior_prob=round(posteriors[fault_id], 4),
                     evidence_matches=evidence_matches[fault_id],
                     evidence_contradictions=evidence_contradictions[fault_id],
+                    cascading_risks=cascading_risks,
                 )
             )
 

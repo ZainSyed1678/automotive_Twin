@@ -23,8 +23,14 @@ class ReviewResult(BaseModel):
     adjusted_summary: Optional[str] = None
 
 
+SUPPORTED_SUBSYSTEMS = {
+    "air_intake_and_fuel_control",
+    "ignition_and_combustion",
+    "exhaust_and_aftertreatment",
+}
 SUPPORTED_SUBSYSTEM = "air_intake_and_fuel_control"
 VALID_COMPONENTS = {
+    # Subsystem 1: Air-Intake & Fuel-Control
     "maf_sensor",
     "map_sensor",
     "throttle_position_sensor",
@@ -36,6 +42,13 @@ VALID_COMPONENTS = {
     "intake_manifold",
     "wiring_harness",
     "ecu",
+    # Subsystem 2: Ignition & Combustion
+    "ignition_coil",
+    "spark_plug",
+    "crankshaft_position_sensor",
+    # Subsystem 3: Exhaust & Aftertreatment
+    "catalytic_converter",
+    "downstream_oxygen_sensor",
 }
 
 

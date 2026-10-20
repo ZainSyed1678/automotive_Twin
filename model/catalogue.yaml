@@ -57,6 +57,37 @@ components:
     subsystem: "air_intake_and_fuel_control"
     description: "Microcontroller running fuel trim, ignition timing, and diagnostic algorithms."
 
+  # ----------------------------------------------------------------------------
+  # Subsystem 2: Ignition & Combustion Subsystem Components
+  # ----------------------------------------------------------------------------
+  - id: "ignition_coil"
+    name: "Ignition Coil Pack Assembly (COP)"
+    subsystem: "ignition_and_combustion"
+    description: "High-voltage step-up transformer delivering 25,000–40,000V ionization potential to spark plugs."
+
+  - id: "spark_plug"
+    name: "Spark Plug & Core Electrode Assembly"
+    subsystem: "ignition_and_combustion"
+    description: "Threaded spark gap device providing thermal pathway and electric arc discharge to initiate combustion."
+
+  - id: "crankshaft_position_sensor"
+    name: "Crankshaft Position (CKP) Sensor"
+    subsystem: "ignition_and_combustion"
+    description: "Magnetic variable reluctance or Hall-effect pickup monitoring crankshaft speed and cylinder #1 TDC synchronization."
+
+  # ----------------------------------------------------------------------------
+  # Subsystem 3: Exhaust & Aftertreatment Subsystem Components
+  # ----------------------------------------------------------------------------
+  - id: "catalytic_converter"
+    name: "Three-Way Catalytic Converter (TWC)"
+    subsystem: "exhaust_and_aftertreatment"
+    description: "Precious metal ceramic substrate catalyzing redox conversion of HC, CO, and NOx emissions with oxygen storage capacity."
+
+  - id: "downstream_oxygen_sensor"
+    name: "Downstream Heated Oxygen Sensor (O2S2)"
+    subsystem: "exhaust_and_aftertreatment"
+    description: "Post-catalyst zirconia oxygen sensor monitoring catalytic converter conversion efficiency and oxygen retention."
+
 faults:
   - fault_id: "maf_contamination"
     name: "MAF Sensor Hot-Wire Contamination"
@@ -361,3 +392,123 @@ faults:
     distinguishing_tests:
       - "Clamp fuel return line briefly while observing rail gauge (pressure should spike if regulator stuck open)."
       - "Monitor fuel residual pressure drop after engine shutoff (must hold > 30 psi for 10 minutes)."
+
+  # ----------------------------------------------------------------------------
+  # Subsystem 2: Ignition & Combustion Failure Modes
+  # ----------------------------------------------------------------------------
+  - fault_id: "ignition_coil_breakdown"
+    name: "Ignition Coil Secondary Insulation Breakdown"
+    component_id: "ignition_coil"
+    description: "Dielectric puncture or carbon tracking in secondary winding or spark plug boot causing high-voltage arcing to cylinder head under load."
+    prior: 0.09
+    dtcs:
+      P0300: 0.88
+      P0301: 0.85
+    symptoms:
+      idle_quality:
+        rough: 0.88
+        normal: 0.12
+      engine_response:
+        hesitation_or_surging: 0.90
+        normal: 0.10
+      ignition_coil_swap:
+        misfire_follows_coil: 0.95
+        misfire_stays_at_cylinder: 0.05
+      spark_plug_condition:
+        clean: 0.85
+        fouled_or_eroded: 0.15
+    cascading_effects:
+      - target_fault: "catalyst_efficiency_degraded"
+        risk_level: "high"
+        mechanism: "Raw unburned fuel dumped into exhaust manifold overheats catalytic substrate above 950°C."
+    distinguishing_tests:
+      - "Swap suspect cylinder #1 coil pack to cylinder #2; verify whether misfire counter follows the coil pack."
+      - "Inspect coil silicone boot under high illumination for carbon tracking lines or pinhole burnouts."
+
+  - fault_id: "spark_plug_fouled"
+    name: "Spark Plug Heavy Carbon / Electrode Erosion"
+    component_id: "spark_plug"
+    description: "Soot or fuel wash buildup shunting spark energy to ground, or worn ground electrode exceeding maximum firing gap (>1.5mm)."
+    prior: 0.08
+    dtcs:
+      P0300: 0.80
+      P0301: 0.78
+    symptoms:
+      idle_quality:
+        rough: 0.82
+        normal: 0.18
+      spark_plug_condition:
+        fouled_or_eroded: 0.95
+        clean: 0.05
+      ignition_coil_swap:
+        misfire_stays_at_cylinder: 0.92
+        misfire_follows_coil: 0.08
+    distinguishing_tests:
+      - "Remove spark plug and inspect center electrode gap using wire feeler gauge (spec: 0.9 to 1.1mm)."
+      - "Check ceramic insulator nose for black velvety carbon fouling or fuel saturation."
+
+  - fault_id: "crank_sensor_thermal_failure"
+    name: "Crankshaft Position (CKP) Sensor Thermal Failure"
+    component_id: "crankshaft_position_sensor"
+    description: "Internal fine-wire copper pickup coil expands when engine reaches operating temperature (>85°C), open-circuiting the engine speed sync signal."
+    prior: 0.06
+    dtcs:
+      P0335: 0.92
+      P0336: 0.76
+    symptoms:
+      engine_stall_when_hot:
+        present: 0.94
+        absent: 0.06
+      crank_no_start:
+        intermittent_when_warm: 0.90
+        absent: 0.10
+      tachometer_rpm_reading:
+        zero_during_crank: 0.88
+        normal: 0.12
+    distinguishing_tests:
+      - "Measure CKP sensor terminal resistance when engine cuts out hot (resistance open-circuits > 10k ohms when hot vs 800-1200 ohms cold)."
+      - "Monitor engine live RPM parameter during hot cranking; lack of RPM signal confirms dead CKP."
+
+  # ----------------------------------------------------------------------------
+  # Subsystem 3: Exhaust & Aftertreatment Failure Modes
+  # ----------------------------------------------------------------------------
+  - fault_id: "catalyst_efficiency_degraded"
+    name: "Catalytic Converter Substrate Thermal Degradation"
+    component_id: "catalytic_converter"
+    description: "Washcoat sintering or thermal breakdown of precious metal catalyst bed resulting in loss of oxygen storage capacity."
+    prior: 0.07
+    dtcs:
+      P0420: 0.96
+    symptoms:
+      downstream_o2_switching:
+        active_mirroring_upstream: 0.94
+        steady_voltage: 0.06
+      catalytic_temp_delta:
+        inlet_hotter_or_same: 0.88
+        outlet_significantly_hotter: 0.12
+      idle_quality:
+        normal: 0.90
+        rough: 0.10
+    distinguishing_tests:
+      - "Graph Downstream O2S2 signal voltage at 2500 RPM steady cruise (O2S2 must flatline at 0.55-0.75V; oscillating voltage indicates dead catalyst)."
+      - "Measure catalytic converter inlet vs outlet temperature using infrared pyrometer (outlet should be 25-50°C hotter on a working unit)."
+
+  - fault_id: "downstream_o2_sensor_biased"
+    name: "Downstream Oxygen Sensor (O2S2) Signal Bias"
+    component_id: "downstream_oxygen_sensor"
+    description: "Internal ceramic reference leak or sensor heater failure causing post-cat oxygen sensor to fixate at erroneous voltage."
+    prior: 0.05
+    dtcs:
+      P0136: 0.85
+      P0138: 0.80
+      P0420: 0.40
+    symptoms:
+      downstream_o2_switching:
+        fixed_bias: 0.92
+        steady_voltage: 0.08
+      catalytic_temp_delta:
+        outlet_significantly_hotter: 0.82
+        inlet_hotter_or_same: 0.18
+    distinguishing_tests:
+      - "Measure downstream O2S2 heater circuit resistance with multimeter (open circuit confirms dead heater element)."
+      - "Observe O2S2 sensor voltage during sudden deceleration fuel cut (voltage must drop below 0.1V; failure to drop confirms sensor bias)."

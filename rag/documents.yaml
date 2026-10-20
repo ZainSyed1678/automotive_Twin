@@ -390,3 +390,72 @@ documents:
       1. Inspect cylinder misfire counters on VCDS/scanner during cold start.
       2. Remove MAP sensor and insert optical borescope into intake runner to visually inspect valve backs.
       Correction: Perform walnut shell media blasting of intake ports and intake valve tulips. Replace PCV oil separator diaphragm.
+
+  # ----------------------------------------------------------------------------
+  # Subsystem 2 & 3: Multi-Subsystem Reference Documents & TSBs
+  # ----------------------------------------------------------------------------
+  - doc_id: "DOC-OBD-P0301"
+    title: "OBD-II Code P0301: Cylinder 1 Misfire Detected"
+    doc_type: "obd_code"
+    component_id: "ignition_coil"
+    related_dtcs: ["P0300", "P0301"]
+    summary: "ECU crankshaft speed monitoring detects angular deceleration on cylinder #1 expansion stroke."
+    content: |
+      DTC Description: Cylinder 1 Misfire Detected.
+      Enabling Conditions: Engine running between 450 and 6000 RPM, positive torque request, no active CKP sensor codes.
+      Diagnostic Logic: The ECU continuously measures micro-second intervals between 58x reluctor teeth on the crankshaft. A combustion misfire fails to deliver torque, causing a momentary rotational deceleration. If misfire rate exceeds 2% (emissions threshold) or 10% (catalyst damage threshold), DTC is set.
+      Component Discrimination:
+      1. Ignition breakdown: Arc-over across boot or open secondary winding. Misfire worsens under load.
+      2. Spark plug fouling: High resistance gap or carbon tracking.
+      3. Fuel injector restriction: Lean misfire on cylinder #1 only; spark plug appears chalk-white.
+      Priority Diagnostic Step:
+      Swap ignition coil pack from cylinder #1 to cylinder #2. If misfire counter moves to cylinder #2, replace coil. If misfire stays on cylinder #1, inspect plug and injector.
+
+  - doc_id: "DOC-OBD-P0335"
+    title: "OBD-II Code P0335: Crankshaft Position (CKP) Sensor Circuit Malfunction"
+    doc_type: "obd_code"
+    component_id: "crankshaft_position_sensor"
+    related_dtcs: ["P0335", "P0336"]
+    summary: "Loss of missing tooth sync pulses or absence of engine speed signal during starter cranking."
+    content: |
+      DTC Description: Crankshaft Position Sensor 'A' Circuit Malfunction.
+      Enabling Conditions: Engine cranking or running, starter motor active, battery voltage > 10.5V.
+      Diagnostic Logic: The ECU requires clean alternating reluctor pulses to determine piston position and sequence fuel injection/ignition. If camshaft pulses occur without crankshaft pulses, or if the missing tooth index gap is irregular, P0335 triggers immediately.
+      Primary Failure Mechanism:
+      Thermal expansion of internal copper windings. The sensor functions normally when cold, but open-circuits when engine oil and block heat up to operating temperature (>85°C), stalling the engine without restart until cooled.
+
+  - doc_id: "DOC-OBD-P0420"
+    title: "OBD-II Code P0420: Catalyst System Efficiency Below Threshold (Bank 1)"
+    doc_type: "obd_code"
+    component_id: "catalytic_converter"
+    related_dtcs: ["P0420", "P0136", "P0138"]
+    summary: "Post-catalytic converter oxygen sensor switching mimics upstream sensor, indicating loss of catalyst oxygen storage."
+    content: |
+      DTC Description: Catalyst System Efficiency Below Threshold (Bank 1).
+      Enabling Conditions: Engine at closed loop, steady highway cruise (1800-2800 RPM), engine load 20-50%, catalyst temperature calculated > 450°C.
+      Diagnostic Logic: The ECU compares upstream O2S1 switching frequency with downstream O2S2. A functioning catalyst continuously stores and releases oxygen, causing O2S2 voltage to remain steady around 0.55V–0.75V. When catalyst precious metal washcoat degrades or sinters, oxygen storage capacity (OSC) collapses. O2S2 begins oscillating in tandem with O2S1 (switching ratio > 0.75), triggering P0420.
+      Cascading Root Causes:
+      Persistent upstream misfires (P0300/P0301) dumping raw fuel into exhaust; heavy oil consumption fouling platinum/rhodium washcoat.
+
+  - doc_id: "DOC-TSB-2024-01"
+    title: "TSB 2024-01: Coil-on-Plug Silicone Boot Dielectric Breakdown and Carbon Tracking"
+    doc_type: "tsb"
+    component_id: "ignition_coil"
+    related_dtcs: ["P0300", "P0301"]
+    summary: "Pinhole puncture in COP silicone insulator boot causing intermittent high-voltage spark dissipation to engine cylinder head."
+    content: |
+      Condition: Sharp engine bucking or hesitation under tip-in acceleration and high gear/low RPM engine load. DTC P0301 stored.
+      Mechanism: Cylinder pressure increases during acceleration, elevating the dielectric breakdown voltage required to bridge the spark plug gap. If the coil silicone boot has microscopic heat cracks, the 30kV spark arcs through the boot wall to the cylinder head rather than firing inside the cylinder.
+      Verification: Pull coil pack and roll back silicone boot. Look for carbon flash-over tracks (thin pencil-like grey lines) on ceramic plug ribs.
+
+  - doc_id: "DOC-TSB-2024-02"
+    title: "TSB 2024-02: Cascading Catalytic Converter Thermal Degradation from Unaddressed Engine Misfires"
+    doc_type: "tsb"
+    component_id: "catalytic_converter"
+    related_dtcs: ["P0420", "P0300", "P0301"]
+    summary: "Exhaust manifold afterburning of unburned air-fuel charge melting substrate and triggering downstream P0420."
+    content: |
+      Condition: P0420 catalyst efficiency code stored 500-1000 miles following an ignition coil failure or persistent cylinder misfire.
+      Cross-Subsystem Correlation:
+      When an ignition coil fails, the fuel injector continues injecting raw gasoline. This liquid fuel enters the exhaust header and reaches the 600°C catalytic converter, where it ignites directly on the ceramic substrate. Internal temperatures exceed 950°C within minutes, sintering the ceria/platinum washcoat and permanently destroying oxygen storage capacity.
+      Diagnostic Rule: Never replace a catalytic converter for P0420 without first inspecting and addressing upstream misfires and fuel trims.

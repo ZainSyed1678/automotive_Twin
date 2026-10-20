@@ -96,10 +96,12 @@ def healthcheck() -> Dict[str, Any]:
     Health check returning system status, subsystem boundary, and catalogue dimensions.
     """
     model = get_model()
+    subsystems = sorted(list({c.subsystem for c in model.components.values()}))
     return {
         "status": "ok",
         "service": "Automotive Digital Twin Diagnostic Station",
         "subsystem": "air_intake_and_fuel_control",
+        "supported_subsystems": subsystems,
         "supported_components_count": len(model.components),
         "supported_faults_count": len(model.faults),
         "supported_vehicles": vehicle_registry.list_vehicle_ids(),

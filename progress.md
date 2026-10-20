@@ -20,6 +20,7 @@
 | **M6** | **Interface & Observability** | **Completed** | FastAPI backend, Streamlit diagnostic UI, Docker containerization, 54/54 tests passing. |
 | **M7** | **Evaluation & Calibration** | **Completed** | Held-out benchmarking across 3 modes, calibration scoring (ECE 0.059, Brier 0.056), 58/58 tests passing. |
 | **Phase 2** | **Multi-Vehicle Support** | **Completed** | Vehicle profile registry, Hyundai i20 Kappa MPI, VW Golf 1.4 TSI GDI, platform TSBs, 67/67 tests passing. |
+| **Phase 3** | **Multi-Subsystem Digital Twin** | **Completed** | Ignition & Combustion + Exhaust & Aftertreatment subsystems, cascading failure hazards, 77/77 tests passing. |
 
 ---
 
@@ -325,6 +326,75 @@ Phase 2 upgrades the generic prototype to support multiple powertrain platforms 
   - End-to-end LangGraph diagnosis with review gate passage (`PASSED`).
   - FastAPI `/vehicles` and `/diagnose` endpoints.
 - **Total test suite: 67 passed in 8.39s**.
+
+---
+
+## 11. Phase 3 — Multi-Subsystem Digital Twin & Cross-Subsystem Fault Propagation
+
+### Architecture Overview
+Phase 3 expands the digital twin from a single air-intake and fuel-control focus to a comprehensive **three-subsystem powertrain causal graph**:
+1. `air_intake_and_fuel_control` (10 components, 12 failure modes)
+2. `ignition_and_combustion` (3 new components, 3 failure modes)
+3. `exhaust_and_aftertreatment` (2 new components, 2 failure modes)
+
+Total model dimensions: **15 core components, 17 representative failure modes across 3 subsystems** (plus vehicle platform overlays).
+
+### New Modeled Subsystem Components (`model/catalogue.yaml`)
+- **Ignition & Combustion Subsystem**:
+  - `ignition_coil`: Coil-on-plug (COP) step-up transformer (25,000–40,000V secondary discharge).
+  - `spark_plug`: Ground electrode and ceramic insulator nose providing ignition arc spark gap.
+  - `crankshaft_position_sensor`: Magnetic reluctor pickup reading 58x/60-2 tooth wheels for RPM and TDC sync.
+- **Exhaust & Aftertreatment Subsystem**:
+  - `catalytic_converter`: Ceramic honeycomb with Pt/Rh precious metals and ceria oxygen storage capacity.
+  - `downstream_oxygen_sensor`: Heated zirconia sensor (O2S2) monitoring post-catalyst redox conversion.
+
+### New Failure Modes & Diagnostic Scenarios
+1. `ignition_coil_breakdown`: Secondary winding insulation puncture arcing to cylinder head under load (`P0300`, `P0301`).
+2. `spark_plug_fouled`: Soot/carbon accumulation shunting spark energy to ground or excessive gap > 1.5mm (`P0300`, `P0301`).
+3. `crank_sensor_thermal_failure`: Internal copper winding thermal open-circuit at >85°C engine block temperature (`P0335`, `P0336`).
+4. `catalyst_efficiency_degraded`: Washcoat sintering destroying oxygen storage capacity; downstream O2 mirrors upstream (`P0420`).
+5. `downstream_o2_sensor_biased`: Ceramic reference leak or heater element open-circuit creating false voltage bias (`P0136`, `P0138`).
+
+### Causal Cross-Subsystem Fault Propagation
+- Formulated cascading failure paths where a primary malfunction in one subsystem induces severe secondary damage in a downstream subsystem:
+  - `ignition_coil_breakdown` $\to$ raw liquid hydrocarbon dumped into exhaust $\to$ combustion occurs on catalytic substrate at >950°C $\to$ rapid washcoat destruction $\to$ `catalyst_efficiency_degraded` (`P0420`).
+- Implemented `cascading_effects` in `SimulationResult` and `cascading_risks` in `HypothesisScore`, surfacing actionable hazard alerts in diagnostic outputs.
+
+### Multi-Subsystem Adaptive Questions (EIG) (`agents/eig.py`)
+- Registered 4 new physical inspection procedures:
+  - `ignition_coil_swap`: Swap coil pack to adjacent cylinder (misfire follows coil vs stays at cylinder).
+  - `spark_plug_condition`: Feeler gauge gap measurement and insulator visual check (clean vs fouled/eroded).
+  - `downstream_o2_switching`: 2500 RPM post-cat O2S2 voltage trace (steady 0.6V vs active oscillation).
+  - `catalytic_temp_delta`: Infrared thermometer inlet vs outlet temperature differential.
+
+### Self-Review Gate Updates (`agents/review.py`)
+- Expanded `SUPPORTED_SUBSYSTEMS` to validate all 3 subsystems (`air_intake_and_fuel_control`, `ignition_and_combustion`, `exhaust_and_aftertreatment`).
+- Expanded `VALID_COMPONENTS` to 15 components.
+
+### Technical RAG Knowledge Base (`rag/documents.yaml`)
+- Added 5 new technical reference documents and TSBs:
+  - `DOC-OBD-P0301`: Single-cylinder misfire diagnostic priority logic (coil swap).
+  - `DOC-OBD-P0335`: Crankshaft position sensor thermal open-circuit diagnostics.
+  - `DOC-OBD-P0420`: Catalyst oxygen storage evaluation via downstream switching frequency.
+  - `DOC-TSB-2024-01`: COP boot dielectric breakdown and carbon tracking under acceleration.
+  - `DOC-TSB-2024-02`: Upstream misfires dumping raw fuel and melting catalytic substrates.
+
+### Interface & UI Updates
+- **Gradio Station (`app.py`)**: Updated title, 3-subsystem banner, added scenarios 8 & 9, and added cross-subsystem cascading hazard alerts.
+- **FastAPI (`app/api.py`)**: `/health` endpoint returns all 3 supported subsystems.
+
+### Test Suite Verification (`tests/test_multi_subsystem.py`)
+- 10 dedicated automated unit and integration tests covering:
+  - Multi-subsystem catalogue dimensions and component verification.
+  - Ignition coil breakdown scoring (>90% posterior).
+  - Spark plug fouling vs coil swap discrimination.
+  - Crankshaft position sensor thermal breakdown scoring.
+  - Catalytic converter degradation scoring (>90% posterior).
+  - Cross-subsystem cascading hazard alerts.
+  - EIG misfire test selection prioritizing coil swap.
+  - Multi-subsystem RAG retrieval.
+  - End-to-end LangGraph diagnosis with review gate passage (`PASSED`).
+- **Complete Test Suite: 77 passed in 6.87s**.
 
 
 

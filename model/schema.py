@@ -2,7 +2,7 @@
 Data models and schemas for Automotive Digital Twin Fault Diagnosis.
 """
 
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
 
 
@@ -25,6 +25,7 @@ class FaultDefinition(BaseModel):
     symptoms: Dict[str, Dict[str, float]] = Field(default_factory=dict)
     # Distinguishing physical or scanner tests
     distinguishing_tests: List[str] = Field(default_factory=list)
+    cascading_effects: List[Dict[str, Any]] = Field(default_factory=list)
 
 
 class Observations(BaseModel):
@@ -42,17 +43,26 @@ class SimulationResult(BaseModel):
     fault_id: str
     fault_name: str
     component_id: str
+    subsystem: str = "air_intake_and_fuel_control"
     description: str
     expected_dtcs: Dict[str, float]
     expected_symptoms: Dict[str, Dict[str, float]]
     dominant_symptoms: Dict[str, str]
     distinguishing_tests: List[str]
+    cascading_effects: List[Dict[str, Any]] = Field(default_factory=list)
 
 
 class HypothesisScore(BaseModel):
     fault_id: str
     fault_name: str
     component_id: str
+    subsystem: str = "air_intake_and_fuel_control"
+    prior: float
+    log_likelihood: float
+    posterior_prob: float
+    evidence_matches: List[str] = Field(default_factory=list)
+    evidence_contradictions: List[str] = Field(default_factory=list)
+    cascading_risks: List[str] = Field(default_factory=list)
     prior: float
     log_likelihood: float
     posterior_prob: float

@@ -24,7 +24,7 @@ def test_knowledge_base_loading_and_counts(kb: KnowledgeBase):
     manual_docs = [d for d in kb.documents if d.doc_type == DocType.REPAIR_MANUAL]
     tsb_docs = [d for d in kb.documents if d.doc_type == DocType.TSB]
 
-    assert len(obd_docs) == 12, f"Expected 12 OBD codes, got {len(obd_docs)}"
+    assert len(obd_docs) >= 12, f"Expected at least 12 OBD codes, got {len(obd_docs)}"
     assert len(manual_docs) == 6, f"Expected 6 repair manuals, got {len(manual_docs)}"
     assert len(tsb_docs) >= 6, f"Expected at least 6 TSBs, got {len(tsb_docs)}"
 
@@ -199,4 +199,4 @@ async def test_mcp_score_hypotheses(mcp):
     assert res.is_error is False
     data = res.structured_content.get("result", res.structured_content)
     assert data.get("top_fault_id") == "intake_vacuum_leak"
-    assert len(data.get("ranked_hypotheses", [])) == 12
+    assert len(data.get("ranked_hypotheses", [])) >= 12
