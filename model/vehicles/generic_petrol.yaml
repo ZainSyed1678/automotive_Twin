@@ -1,0 +1,28 @@
+id: generic_petrol
+name: "Generic 4-Stroke Petrol Engine (Baseline)"
+make: "Generic"
+model: "Standard Petrol"
+engine_code: "GEN-4S"
+year_range: "2010-2024"
+fuel_system: "MPI"
+aspiration: "Naturally Aspirated"
+displacement_l: 1.6
+description: "Baseline generic 4-stroke naturally aspirated petrol engine with port multi-point injection."
+nominal_specs:
+  fuel_pressure_bar:
+    min: 3.0
+    max: 3.8
+    unit: "bar"
+    description: "Mechanical fuel rail gauge pressure"
+  maf_idle_gps:
+    min: 2.0
+    max: 3.5
+    unit: "g/s"
+    description: "Mass Air Flow sensor output at warm curb idle"
+  typical_ltft_range:
+    min: -10.0
+    max: 10.0
+    unit: "%"
+    description: "Long-term fuel trim normal operating window"
+prior_overrides: {}
+additional_faults: []

@@ -20,6 +20,7 @@ import pandas as pd
 from agents.workflow import run_diagnosis
 from model.engine import FaultModel
 from model.schema import Observations
+from model.vehicle_registry import vehicle_registry
 from rag.store import KnowledgeBase
 from app.tracing import get_tracer
 
@@ -105,6 +106,20 @@ if "turn_history" not in st.session_state:
 st.sidebar.title("🚗 Diagnostic Controls")
 st.sidebar.markdown("**Subsystem Scope:** Air-Intake & Fuel-Control *(Generic 4-Stroke Petrol)*")
 
+st.sidebar.markdown("---")
+st.sidebar.subheader("🏎️ Vehicle Platform Profile")
+vehicle_profiles = vehicle_registry.list_profiles()
+vehicle_names = [f"{p.name}" for p in vehicle_profiles]
+selected_vehicle_idx = st.sidebar.selectbox(
+    "Select Vehicle Powertrain Architecture",
+    range(len(vehicle_profiles)),
+    format_func=lambda i: vehicle_names[i],
+    index=0,
+)
+current_vehicle = vehicle_profiles[selected_vehicle_idx]
+st.sidebar.caption(f"**Specs:** {current_vehicle.fuel_system} | {current_vehicle.aspiration} ({current_vehicle.displacement_l}L)")
+st.sidebar.markdown("---")
+
 preset_options = [
     "-- Select a Benchmark Scenario --",
     "Scenario 1: MAF Contamination (P0101, Sluggish)",
@@ -112,6 +127,8 @@ preset_options = [
     "Scenario 3: Weak Fuel Pump (P0171, Low Pressure)",
     "Scenario 4: Intake Vacuum Leak (P0171, P0507, Hissing)",
     "Scenario 5: Insufficient Evidence (Empty / Sparse)",
+    "Scenario 6: Hyundai i20 Purge Valve Sticking (P0171, P0507)",
+    "Scenario 7: VW Golf EA211 Direct Injection Carbon Fouling (P0300)",
 ]
 
 selected_preset = st.sidebar.selectbox("Load Benchmark Case", preset_options)
@@ -148,6 +165,24 @@ if st.sidebar.button("Load Selected Scenario"):
         st.session_state.dtcs = []
         st.session_state.symptoms = {}
         st.session_state.notes = "Customer brought car in with no MIL codes or specific observations."
+    elif "Scenario 6" in selected_preset:
+        st.session_state.dtcs = ["P0171", "P0507"]
+        st.session_state.symptoms = {
+            "idle_quality": "rough",
+            "fuel_pressure": "normal",
+            "fuel_trim_ltft": "high_positive",
+            "fuel_trim_at_high_rpm": "normalizes",
+            "audible_hiss": "present",
+        }
+        st.session_state.notes = "Hyundai Kappa 1.2L rough idle especially after refueling. EVAP purge control valve suspected."
+    elif "Scenario 7" in selected_preset:
+        st.session_state.dtcs = ["P0300"]
+        st.session_state.symptoms = {
+            "idle_quality": "rough",
+            "fuel_pressure": "normal",
+            "fuel_trim_ltft": "high_positive",
+        }
+        st.session_state.notes = "VW 1.4 TSI EA211 rough idle on cold start. Direct injection intake valve carbon buildup suspected."
 
     st.session_state.report = None
     st.session_state.turn_history = []
@@ -290,6 +325,7 @@ with tab_workbench:
                 dtc_codes=selected_dtcs,
                 symptoms=symptom_dict,
                 notes=notes_input,
+                vehicle_id=current_vehicle.id,
             )
 
             with st.spinner("Executing 7-node LangGraph digital twin workflow..."):
@@ -316,6 +352,7 @@ with tab_workbench:
                 st.warning(f"⚠️ **Self-Review Gate: {report.review_status}**")
 
             # 2. Key Metrics
+            st.caption(f"🚗 **Vehicle Target:** {report.vehicle_name or current_vehicle.name} [{current_vehicle.fuel_system} Port/Direct, {current_vehicle.aspiration}]")
             m1, m2, m3 = st.columns(3)
             with m1:
                 st.metric(
@@ -424,7 +461,19 @@ with tab_model:
     col_comps, col_sim = st.columns([1, 1.2], gap="large")
 
     with col_comps:
-        st.markdown("### 10 Subsystem Components")
+        st.markdown(f"### 🏎️ Active Vehicle: {current_vehicle.name}")
+        st.markdown(f"**Engine:** `{current_vehicle.engine_code}` | **System:** `{current_vehicle.fuel_system}` | **Aspiration:** `{current_vehicle.aspiration}`")
+        if current_vehicle.nominal_specs:
+            st.markdown("**Nominal Tolerances:**")
+            for spec_k, spec_v in current_vehicle.nominal_specs.items():
+                st.markdown(f"- `{spec_k}`: {spec_v.min} – {spec_v.max} {spec_v.unit} *({spec_v.description})*")
+        if current_vehicle.additional_faults:
+            st.markdown("**Platform-Specific Failure Modes:**")
+            for f in current_vehicle.additional_faults:
+                st.markdown(f"- ⚠️ **{f['name']}** (`{f['fault_id']}`)")
+        st.divider()
+
+        st.markdown("### 10 Baseline Subsystem Components")
         for comp in model.list_components():
             with st.container():
                 st.markdown(f"**{comp.name}** (`{comp.id}`)")
@@ -433,14 +482,24 @@ with tab_model:
 
     with col_sim:
         st.markdown("### Forward Fault Simulation Sandbox")
+        # Include platform specific faults if available
+        available_fault_ids = [f.fault_id for f in model.list_faults()]
+        if current_vehicle.additional_faults:
+            for extra in current_vehicle.additional_faults:
+                if extra["fault_id"] not in available_fault_ids:
+                    available_fault_ids.append(extra["fault_id"])
+
         sim_fault_id = st.selectbox(
             "Select Failure Mode to Simulate",
-            options=[f.fault_id for f in model.list_faults()],
-            format_func=lambda fid: model.get_fault(fid).name if model.get_fault(fid) else fid,
+            options=available_fault_ids,
+            format_func=lambda fid: (
+                model.get_fault(fid).name if model.get_fault(fid)
+                else next((e["name"] for e in current_vehicle.additional_faults if e["fault_id"] == fid), fid)
+            ),
         )
 
         if st.button("Run Forward Simulation", key="btn_run_sim"):
-            sim_res = model.simulate_fault(sim_fault_id)
+            sim_res = model.simulate_fault(sim_fault_id, vehicle_id=current_vehicle.id)
             st.markdown(f"#### Simulation Results for `{sim_res.fault_name}`")
             st.write(sim_res.description)
 

@@ -18,15 +18,15 @@ def kb():
 
 
 def test_knowledge_base_loading_and_counts(kb: KnowledgeBase):
-    """Verify all 24 technical documents are loaded and indexed correctly."""
-    assert len(kb.documents) == 24
+    """Verify all technical documents are loaded and indexed correctly."""
+    assert len(kb.documents) >= 24
     obd_docs = [d for d in kb.documents if d.doc_type == DocType.OBD_CODE]
     manual_docs = [d for d in kb.documents if d.doc_type == DocType.REPAIR_MANUAL]
     tsb_docs = [d for d in kb.documents if d.doc_type == DocType.TSB]
 
     assert len(obd_docs) == 12, f"Expected 12 OBD codes, got {len(obd_docs)}"
     assert len(manual_docs) == 6, f"Expected 6 repair manuals, got {len(manual_docs)}"
-    assert len(tsb_docs) == 6, f"Expected 6 TSBs, got {len(tsb_docs)}"
+    assert len(tsb_docs) >= 6, f"Expected at least 6 TSBs, got {len(tsb_docs)}"
 
     for doc in kb.documents:
         assert doc.doc_id.startswith("DOC-")

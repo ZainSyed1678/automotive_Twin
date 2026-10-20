@@ -357,3 +357,36 @@ documents:
       Root Cause: Corrosion on main engine-to-chassis grounding strap elevates sensor ground return voltage by +300 mV above battery ground.
       Diagnosis: At KOEO, sensor reports 112 kPa instead of actual local barometric pressure (101 kPa). Voltage between sensor ground pin and battery negative terminal exceeds 250 mV.
       Correction: Clean and polish chassis ground ring eyelets to bare metal; apply protective anti-corrosion sealant.
+
+  - doc_id: "DOC-TSB-HY-2018-04"
+    title: "Hyundai TSB 18-FL-004: Kappa 1.2L EVAP Purge Solenoid Valve Sticking Causing Lean P0171"
+    doc_type: "tsb"
+    component_id: "intake_manifold"
+    applicable_vehicles: ["hyundai_i20_kappa_12"]
+    related_dtcs: ["P0171", "P0507"]
+    summary: "Purge control solenoid valve plunger sticks open, drawing unmetered canister vapor and causing high positive LTFT."
+    content: |
+      Applicability: Hyundai i20 (PB/IB) equipped with Kappa 1.2L MPI engine (G4LA).
+      Condition: Check Engine Light illuminated with DTC P0171 (System Too Lean Bank 1) and rough idle, especially noticeable after refueling.
+      Root Cause: Dust ingress or fuel gumming in the EVAP purge control solenoid valve (PCSV) causes the internal spring to fail to seal the valve seat completely, pulling intake vacuum directly through the canister vapor line.
+      Verification Procedure:
+      1. Connect scanner and monitor Long Term Fuel Trim (LTFT) at warm curb idle (typically +18% to +24%).
+      2. Using hose clamp pliers, temporarily pinch the vacuum hose connecting the PCSV to the intake manifold plenum.
+      3. If LTFT rapidly normalizes toward 0% (+/- 5%) within 30 seconds of clamping, the PCSV is confirmed stuck open.
+      Correction: Replace EVAP Purge Control Solenoid Valve assembly (OEM Part #28910-02600).
+
+  - doc_id: "DOC-TSB-VW-2019-12"
+    title: "Volkswagen TSB 01-19-12: EA211 TSI Direct Injection Intake Valve Carbon Fouling and Cold Start Misfire"
+    doc_type: "tsb"
+    component_id: "intake_manifold"
+    applicable_vehicles: ["vw_golf_14_tsi"]
+    related_dtcs: ["P0300", "P0171"]
+    summary: "Intake valve tulip carbon accumulation on direct injection engines causing cold hesitation and misfire DTC P0300."
+    content: |
+      Applicability: Volkswagen Golf Mk7 1.4L TSI (EA211 series engine).
+      Condition: Customer reports engine stumbling/rough idle for the first 60 seconds after cold start. DTC P0300 (Random/Multiple Cylinder Misfire) stored.
+      Root Cause: Unlike port-injected engines where gasoline washes the intake valve tulips, direct-injection (TSI) engines inject fuel straight into the combustion chamber. Crankcase blow-by oil vapors from the PCV system bake onto the hot intake valves, forming dense carbon crusts that disrupt incoming charge tumble.
+      Diagnostic Check:
+      1. Inspect cylinder misfire counters on VCDS/scanner during cold start.
+      2. Remove MAP sensor and insert optical borescope into intake runner to visually inspect valve backs.
+      Correction: Perform walnut shell media blasting of intake ports and intake valve tulips. Replace PCV oil separator diaphragm.

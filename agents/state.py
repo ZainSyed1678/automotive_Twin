@@ -12,6 +12,8 @@ class DiagnosticReport(BaseModel):
     Every claim is traceable to retrieved documents, similar cases, or simulation results.
     """
     case_id: Optional[str] = None
+    vehicle_id: str = "generic_petrol"
+    vehicle_name: Optional[str] = None
     top_fault_id: Optional[str] = None
     top_fault_name: Optional[str] = None
     component_id: Optional[str] = None
@@ -37,6 +39,7 @@ class DiagnosticState(TypedDict, total=False):
     Typed state dictionary passed through LangGraph workflow nodes.
     """
     case_id: Optional[str]
+    vehicle_id: Optional[str]
     raw_input: Optional[str]
     observations: Dict[str, Any]
     retrieved_docs: List[Dict[str, Any]]

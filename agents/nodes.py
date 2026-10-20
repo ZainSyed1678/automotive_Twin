@@ -7,6 +7,7 @@ Adaptive Questioning (EIG), Review, and Reporting.
 from typing import Any, Dict, List, Optional
 from model.engine import FaultModel
 from model.schema import Observations
+from model.vehicle_registry import vehicle_registry
 from rag.store import KnowledgeBase, SimilarCaseIndex
 from .eig import select_best_follow_up_question
 from .review import review_diagnostic_report
@@ -56,14 +57,16 @@ def intake_node(state: DiagnosticState) -> Dict[str, Any]:
         if k.strip() and v.strip()
     }
     notes = raw_obs.get("notes") or state.get("raw_input")
+    vehicle_id = raw_obs.get("vehicle_id") or state.get("vehicle_id") or "generic_petrol"
 
     normalized_obs = {
         "dtc_codes": sorted(list(set(dtcs))),
         "symptoms": dict(sorted(symptoms.items())),
         "notes": notes,
+        "vehicle_id": vehicle_id,
     }
 
-    return {"observations": normalized_obs}
+    return {"observations": normalized_obs, "vehicle_id": vehicle_id}
 
 
 # -----------------------------------------------------------------------------
@@ -94,9 +97,10 @@ def retrieval_node(state: DiagnosticState) -> Dict[str, Any]:
                 citations.append(code_info.citation)
 
     # 2. Semantic query search over manuals and TSBs
+    vehicle_id = obs_data.get("vehicle_id") or state.get("vehicle_id")
     query_parts = list(dtcs) + [f"{k} {v}" for k, v in symptoms.items()]
     query = " ".join(query_parts) if query_parts else "generic engine air fuel diagnosis"
-    search_hits = kb.search(query=query, top_k=3)
+    search_hits = kb.search(query=query, vehicle_id=vehicle_id, top_k=3)
     for hit in search_hits:
         if hit.doc_id not in [d["doc_id"] for d in retrieved_docs]:
             retrieved_docs.append(hit.model_dump())
@@ -163,6 +167,7 @@ def simulation_scoring_node(state: DiagnosticState) -> Dict[str, Any]:
         dtc_codes=obs_data.get("dtc_codes", []),
         symptoms=obs_data.get("symptoms", {}),
         notes=obs_data.get("notes"),
+        vehicle_id=obs_data.get("vehicle_id", "generic_petrol"),
     )
 
     diag_result = model.score_hypotheses(obs_obj)
@@ -170,7 +175,7 @@ def simulation_scoring_node(state: DiagnosticState) -> Dict[str, Any]:
     # Simulate top 3 candidate faults
     sim_dict: Dict[str, Dict[str, Any]] = {}
     for hyp in diag_result.ranked_hypotheses[:3]:
-        sim = model.simulate_fault(hyp.fault_id)
+        sim = model.simulate_fault(hyp.fault_id, vehicle_id=obs_obj.vehicle_id)
         sim_dict[hyp.fault_id] = sim.model_dump()
 
     return {
@@ -276,8 +281,14 @@ def reporting_node(state: DiagnosticState) -> Dict[str, Any]:
             f"Observed pattern aligns with digital twin causal simulation."
         )
 
+    vehicle_id = (state.get("observations") or {}).get("vehicle_id") or state.get("vehicle_id") or "generic_petrol"
+    vehicle_prof = vehicle_registry.get_profile(vehicle_id)
+    vehicle_name = vehicle_prof.name if vehicle_prof else vehicle_id
+
     report = DiagnosticReport(
         case_id=state.get("case_id"),
+        vehicle_id=vehicle_id,
+        vehicle_name=vehicle_name,
         top_fault_id=top_fault_id,
         top_fault_name=top_fault_name,
         component_id=top_component,

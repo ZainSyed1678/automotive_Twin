@@ -21,6 +21,7 @@ class KnowledgeDocument(BaseModel):
     related_dtcs: List[str] = Field(default_factory=list)
     summary: str
     content: str
+    applicable_vehicles: List[str] = Field(default_factory=list)
     metadata: Dict[str, Any] = Field(default_factory=dict)
 
 
@@ -30,6 +31,7 @@ class SearchResult(BaseModel):
     doc_type: str
     component_id: Optional[str] = None
     related_dtcs: List[str] = Field(default_factory=list)
+    applicable_vehicles: List[str] = Field(default_factory=list)
     score: float
     snippet: str
     citation: str

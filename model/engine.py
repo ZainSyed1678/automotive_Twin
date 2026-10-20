@@ -15,6 +15,7 @@ from .schema import (
     Observations,
     SimulationResult,
 )
+from .vehicle_registry import vehicle_registry
 
 
 class FaultModel:
@@ -59,11 +60,19 @@ class FaultModel:
     def list_faults(self) -> List[FaultDefinition]:
         return list(self.faults.values())
 
-    def simulate_fault(self, fault_id: str) -> SimulationResult:
+    def simulate_fault(self, fault_id: str, vehicle_id: str = "generic_petrol") -> SimulationResult:
         """
         Simulate a fault and return expected symptoms, DTCs, and dominant behavior.
+        Supports vehicle profile overlays for platform-specific faults.
         """
         fault = self.get_fault(fault_id)
+        if not fault:
+            profile = vehicle_registry.get_profile(vehicle_id)
+            if profile and profile.additional_faults:
+                for extra in profile.additional_faults:
+                    if extra.get("fault_id") == fault_id:
+                        fault = FaultDefinition(**extra)
+                        break
         if not fault:
             raise KeyError(f"Fault '{fault_id}' not found in catalogue")
 
@@ -114,12 +123,25 @@ class FaultModel:
 
         num_observations = len(observations.dtc_codes) + len(observations.symptoms)
 
-        for fault_id, fault in self.faults.items():
+        # Retrieve vehicle profile for platform-specific priors and additional faults
+        vehicle_id = getattr(observations, "vehicle_id", "generic_petrol") or "generic_petrol"
+        profile = vehicle_registry.get_profile(vehicle_id)
+
+        candidate_faults = dict(self.faults)
+        if profile and profile.additional_faults:
+            for extra in profile.additional_faults:
+                extra_def = FaultDefinition(**extra)
+                candidate_faults[extra_def.fault_id] = extra_def
+
+        for fault_id, fault in candidate_faults.items():
             matches: List[str] = []
             contradictions: List[str] = []
 
-            # Prior log probability
-            prior = max(fault.prior, 1e-4)
+            # Prior log probability (check vehicle-specific override if present)
+            prior = fault.prior
+            if profile and fault_id in profile.prior_overrides:
+                prior = profile.prior_overrides[fault_id]
+            prior = max(prior, 1e-4)
             log_score = math.log(prior)
 
             # 1. Evaluate observed DTCs
@@ -171,13 +193,16 @@ class FaultModel:
         # Build sorted list of HypothesisScore
         ranked: List[HypothesisScore] = []
         for fault_id, score in sorted(raw_scores.items(), key=lambda item: item[1], reverse=True):
-            fault = self.faults[fault_id]
+            fault = candidate_faults[fault_id]
+            prior_val = fault.prior
+            if profile and fault_id in profile.prior_overrides:
+                prior_val = profile.prior_overrides[fault_id]
             ranked.append(
                 HypothesisScore(
                     fault_id=fault_id,
                     fault_name=fault.name,
                     component_id=fault.component_id,
-                    prior=fault.prior,
+                    prior=prior_val,
                     log_likelihood=round(score, 4),
                     posterior_prob=round(posteriors[fault_id], 4),
                     evidence_matches=evidence_matches[fault_id],
@@ -205,7 +230,7 @@ class FaultModel:
         # Aggregate suggested next tests from the top 3 hypotheses
         suggested_tests: List[str] = []
         for hyp in ranked[:3]:
-            f = self.faults[hyp.fault_id]
+            f = candidate_faults[hyp.fault_id]
             for test in f.distinguishing_tests:
                 if test not in suggested_tests:
                     suggested_tests.append(test)

@@ -30,10 +30,18 @@ if str(PROJECT_ROOT) not in sys.path:
 import gradio as gr
 from agents.workflow import run_diagnosis
 from model.schema import Observations
+from model.vehicle_registry import vehicle_registry
 
+
+VEHICLE_OPTIONS = {
+    "Generic 4-Stroke Petrol Engine (MPI Baseline)": "generic_petrol",
+    "Hyundai i20 1.2L Kappa II MPI (2014-2020)": "hyundai_i20_kappa_12",
+    "Volkswagen Golf 1.4L TSI EA211 GDI (2013-2020)": "vw_golf_14_tsi",
+}
 
 PRESET_SCENARIOS = {
     "-- Select a Preset --": {
+        "vehicle": "Generic 4-Stroke Petrol Engine (MPI Baseline)",
         "dtcs": [],
         "idle_quality": "Unobserved",
         "fuel_pressure": "Unobserved",
@@ -44,6 +52,7 @@ PRESET_SCENARIOS = {
         "notes": "",
     },
     "Scenario 1: MAF Contamination (P0101, Sluggish)": {
+        "vehicle": "Generic 4-Stroke Petrol Engine (MPI Baseline)",
         "dtcs": ["P0101"],
         "idle_quality": "Unobserved",
         "fuel_pressure": "Unobserved",
@@ -54,6 +63,7 @@ PRESET_SCENARIOS = {
         "notes": "Vehicle hesitates on tip-in throttle. MAF sensor hot-wire film suspected.",
     },
     "Scenario 2: Ambiguous Lean (P0171 - Follow-up Needed)": {
+        "vehicle": "Generic 4-Stroke Petrol Engine (MPI Baseline)",
         "dtcs": ["P0171"],
         "idle_quality": "Unobserved",
         "fuel_pressure": "Unobserved",
@@ -64,6 +74,7 @@ PRESET_SCENARIOS = {
         "notes": "Generic system lean code. Multiple plausible root causes.",
     },
     "Scenario 3: Weak Fuel Pump (P0171, Low Pressure)": {
+        "vehicle": "Generic 4-Stroke Petrol Engine (MPI Baseline)",
         "dtcs": ["P0171"],
         "idle_quality": "Unobserved",
         "fuel_pressure": "low",
@@ -74,6 +85,7 @@ PRESET_SCENARIOS = {
         "notes": "Fuel rail pressure drops below 2.0 bar under load.",
     },
     "Scenario 4: Intake Vacuum Leak (P0171, P0507, Hissing)": {
+        "vehicle": "Generic 4-Stroke Petrol Engine (MPI Baseline)",
         "dtcs": ["P0171", "P0507"],
         "idle_quality": "Unobserved",
         "fuel_pressure": "normal",
@@ -84,6 +96,7 @@ PRESET_SCENARIOS = {
         "notes": "Audible whistling around intake manifold runner gasket.",
     },
     "Scenario 5: Insufficient Evidence (Empty / Sparse)": {
+        "vehicle": "Generic 4-Stroke Petrol Engine (MPI Baseline)",
         "dtcs": [],
         "idle_quality": "Unobserved",
         "fuel_pressure": "Unobserved",
@@ -93,12 +106,35 @@ PRESET_SCENARIOS = {
         "audible_hiss": "Unobserved",
         "notes": "Customer brought car in with no MIL codes or specific observations.",
     },
+    "Scenario 6: Hyundai i20 Purge Valve Sticking (P0171, P0507, Rough Idle)": {
+        "vehicle": "Hyundai i20 1.2L Kappa II MPI (2014-2020)",
+        "dtcs": ["P0171", "P0507"],
+        "idle_quality": "rough",
+        "fuel_pressure": "normal",
+        "fuel_trim_ltft": "high_positive",
+        "fuel_trim_at_high_rpm": "normalizes",
+        "maf_reading": "Unobserved",
+        "audible_hiss": "present",
+        "notes": "Hyundai Kappa 1.2L rough idle especially after refueling. EVAP purge control valve suspected.",
+    },
+    "Scenario 7: VW Golf EA211 Direct Injection Carbon Fouling (P0300, Rough Cold Start)": {
+        "vehicle": "Volkswagen Golf 1.4L TSI EA211 GDI (2013-2020)",
+        "dtcs": ["P0300"],
+        "idle_quality": "rough",
+        "fuel_pressure": "normal",
+        "fuel_trim_ltft": "high_positive",
+        "fuel_trim_at_high_rpm": "Unobserved",
+        "maf_reading": "Unobserved",
+        "audible_hiss": "Unobserved",
+        "notes": "VW 1.4 TSI EA211 rough idle on cold start. Direct injection intake valve carbon buildup suspected.",
+    },
 }
 
 
 def load_preset(preset_name: str):
     data = PRESET_SCENARIOS.get(preset_name, PRESET_SCENARIOS["-- Select a Preset --"])
     return (
+        data.get("vehicle", "Generic 4-Stroke Petrol Engine (MPI Baseline)"),
         data["dtcs"],
         data["idle_quality"],
         data["fuel_pressure"],
@@ -112,6 +148,7 @@ def load_preset(preset_name: str):
 
 @spaces.GPU
 def diagnose(
+    vehicle_name: str,
     dtcs: List[str],
     idle_quality: str,
     fuel_pressure: str,
@@ -121,6 +158,8 @@ def diagnose(
     audible_hiss: str,
     notes: str,
 ):
+    vehicle_id = VEHICLE_OPTIONS.get(vehicle_name, "generic_petrol")
+
     # Assemble symptom dict
     symptoms = {}
     if idle_quality and idle_quality != "Unobserved":
@@ -140,6 +179,7 @@ def diagnose(
         dtc_codes=dtcs or [],
         symptoms=symptoms,
         notes=notes or None,
+        vehicle_id=vehicle_id,
     )
 
     report = run_diagnosis(obs)
@@ -154,6 +194,7 @@ def diagnose(
     summary_md = f"""
 {badge}
 
+**Vehicle Platform:** `{report.vehicle_name or vehicle_id}`  
 **Top Hypothesis:** `{report.top_fault_name or 'Indeterminate'}`  
 **Posterior Confidence:** `{report.confidence_score * 100:.1f}%` | **Margin Gap:** `{report.confidence_gap * 100:.1f}%`  
 **Diagnostic Status:** `{'Insufficient Evidence' if report.insufficient_evidence else ('Ambiguous' if report.is_ambiguous else 'High Confidence')}`
@@ -210,6 +251,11 @@ with gr.Blocks(title="Automotive Digital Twin Diagnostic Station") as demo:
     with gr.Row():
         with gr.Column(scale=1):
             gr.Markdown("### 1. Technician Intake")
+            vehicle_input = gr.Dropdown(
+                label="Vehicle Platform Profile (Phase 2 Multi-Vehicle)",
+                choices=list(VEHICLE_OPTIONS.keys()),
+                value="Generic 4-Stroke Petrol Engine (MPI Baseline)",
+            )
             dtc_input = gr.CheckboxGroup(
                 label="OBD-II Diagnostic Trouble Codes",
                 choices=["P0101", "P0102", "P0106", "P0107", "P0117", "P0121", "P0128", "P0133", "P0171", "P0300", "P0301", "P0507"],
@@ -265,13 +311,13 @@ with gr.Blocks(title="Automotive Digital Twin Diagnostic Station") as demo:
     preset_dropdown.change(
         fn=load_preset,
         inputs=[preset_dropdown],
-        outputs=[dtc_input, idle_q, fuel_p, fuel_trim, high_rpm_trim, maf_read, hiss, notes_box],
+        outputs=[vehicle_input, dtc_input, idle_q, fuel_p, fuel_trim, high_rpm_trim, maf_read, hiss, notes_box],
     )
 
     # Wire diagnosis button
     run_btn.click(
         fn=diagnose,
-        inputs=[dtc_input, idle_q, fuel_p, fuel_trim, high_rpm_trim, maf_read, hiss, notes_box],
+        inputs=[vehicle_input, dtc_input, idle_q, fuel_p, fuel_trim, high_rpm_trim, maf_read, hiss, notes_box],
         outputs=[summary_output, hyp_output, question_output, cit_output, ev_output],
     )
 

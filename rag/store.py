@@ -98,10 +98,11 @@ class KnowledgeBase:
         query: str,
         doc_type: Optional[str] = None,
         component_id: Optional[str] = None,
+        vehicle_id: Optional[str] = None,
         top_k: int = 3,
     ) -> List[SearchResult]:
         """
-        Hybrid search combining TF-IDF cosine similarity with structural metadata filtering.
+        Hybrid search combining TF-IDF cosine similarity with structural metadata and vehicle filtering.
         """
         if not query.strip():
             return []
@@ -121,6 +122,13 @@ class KnowledgeBase:
             if component_id and doc.component_id != component_id:
                 continue
 
+            # Vehicle-specific filtering and boost
+            if doc.applicable_vehicles:
+                if vehicle_id and vehicle_id not in doc.applicable_vehicles and "*" not in doc.applicable_vehicles:
+                    continue  # Specific to another vehicle platform
+                elif vehicle_id and vehicle_id in doc.applicable_vehicles:
+                    score += 0.35  # Relevant platform-specific bulletin boost
+
             # Metadata keyword boosts (e.g. exact DTC mention)
             for dtc in doc.related_dtcs:
                 if dtc in normalized_query_upper:
@@ -136,6 +144,7 @@ class KnowledgeBase:
                         doc_type=doc.doc_type.value,
                         component_id=doc.component_id,
                         related_dtcs=doc.related_dtcs,
+                        applicable_vehicles=doc.applicable_vehicles,
                         score=round(score, 4),
                         snippet=snippet_text,
                         citation=f"[{doc.doc_id}] {doc.title}",

@@ -16,9 +16,10 @@
 | **M2** | **Diagnostic Case Generator** | **Completed** | 200 synthetic cases (140 dev, 60 eval), 5 difficulty tiers, 0 fingerprint collisions, allowlist agent isolation, 17/17 tests passing. |
 | **M3** | **Knowledge Base & MCP Tools** | **Completed** | 24 technical documents (OBD/Manuals/TSBs), TF-IDF hybrid search, isolated similar-case search, Python MCP server with 5 read-only tools, 28/28 tests passing. |
 | **M4** | **Diagnostic Agent Core & Baselines** | **Completed** | LangGraph StateGraph (5 nodes), 3 diagnostic baselines (LLM-Only, RAG-Only, Full System), 140-case development evaluation, 35/35 tests passing. |
-| **M5** | **Adaptive Questioning & Review** | *Next* | Information-gain question selection, evidence critique, review node. |
-| **M6** | **Interface & Observability** | Pending | FastAPI backend, Streamlit diagnostic UI, Docker containerization. |
-| **M7** | **Evaluation & Documentation** | Pending | Held-out benchmarking across 3 modes, calibration scoring, honest audit. |
+| **M5** | **Adaptive Questioning & Review** | **Completed** | Information-gain question selection, evidence critique, review node, 44/44 tests passing. |
+| **M6** | **Interface & Observability** | **Completed** | FastAPI backend, Streamlit diagnostic UI, Docker containerization, 54/54 tests passing. |
+| **M7** | **Evaluation & Calibration** | **Completed** | Held-out benchmarking across 3 modes, calibration scoring (ECE 0.059, Brier 0.056), 58/58 tests passing. |
+| **Phase 2** | **Multi-Vehicle Support** | **Completed** | Vehicle profile registry, Hyundai i20 Kappa MPI, VW Golf 1.4 TSI GDI, platform TSBs, 67/67 tests passing. |
 
 ---
 
@@ -277,6 +278,53 @@ For the 12 ambiguous held-out evaluation cases, we evaluated multi-turn conversa
   - M5: 9 adaptive questioning & review gate tests (`tests/test_adaptive_questioning.py`)
   - M6: 10 FastAPI endpoint tests (`tests/test_api.py`)
   - M7: 4 calibration & held-out runner tests (`tests/test_calibration_and_m7.py`)
+
+---
+
+## 10. Phase 2 — Multi-Vehicle Support & Powertrain Platform Layer
+
+### Architecture Overview
+Phase 2 upgrades the generic prototype to support multiple powertrain platforms with declarative vehicle configuration profiles, platform-specific failure modes, architectural distinctions (Port MPI vs Direct Injection GDI, Naturally Aspirated vs Turbocharged), and targeted technical service bulletins (TSBs).
+
+### Declarative Vehicle Profiles (`model/vehicle_schema.py`, `model/vehicle_registry.py`)
+- **`VehicleProfile` Schema**:
+  - `id`, `name`, `make`, `model`, `engine_code`, `year_range`, `fuel_system` (`MPI` vs `GDI`), `aspiration` (`Naturally Aspirated` vs `Turbocharged`), `displacement_l`.
+  - `nominal_specs`: Tolerances for fuel rail pressure (`fuel_pressure_bar` or `fuel_pressure_high_bar`), MAF idle rate (`maf_idle_gps`), and LTFT limits.
+  - `prior_overrides`: Platform-specific prior adjustments based on real-world engineering telemetry.
+  - `additional_faults`: Unique failure modes exclusive to specific engine architectures.
+- **Configured Vehicle Profiles (`model/vehicles/*.yaml`)**:
+  1. `generic_petrol`: Generic 4-Stroke Petrol Engine (1.6L MPI Baseline).
+  2. `hyundai_i20_kappa_12`: Hyundai i20 1.2L Kappa II MPI (G4LA) with EVAP purge control solenoid failure mode (`evap_purge_valve_stuck_open`).
+  3. `vw_golf_14_tsi`: Volkswagen Golf 1.4L TSI EA211 (GDI Turbo) with direct injection intake valve carbon coking failure mode (`intake_valve_carbon_deposit`).
+
+### Causal Model & Scoring Engine Overlays (`model/engine.py`)
+- Evaluates candidate faults dynamically by merging catalogue faults with vehicle-specific `additional_faults`.
+- Applies platform prior overrides (e.g. higher prior for direct injection carbon buildup on VW TSI, higher prior for purge valve leaks on Hyundai i20).
+- Forward simulation (`simulate_fault`) seamlessly simulates both core and platform-specific failure modes.
+
+### Targeted Technical RAG Ingestion (`rag/documents.yaml`, `rag/store.py`)
+- Ingested platform-specific manufacturer service bulletins:
+  - `DOC-TSB-HY-2018-04`: Hyundai TSB 18-FL-004 on Kappa 1.2L EVAP purge solenoid sticking causing lean P0171 and rough hot idle.
+  - `DOC-TSB-VW-2019-12`: Volkswagen TSB 01-19-12 on EA211 TSI direct injection intake valve tulip carbon fouling causing P0300 cold start misfires.
+- Updated `KnowledgeBase.search(..., vehicle_id)` to filter out bulletins for non-matching vehicles and boost matching vehicle bulletins by `+0.35`.
+
+### Full Stack & UI Integration
+- **`Observations.vehicle_id`**: Defaults to `"generic_petrol"` for 100% backward compatibility.
+- **LangGraph Workflow**: State propagation and review verification validate platform-specific components and faults.
+- **FastAPI (`app/api.py`)**: Added `GET /vehicles` and `GET /vehicles/{vehicle_id}` endpoints.
+- **Gradio Station (`app.py`)**: Added Vehicle Platform Profile dropdown and scenario presets 6 & 7.
+- **Streamlit Dashboard (`app/ui.py`)**: Integrated vehicle selector into sidebar and digital twin causal explorer tab.
+
+### Test Suite Verification (`tests/test_multi_vehicle.py`)
+- 9 dedicated automated unit and integration tests passing:
+  - Registry discovery, schema validation, and fallback handling.
+  - Hyundai i20 EVAP purge valve surfacing and scoring.
+  - VW Golf EA211 TSI direct injection carbon fouling scoring (top-1 at >70% posterior).
+  - Forward simulation of platform-specific faults.
+  - Vehicle-targeted RAG TSB ranking and priority.
+  - End-to-end LangGraph diagnosis with review gate passage (`PASSED`).
+  - FastAPI `/vehicles` and `/diagnose` endpoints.
+- **Total test suite: 67 passed in 8.39s**.
 
 
 

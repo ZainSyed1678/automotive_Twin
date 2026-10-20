@@ -75,6 +75,7 @@ def run_diagnosis(
     app = get_compiled_app()
     initial_state: DiagnosticState = {
         "case_id": case_id,
+        "vehicle_id": getattr(observations, "vehicle_id", "generic_petrol"),
         "raw_input": raw_input,
         "observations": observations.model_dump(),
         "citations": [],

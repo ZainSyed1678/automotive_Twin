@@ -33,6 +33,7 @@ VALID_COMPONENTS = {
     "fuel_injector",
     "fuel_pump",
     "intake_vacuum_line",
+    "intake_manifold",
     "wiring_harness",
     "ecu",
 }

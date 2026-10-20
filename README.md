@@ -157,7 +157,7 @@ python run_demo.py
 ```
 
 ### 2. Run the Full Test Suite
-Runs all 58 automated tests across M1 to M7:
+Runs all 67 automated tests across Phase 1 and Phase 2:
 ```powershell
 pytest -v
 ```
@@ -166,13 +166,11 @@ Expected output:
 ```text
 tests/test_adaptive_questioning.py::test_entropy_calculation PASSED      [  1%]
 tests/test_adaptive_questioning.py::test_eig_prioritizes_fuel_pressure_on_lean_ambiguity PASSED [  3%]
-tests/test_adaptive_questioning.py::test_stopping_condition_on_confident_case PASSED [  5%]
-tests/test_calibration_and_m7.py::test_brier_score_perfect_prediction PASSED [ 46%]
-tests/test_calibration_and_m7.py::test_ece_bins_calculation PASSED       [ 50%]
-tests/test_calibration_and_m7.py::test_heldout_evaluation_runner_execution PASSED [ 51%]
-...
+tests/test_calibration_and_m7.py::test_brier_score_perfect_prediction PASSED [ 38%]
+tests/test_multi_vehicle.py::test_hyundai_evap_purge_valve_surfacing PASSED [ 55%]
+tests/test_multi_vehicle.py::test_vw_gdi_intake_valve_carbon_deposit PASSED [ 60%]
 tests/test_rag_and_mcp.py::test_mcp_score_hypotheses PASSED              [100%]
-============================= 58 passed in 10.16s =============================
+============================= 67 passed in 8.39s =============================
 ```
 
 ### 3. Run the Final Held-Out Evaluation Benchmark
@@ -211,5 +209,6 @@ docker-compose up --build
 | | **M5: Adaptive Questioning** | Expected Information Gain question selection, evidence critique, review step | **Complete** |
 | | **M6: Interface & Tracing** | FastAPI backend, Streamlit diagnostic UI, Docker containerization | **Complete** |
 | | **M7: Evaluation & Audit** | Full held-out benchmark across 3 modes, calibration (ECE/Brier), honest audit | **Complete** |
-| **Phase 2** | Multi-Vehicle Support | Vehicle-specific configuration layer (Hyundai i20, etc.) | Future |
+| **Phase 2** | **Multi-Vehicle Support** | Vehicle profile registry (Hyundai i20 MPI, VW Golf 1.4 TSI GDI), platform TSBs | **Complete** |
+| **Phase 3** | Subsystem Expansion | Transmission & EV/Hybrid powertrain digital twin modules | Future |
 

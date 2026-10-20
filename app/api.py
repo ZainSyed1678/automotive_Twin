@@ -22,6 +22,7 @@ from agents.state import DiagnosticReport
 from agents.workflow import run_diagnosis, run_interactive_diagnosis
 from model.engine import FaultModel
 from model.schema import Observations, SimulationResult
+from model.vehicle_registry import vehicle_registry
 from rag.store import KnowledgeBase
 from .tracing import get_tracer
 
@@ -66,6 +67,7 @@ def get_kb() -> KnowledgeBase:
 
 class DiagnoseRequest(BaseModel):
     case_id: Optional[str] = None
+    vehicle_id: str = Field(default="generic_petrol", description="Target vehicle platform ID")
     dtc_codes: List[str] = Field(default_factory=list, description="List of OBD-II Diagnostic Trouble Codes")
     symptoms: Dict[str, str] = Field(default_factory=dict, description="Technician observations (e.g. idle_quality=rough)")
     notes: Optional[str] = None
@@ -73,6 +75,7 @@ class DiagnoseRequest(BaseModel):
 
 class InteractiveDiagnoseRequest(BaseModel):
     case_id: Optional[str] = None
+    vehicle_id: str = Field(default="generic_petrol", description="Target vehicle platform ID")
     dtc_codes: List[str] = Field(default_factory=list)
     symptoms: Dict[str, str] = Field(default_factory=dict)
     answered_tests: Dict[str, str] = Field(
@@ -99,8 +102,28 @@ def healthcheck() -> Dict[str, Any]:
         "subsystem": "air_intake_and_fuel_control",
         "supported_components_count": len(model.components),
         "supported_faults_count": len(model.faults),
+        "supported_vehicles": vehicle_registry.list_vehicle_ids(),
         "version": "1.0.0",
     }
+
+
+@app.get("/vehicles")
+def list_vehicles() -> List[Dict[str, Any]]:
+    """
+    Returns list of supported vehicle platform profiles with specifications and architecture.
+    """
+    return [p.model_dump() for p in vehicle_registry.list_profiles()]
+
+
+@app.get("/vehicles/{vehicle_id}")
+def get_vehicle_profile(vehicle_id: str) -> Dict[str, Any]:
+    """
+    Returns detailed configuration profile for a specific vehicle.
+    """
+    profile = vehicle_registry.get_profile(vehicle_id)
+    if not profile:
+        raise HTTPException(status_code=404, detail=f"Vehicle '{vehicle_id}' not found")
+    return profile.model_dump()
 
 
 @app.post("/diagnose", response_model=DiagnosticReport)
@@ -114,6 +137,7 @@ def diagnose_case(request: DiagnoseRequest) -> DiagnosticReport:
         dtc_codes=request.dtc_codes,
         symptoms=request.symptoms,
         notes=request.notes,
+        vehicle_id=request.vehicle_id,
     )
 
     start_time = time.perf_counter()
@@ -138,6 +162,7 @@ def interactive_diagnosis(request: InteractiveDiagnoseRequest) -> Dict[str, Any]
         dtc_codes=request.dtc_codes,
         symptoms=dict(request.symptoms),
         notes=request.notes,
+        vehicle_id=request.vehicle_id,
     )
 
     reports: List[Dict[str, Any]] = []

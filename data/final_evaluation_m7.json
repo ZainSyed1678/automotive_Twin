@@ -31,9 +31,9 @@
       "diagnosable_cases": 54,
       "top1_accuracy": 0.6296,
       "top3_accuracy": 0.7593,
-      "ambiguity_rate": 0.3333,
+      "ambiguity_rate": 0.3167,
       "insufficient_evidence_accuracy": 0.8333,
-      "avg_citations_per_case": 5.3,
+      "avg_citations_per_case": 5.33,
       "unsupported_claim_rate": 0.0,
       "difficulty_breakdown": {
         "straightforward": 0.8571,
@@ -42,8 +42,8 @@
         "misleading": 0.8333,
         "insufficient_evidence": 0.8333
       },
-      "brier_score": 0.1663,
-      "expected_calibration_error": 0.1461
+      "brier_score": 0.1651,
+      "expected_calibration_error": 0.1446
     },
     {
       "mode": "Full-System",
@@ -124,9 +124,9 @@
     "RAG-Only": {
       "mode": "RAG-Only",
       "total_eval_samples": 54,
-      "brier_score": 0.1663,
-      "expected_calibration_error": 0.1461,
-      "max_calibration_error": 0.2416,
+      "brier_score": 0.1651,
+      "expected_calibration_error": 0.1446,
+      "max_calibration_error": 0.2396,
       "reliability_bins": [
         {
           "bin_lower": 0.0,
@@ -142,27 +142,27 @@
           "bin_upper": 0.4,
           "bin_label": "[0.2, 0.4]",
           "sample_count": 12,
-          "avg_confidence": 0.2622,
+          "avg_confidence": 0.2629,
           "observed_accuracy": 0.1667,
-          "calibration_gap": 0.0955
+          "calibration_gap": 0.0962
         },
         {
           "bin_lower": 0.4,
           "bin_upper": 0.6,
           "bin_label": "[0.4, 0.6]",
           "sample_count": 20,
-          "avg_confidence": 0.4786,
+          "avg_confidence": 0.4809,
           "observed_accuracy": 0.55,
-          "calibration_gap": 0.0714
+          "calibration_gap": 0.0691
         },
         {
           "bin_lower": 0.6,
           "bin_upper": 0.8,
           "bin_label": "[0.6, 0.8]",
           "sample_count": 22,
-          "avg_confidence": 0.7129,
+          "avg_confidence": 0.7149,
           "observed_accuracy": 0.9545,
-          "calibration_gap": 0.2416
+          "calibration_gap": 0.2396
         },
         {
           "bin_lower": 0.8,

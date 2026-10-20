@@ -1,0 +1,55 @@
+id: vw_golf_14_tsi
+name: "Volkswagen Golf 1.4L TSI EA211 (2013-2020)"
+make: "Volkswagen"
+model: "Golf"
+engine_code: "EA211"
+year_range: "2013-2020"
+fuel_system: "GDI"
+aspiration: "Turbocharged"
+displacement_l: 1.4
+description: "VAG EA211 1.4L direct-injection (TSI) turbocharged 4-cylinder engine with mechanical camshaft-driven high-pressure fuel pump (HPFP)."
+nominal_specs:
+  fuel_pressure_low_bar:
+    min: 4.0
+    max: 6.5
+    unit: "bar"
+    description: "In-tank electric lift pump feed pressure"
+  fuel_pressure_high_bar:
+    min: 40.0
+    max: 140.0
+    unit: "bar"
+    description: "Common rail direct injection pressure (40 bar idle, 140 bar load)"
+  maf_idle_gps:
+    min: 2.0
+    max: 3.2
+    unit: "g/s"
+    description: "MAF/MAP calculated air mass at curb idle"
+  typical_ltft_range:
+    min: -8.0
+    max: 8.0
+    unit: "%"
+    description: "VAG long-term adaptation limits"
+prior_overrides:
+  fuel_pump_weak: 0.11
+  o2_sensor_slow_response: 0.09
+additional_faults:
+  - fault_id: "intake_valve_carbon_deposit"
+    name: "Intake Valve Carbon Fouling"
+    component_id: "intake_vacuum_line"
+    description: "Heavy carbon crust on intake valve tulips due to absence of port fuel wash in GDI engine, disrupting airflow tumble."
+    prior: 0.14
+    dtcs:
+      P0300: 0.80
+      P0171: 0.50
+    symptoms:
+      idle_quality:
+        rough: 0.85
+        stalling: 0.35
+      fuel_trim_ltft:
+        high_positive: 0.60
+        normal: 0.35
+      fuel_pressure:
+        normal: 0.95
+    distinguishing_tests:
+      - "borescope_intake_port_inspection"
+      - "cold_start_misfire_log"

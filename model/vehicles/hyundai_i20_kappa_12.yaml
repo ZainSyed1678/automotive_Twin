@@ -1,0 +1,52 @@
+id: hyundai_i20_kappa_12
+name: "Hyundai i20 1.2L Kappa II MPI (2014-2020)"
+make: "Hyundai"
+model: "i20"
+engine_code: "G4LA"
+year_range: "2014-2020"
+fuel_system: "MPI"
+aspiration: "Naturally Aspirated"
+displacement_l: 1.2
+description: "Hyundai 1.2L 4-cylinder Kappa II dual-CVVT engine with port multi-point fuel injection."
+nominal_specs:
+  fuel_pressure_bar:
+    min: 3.2
+    max: 3.6
+    unit: "bar"
+    description: "In-tank regulator port fuel rail pressure"
+  maf_idle_gps:
+    min: 1.6
+    max: 2.3
+    unit: "g/s"
+    description: "MAF output at warm curb idle (650-750 RPM)"
+  typical_ltft_range:
+    min: -7.0
+    max: 7.0
+    unit: "%"
+    description: "Hyundai ECU fuel trim closed loop window"
+prior_overrides:
+  connector_corrosion: 0.10
+  maf_contamination: 0.09
+additional_faults:
+  - fault_id: "evap_purge_valve_stuck_open"
+    name: "EVAP Purge Control Solenoid Stuck Open"
+    component_id: "intake_vacuum_line"
+    description: "Purge valve solenoid diaphragm leaks or sticks mechanically open, drawing raw unmetered fuel vapor/air into plenum."
+    prior: 0.12
+    dtcs:
+      P0171: 0.85
+      P0507: 0.65
+    symptoms:
+      idle_quality:
+        rough: 0.80
+        hunting: 0.60
+      fuel_trim_ltft:
+        high_positive: 0.75
+        high_negative: 0.20
+      fuel_pressure:
+        normal: 0.95
+      audible_hiss:
+        present: 0.50
+    distinguishing_tests:
+      - "clamp_evap_purge_line"
+      - "check_purge_valve_vacuum_hold"

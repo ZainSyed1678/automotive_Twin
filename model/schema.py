@@ -35,6 +35,7 @@ class Observations(BaseModel):
     dtc_codes: List[str] = Field(default_factory=list)
     symptoms: Dict[str, str] = Field(default_factory=dict)
     notes: Optional[str] = None
+    vehicle_id: str = "generic_petrol"
 
 
 class SimulationResult(BaseModel):
