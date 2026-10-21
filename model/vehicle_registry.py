@@ -24,10 +24,22 @@ class VehicleRegistry:
         self._load_profiles()
 
     def _load_profiles(self) -> None:
-        if not self.vehicles_dir.exists():
+        candidate_dirs = [
+            self.vehicles_dir,
+            Path(__file__).parent / "vehicles",
+            Path.cwd() / "model" / "vehicles",
+            Path("/home/user/app/model/vehicles"),
+        ]
+        target_dir = None
+        for d in candidate_dirs:
+            if d.exists() and d.is_dir():
+                target_dir = d
+                break
+
+        if target_dir is None:
             return
 
-        for yaml_file in sorted(self.vehicles_dir.glob("*.yaml")):
+        for yaml_file in sorted(target_dir.glob("*.yaml")):
             try:
                 with open(yaml_file, "r", encoding="utf-8") as f:
                     data = yaml.safe_load(f)

@@ -6,22 +6,9 @@ Supports 4 Subsystems: Air-Intake & Fuel, Ignition & Combustion, Exhaust & Emiss
 
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
+import traceback
 import pandas as pd
-
-# ZeroGPU compatibility for Hugging Face Spaces
-try:
-    import spaces
-except ImportError:
-    class _MockSpaces:
-        @staticmethod
-        def GPU(fn=None, **kwargs):
-            if fn is not None:
-                return fn
-            def decorator(func):
-                return func
-            return decorator
-    spaces = _MockSpaces()
 
 # Ensure project root is in sys.path
 PROJECT_ROOT = Path(__file__).resolve().parent
@@ -172,7 +159,6 @@ def load_preset(preset_name: str):
     )
 
 
-@spaces.GPU
 def diagnose(
     vehicle_name: str,
     dtcs: List[str],
@@ -190,49 +176,50 @@ def diagnose(
     notes: str,
     shop_rate: float = 110.0,
 ):
-    vehicle_id = VEHICLE_OPTIONS.get(vehicle_name, "generic_petrol")
+    try:
+        vehicle_id = VEHICLE_OPTIONS.get(vehicle_name, "generic_petrol")
 
-    # Assemble symptom dict
-    symptoms = {}
-    for val, key in [
-        (idle_quality, "idle_quality"),
-        (fuel_pressure, "fuel_pressure"),
-        (fuel_trim_ltft, "fuel_trim_ltft"),
-        (fuel_trim_at_high_rpm, "fuel_trim_at_high_rpm"),
-        (maf_reading, "maf_reading"),
-        (audible_hiss, "audible_hiss"),
-        (ignition_coil_swap, "ignition_coil_swap"),
-        (downstream_o2, "downstream_o2_switching"),
-        (cell_voltage_delta, "cell_voltage_delta"),
-        (inverter_temp, "inverter_temp"),
-        (isolation_resistance, "chassis_isolation_resistance"),
-    ]:
-        if val and val != "Unobserved":
-            symptoms[key] = val
+        # Assemble symptom dict
+        symptoms = {}
+        for val, key in [
+            (idle_quality, "idle_quality"),
+            (fuel_pressure, "fuel_pressure"),
+            (fuel_trim_ltft, "fuel_trim_ltft"),
+            (fuel_trim_at_high_rpm, "fuel_trim_at_high_rpm"),
+            (maf_reading, "maf_reading"),
+            (audible_hiss, "audible_hiss"),
+            (ignition_coil_swap, "ignition_coil_swap"),
+            (downstream_o2, "downstream_o2_switching"),
+            (cell_voltage_delta, "cell_voltage_delta"),
+            (inverter_temp, "inverter_temp"),
+            (isolation_resistance, "chassis_isolation_resistance"),
+        ]:
+            if val and val != "Unobserved":
+                symptoms[key] = val
 
-    obs = Observations(
-        dtc_codes=dtcs or [],
-        symptoms=symptoms,
-        notes=notes or None,
-        vehicle_id=vehicle_id,
-    )
+        obs = Observations(
+            dtc_codes=dtcs or [],
+            symptoms=symptoms,
+            notes=notes or None,
+            vehicle_id=vehicle_id,
+        )
 
-    report = run_diagnosis(obs)
+        report = run_diagnosis(obs)
 
-    # 1. Status banner
-    if report.review_status == "PASSED":
-        badge = "### 🛡️ **Self-Review Gate: PASSED** (Grounding & Subsystem Scope Verified)"
-    else:
-        badge = f"### ⚠️ **Self-Review Gate: {report.review_status}**"
+        # 1. Status banner
+        if report.review_status == "PASSED":
+            badge = "### 🛡️ **Self-Review Gate: PASSED** (Grounding & Subsystem Scope Verified)"
+        else:
+            badge = f"### ⚠️ **Self-Review Gate: {report.review_status}**"
 
-    # 2. Executive summary
-    cascading_str = ""
-    if report.ranked_hypotheses and report.ranked_hypotheses[0].get("cascading_risks"):
-        risks = report.ranked_hypotheses[0]["cascading_risks"]
-        risk_bullets = "\n".join([f"- ⚠️ **Cross-Subsystem Hazard:** {r}" for r in risks])
-        cascading_str = f"\n\n### ⚡ Cross-Subsystem Cascading Effects\n{risk_bullets}\n"
+        # 2. Executive summary
+        cascading_str = ""
+        if report.ranked_hypotheses and report.ranked_hypotheses[0].get("cascading_risks"):
+            risks = report.ranked_hypotheses[0]["cascading_risks"]
+            risk_bullets = "\n".join([f"- ⚠️ **Cross-Subsystem Hazard:** {r}" for r in risks])
+            cascading_str = f"\n\n### ⚡ Cross-Subsystem Cascading Effects\n{risk_bullets}\n"
 
-    summary_md = f"""
+        summary_md = f"""
 {badge}
 
 **Vehicle Platform:** `{report.vehicle_name or vehicle_id}`  
@@ -244,47 +231,48 @@ def diagnose(
 {cascading_str}
 """
 
-    # 3. Ranked hypotheses table
-    table_rows = []
-    for idx, h in enumerate(report.ranked_hypotheses[:5], 1):
-        table_rows.append({
-            "Rank": idx,
-            "Failure Mode": h.get("fault_name", ""),
-            "Subsystem": h.get("subsystem", "air_intake_and_fuel_control"),
-            "Component": h.get("component_id", ""),
-            "Posterior Probability": f"{h.get('posterior_prob', 0.0) * 100:.1f}%",
-            "Weight of Evidence (Score)": round(h.get("log_likelihood", 0.0), 2),
-        })
-    hyp_df = pd.DataFrame(table_rows)
+        # 3. Ranked hypotheses table
+        table_rows = []
+        for idx, h in enumerate(report.ranked_hypotheses[:5], 1):
+            table_rows.append({
+                "Rank": idx,
+                "Failure Mode": h.get("fault_name", ""),
+                "Subsystem": h.get("subsystem", "air_intake_and_fuel_control"),
+                "Component": h.get("component_id", ""),
+                "Posterior Probability": f"{h.get('posterior_prob', 0.0) * 100:.1f}%",
+                "Weight of Evidence (Score)": round(h.get("log_likelihood", 0.0), 2),
+            })
+        hyp_df = pd.DataFrame(table_rows)
 
-    # 4. Follow-up question (EIG)
-    if report.follow_up_question:
-        q = report.follow_up_question
-        q_md = f"""
+        # 4. Follow-up question (EIG)
+        if report.follow_up_question:
+            q = report.follow_up_question
+            q_md = f"""
 ### ❓ Targeted Follow-up Inspection (EIG: `{q['eig_score']:.3f} bits`)
 **Inspection Procedure:** {q['question_text']}  
 *Options:* `{', '.join(q['possible_answers'])}`  
 *Rationale:* {q['rationale']}
 """
-    else:
-        q_md = "*(No follow-up test needed — diagnosis meets confidence stopping threshold)*"
+        else:
+            q_md = "*(No follow-up test needed — diagnosis meets confidence stopping threshold)*"
 
-    # 5. Citations & evidence
-    citations_list = [f"- `{c}`" for c in report.citations]
-    cit_md = "### 📚 Verifiable Technical Citations\n" + ("\n".join(citations_list) if citations_list else "_No citations attached_")
+        # 5. Citations & evidence
+        citations_list = [f"- `{c}`" for c in report.citations]
+        cit_md = "### 📚 Verifiable Technical Citations\n" + ("\n".join(citations_list) if citations_list else "_No citations attached_")
 
-    matches = [f"- ✅ `{m}`" for m in report.supporting_evidence]
-    contra = [f"- ❌ `{c}`" for c in report.contradictory_evidence]
-    ev_md = "### 🔍 Grounded Evidence Breakdown\n**Matches:**\n" + ("\n".join(matches) if matches else "_None_") + "\n\n**Contradictions:**\n" + ("\n".join(contra) if contra else "_None_")
+        matches = [f"- ✅ `{m}`" for m in report.supporting_evidence]
+        contra = [f"- ❌ `{c}`" for c in report.contradictory_evidence]
+        ev_md = "### 🔍 Grounded Evidence Breakdown\n**Matches:**\n" + ("\n".join(matches) if matches else "_None_") + "\n\n**Contradictions:**\n" + ("\n".join(contra) if contra else "_None_")
 
-    # 6. Automated Repair Plan
-    repair_plan = generate_repair_plan(report, hourly_rate_usd=shop_rate)
-    parts_lines = [f"- `{p.part_number}`: {p.description} (Qty: {p.quantity}) — **${p.total_cost_usd:.2f}** [{p.category.upper()}]" for p in repair_plan.parts]
-    labor_lines = [f"- {l.operation}: {l.book_hours} hrs @ ${l.hourly_rate_usd:.2f}/hr — **${l.labor_cost_usd:.2f}** ({l.technician_skill})" for l in repair_plan.labor]
-    safety_lines = [f"- **{w.severity}** ({w.standard}): {w.instruction}" for w in repair_plan.safety_warnings]
-    steps_lines = [f"{s.step_number}. **[{s.phase}]** {s.instruction}" + (f" *(Torque: {s.torque_spec})*" if s.torque_spec else "") for s in repair_plan.procedure_steps]
+        # 6. Automated Repair Plan
+        rate = float(shop_rate) if shop_rate else 110.0
+        repair_plan = generate_repair_plan(report, hourly_rate_usd=rate)
+        parts_lines = [f"- `{p.part_number}`: {p.description} (Qty: {p.quantity}) — **${p.total_cost_usd:.2f}** [{p.category.upper()}]" for p in repair_plan.parts]
+        labor_lines = [f"- {l.operation}: {l.book_hours} hrs @ ${l.hourly_rate_usd:.2f}/hr — **${l.labor_cost_usd:.2f}** ({l.technician_skill})" for l in repair_plan.labor]
+        safety_lines = [f"- **{w.severity}** ({w.standard}): {w.instruction}" for w in repair_plan.safety_warnings]
+        steps_lines = [f"{s.step_number}. **[{s.phase}]** {s.instruction}" + (f" *(Torque: {s.torque_spec})*" if s.torque_spec else "") for s in repair_plan.procedure_steps]
 
-    repair_md = f"""
+        repair_md = f"""
 ### 🛠️ Work Order & Repair Estimate: `{repair_plan.fault_name}`
 **Urgency:** `{repair_plan.urgency_level}` | **Total Estimate:** `${repair_plan.total_estimated_cost_usd:.2f}` (Parts: `${repair_plan.total_parts_cost_usd:.2f}` | Labor: `${repair_plan.total_labor_cost_usd:.2f}`)
 
@@ -306,57 +294,95 @@ def diagnose(
 {chr(10).join(['- ' + c for c in repair_plan.verification_protocol.pass_criteria])}
 """
 
-    return summary_md, hyp_df, q_md, cit_md, ev_md, repair_md
+        return summary_md, hyp_df, q_md, cit_md, ev_md, repair_md
+
+    except Exception as err:
+        err_trace = traceback.format_exc()
+        print("DIAGNOSE ERROR:", err_trace)
+        err_banner = f"### ⚠️ Diagnostic Calculation Notice\n```text\n{err_trace}\n```"
+        empty_df = pd.DataFrame([{"Status": "Error calculating hypotheses", "Details": str(err)}])
+        return err_banner, empty_df, "*(No follow-up test)*", "_No citations_", "_No evidence_", "_No repair plan_"
 
 
 def simulate_and_diagnose_stream(vehicle_choice: str, fault_sim: str, duration_s: float):
     """Simulates 10Hz OBD-II stream, analyzes waveforms, and feeds into diagnosis."""
-    v_id = VEHICLE_OPTIONS.get(vehicle_choice, "generic_petrol")
-    stream = generate_telemetry_stream(vehicle_id=v_id, fault_type=fault_sim, duration_s=duration_s)
-    analysis = analyze_telemetry_stream(stream)
-    report = run_diagnosis(analysis.extracted_observations)
+    try:
+        # Normalize dropdown tuple label to internal fault key
+        fault_mapping = {
+            "Healthy Baseline (No Fault)": "healthy",
+            "Intake Vacuum Leak (Divergent Idle Trims)": "vacuum_leak",
+            "Contaminated MAF (Systemic Lean Fueling)": "maf_contamination",
+            "Sluggish Upstream O2 Sensor (Hysteresis)": "o2_sensor_sluggish",
+            "Degraded Catalytic Converter (Downstream Tracking)": "catalyst_degraded",
+            "EV HV Battery Cell Imbalance (Voltage Sag)": "bms_cell_imbalance",
+            "EV Inverter Coolant Pump Failure (Thermal Runaway)": "inverter_pump_failure",
+        }
+        normalized_fault = fault_mapping.get(fault_sim, fault_sim)
 
-    # Format stream metrics
-    metrics_md = f"""
+        v_id = VEHICLE_OPTIONS.get(vehicle_choice, "generic_petrol")
+        duration = float(duration_s) if duration_s else 20.0
+
+        stream = generate_telemetry_stream(vehicle_id=v_id, fault_type=normalized_fault, duration_s=duration)
+        analysis = analyze_telemetry_stream(stream)
+        report = run_diagnosis(analysis.extracted_observations)
+
+        # Format stream metrics
+        metrics_md = f"""
 ### 📈 10Hz Time-Series Telemetry Processing
 - **Total Frames Ingested:** `{analysis.total_frames}` frames across `{analysis.duration_s:.1f}s`
 - **O2 Switching Frequency:** `{analysis.signal_metrics.get('o2_switching_freq_hz', 0.0):.2f} Hz`
 - **Downstream O2 Variation (Std):** `{analysis.signal_metrics.get('downstream_o2_std_v', 0.0):.3f} V`
 - **LTFT Idle Mean:** `{analysis.signal_metrics.get('ltft_idle_mean_pct', 0.0):+.1f}%` | **Cruise Mean:** `{analysis.signal_metrics.get('ltft_cruise_mean_pct', 0.0):+.1f}%`
 """
-    if "max_cell_delta_mv" in analysis.signal_metrics:
-        metrics_md += f"- **HV Battery Max Cell Delta:** `{analysis.signal_metrics['max_cell_delta_mv']:.1f} mV`\n"
-    if "max_inverter_temp_c" in analysis.signal_metrics:
-        metrics_md += f"- **Inverter Peak Temperature:** `{analysis.signal_metrics['max_inverter_temp_c']:.1f} °C`\n"
+        if "max_cell_delta_mv" in analysis.signal_metrics:
+            metrics_md += f"- **HV Battery Max Cell Delta:** `{analysis.signal_metrics['max_cell_delta_mv']:.1f} mV`\n"
+        if "max_inverter_temp_c" in analysis.signal_metrics:
+            metrics_md += f"- **Inverter Peak Temperature:** `{analysis.signal_metrics['max_inverter_temp_c']:.1f} °C`\n"
 
-    anomalies_list = [f"- ⚠️ **Anomaly Detected:** {a}" for a in analysis.detected_anomalies]
-    anomaly_md = "#### Physical Waveform Anomalies\n" + ("\n".join(anomalies_list) if anomalies_list else "_Telemetry waveforms nominal._")
+        anomalies_list = [f"- ⚠️ **Anomaly Detected:** {a}" for a in analysis.detected_anomalies]
+        anomaly_md = "#### Physical Waveform Anomalies\n" + ("\n".join(anomalies_list) if anomalies_list else "_Telemetry waveforms nominal._")
 
-    diag_md = f"""
+        diag_md = f"""
 ### 🎯 Diagnostic Conclusion from Stream
 **Top Fault:** `{report.top_fault_name}` ({report.confidence_score * 100:.1f}% confidence)  
 **Auto-Generated DTCs:** `{', '.join(analysis.extracted_observations.dtc_codes) or 'None'}`  
 > **Summary:** {report.executive_summary}
 """
-    return metrics_md, anomaly_md, diag_md
+        return metrics_md, anomaly_md, diag_md
 
-
-def run_post_repair_verification(fault_choice: str, is_repaired: bool):
-    """Runs post-repair verification drive cycle and validates monitor completion."""
-    fault_type = "healthy" if is_repaired else (
-        "vacuum_leak" if "vacuum" in fault_choice else (
-            "catalyst_degraded" if "catalyst" in fault_choice else "bms_cell_imbalance"
+    except Exception as err:
+        err_trace = traceback.format_exc()
+        print("STREAMING ERROR:", err_trace)
+        return (
+            f"### ⚠️ Telemetry Processing Error\n```text\n{err_trace}\n```",
+            "*(Failed to process anomalies)*",
+            "*(Failed to execute stream diagnosis)*",
         )
-    )
-    stream = generate_telemetry_stream(vehicle_id="generic_petrol", fault_type=fault_type, duration_s=15.0)
-    result = verify_post_repair_drive_cycle(fault_id=fault_choice, stream=stream)
 
-    badge = "## 🏁 Verification Outcome: **PASSED (CLEARED FOR DELIVERY)**" if result["verified"] else "## ❌ Verification Outcome: **FAILED (UNRESOLVED)**"
-    passed = "\n".join([f"- ✅ {p}" for p in result["passed_checks"]])
-    failed = "\n".join([f"- ❌ {f}" for f in result["failed_checks"]])
-    monitors = "\n".join([f"- 🟢 {m}" for m in result["monitors_ready"]])
 
-    return f"""
+def run_post_repair_verification(fault_choice: str, is_repaired: Any):
+    """Runs post-repair verification drive cycle and validates monitor completion."""
+    try:
+        # Normalize boolean if received as string
+        if isinstance(is_repaired, str):
+            is_repaired_bool = is_repaired.strip().lower() in ("true", "1", "yes")
+        else:
+            is_repaired_bool = bool(is_repaired)
+
+        fault_type = "healthy" if is_repaired_bool else (
+            "vacuum_leak" if "vacuum" in fault_choice else (
+                "catalyst_degraded" if "catalyst" in fault_choice else "bms_cell_imbalance"
+            )
+        )
+        stream = generate_telemetry_stream(vehicle_id="generic_petrol", fault_type=fault_type, duration_s=15.0)
+        result = verify_post_repair_drive_cycle(fault_id=fault_choice, stream=stream)
+
+        badge = "## 🏁 Verification Outcome: **PASSED (CLEARED FOR DELIVERY)**" if result["verified"] else "## ❌ Verification Outcome: **FAILED (UNRESOLVED)**"
+        passed = "\n".join([f"- ✅ {p}" for p in result["passed_checks"]])
+        failed = "\n".join([f"- ❌ {f}" for f in result["failed_checks"]])
+        monitors = "\n".join([f"- 🟢 {m}" for m in result["monitors_ready"]])
+
+        return f"""
 {badge}
 
 ### 📋 OBD-II Readiness Monitors
@@ -370,6 +396,10 @@ def run_post_repair_verification(fault_choice: str, is_repaired: bool):
 
 > **Technician Action:** {result['recommendations']}
 """
+    except Exception as err:
+        err_trace = traceback.format_exc()
+        print("VERIFICATION ERROR:", err_trace)
+        return f"### ⚠️ Post-Repair Drive Cycle Error\n```text\n{err_trace}\n```"
 
 
 with gr.Blocks(title="AI Automotive Digital Twin Diagnostic Suite") as demo:
@@ -467,7 +497,7 @@ with gr.Blocks(title="AI Automotive Digital Twin Diagnostic Suite") as demo:
                     shop_rate_input = gr.Number(label="Shop Hourly Labor Rate ($/hr)", value=110.0)
                     run_btn = gr.Button("🚀 Run Digital Twin Diagnosis", variant="primary")
 
-                with gr.Column(scale=1.4):
+                with gr.Column(scale=2):
                     gr.Markdown("### 2. Diagnostic Findings")
                     summary_output = gr.Markdown()
                     hyp_output = gr.DataFrame(label="Ranked Hypotheses (Bayesian Posterior)")
@@ -503,9 +533,9 @@ with gr.Blocks(title="AI Automotive Digital Twin Diagnostic Suite") as demo:
             stream_run_btn = gr.Button("⚡ Ingest & Analyze 10Hz Telemetry Stream", variant="primary")
             
             with gr.Row():
-                stream_metrics_out = gr.Markdown()
-                stream_anomalies_out = gr.Markdown()
-            stream_diag_out = gr.Markdown()
+                stream_metrics_out = gr.Markdown("*(Signal processing metrics will appear here after stream ingestion)*")
+                stream_anomalies_out = gr.Markdown("*(Waveform anomalies will appear here after stream ingestion)*")
+            stream_diag_out = gr.Markdown("*(Bayesian diagnostic conclusion from stream will appear here)*")
 
         with gr.Tab("🔄 Post-Repair Verification Drive Cycle"):
             gr.Markdown("### Post-Service Drive Cycle & OBD-II Monitor Reset Engine")
@@ -527,7 +557,7 @@ with gr.Blocks(title="AI Automotive Digital Twin Diagnostic Suite") as demo:
                     value=True,
                 )
             verify_run_btn = gr.Button("🏁 Execute Post-Repair Verification Drive Cycle", variant="primary")
-            verify_result_out = gr.Markdown()
+            verify_result_out = gr.Markdown("*(Verification results will appear here after executing the drive cycle)*")
 
     # Wire preset loading
     preset_dropdown.change(
@@ -564,4 +594,4 @@ with gr.Blocks(title="AI Automotive Digital Twin Diagnostic Suite") as demo:
     )
 
 if __name__ == "__main__":
-    demo.launch()
+    demo.launch(show_error=True)

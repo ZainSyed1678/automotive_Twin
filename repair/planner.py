@@ -23,10 +23,19 @@ CATALOGUE_PATH = Path(__file__).parent / "catalogue.yaml"
 
 
 def load_repair_catalogue() -> Dict[str, Any]:
-    """Loads the repair procedure database."""
-    with open(CATALOGUE_PATH, "r", encoding="utf-8") as f:
-        data = yaml.safe_load(f)
-    return data.get("repairs", {})
+    """Loads the repair procedure database with robust path resolution."""
+    candidate_paths = [
+        CATALOGUE_PATH,
+        Path(__file__).parent / "catalogue.yaml",
+        Path.cwd() / "repair" / "catalogue.yaml",
+        Path("/home/user/app/repair/catalogue.yaml"),
+    ]
+    for p in candidate_paths:
+        if p.exists():
+            with open(p, "r", encoding="utf-8") as f:
+                data = yaml.safe_load(f)
+            return data.get("repairs", {})
+    return {}
 
 
 def generate_repair_plan(

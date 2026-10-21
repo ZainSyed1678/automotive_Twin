@@ -34,10 +34,22 @@ class FaultModel:
         self._load_catalogue()
 
     def _load_catalogue(self) -> None:
-        if not self.catalogue_path.exists():
+        candidate_paths = [
+            self.catalogue_path,
+            Path(__file__).parent / "catalogue.yaml",
+            Path.cwd() / "model" / "catalogue.yaml",
+            Path("/home/user/app/model/catalogue.yaml"),
+        ]
+        target_path = None
+        for p in candidate_paths:
+            if p.exists():
+                target_path = p
+                break
+
+        if target_path is None or not target_path.exists():
             raise FileNotFoundError(f"Catalogue file not found at: {self.catalogue_path}")
 
-        with open(self.catalogue_path, "r", encoding="utf-8") as f:
+        with open(target_path, "r", encoding="utf-8") as f:
             data = yaml.safe_load(f)
 
         for comp_data in data.get("components", []):

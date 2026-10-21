@@ -32,10 +32,22 @@ class KnowledgeBase:
         self._load_and_index()
 
     def _load_and_index(self) -> None:
-        if not self.doc_path.exists():
+        candidate_paths = [
+            self.doc_path,
+            Path(__file__).parent / "documents.yaml",
+            Path.cwd() / "rag" / "documents.yaml",
+            Path("/home/user/app/rag/documents.yaml"),
+        ]
+        target_path = None
+        for p in candidate_paths:
+            if p.exists():
+                target_path = p
+                break
+
+        if target_path is None or not target_path.exists():
             raise FileNotFoundError(f"Knowledge documents file not found at: {self.doc_path}")
 
-        with open(self.doc_path, "r", encoding="utf-8") as f:
+        with open(target_path, "r", encoding="utf-8") as f:
             data = yaml.safe_load(f)
 
         raw_docs = data.get("documents", [])
@@ -174,10 +186,24 @@ class SimilarCaseIndex:
         self._load_cases()
 
     def _load_cases(self) -> None:
-        if not self.dev_cases_path.exists():
-            raise FileNotFoundError(f"Development cases not found at: {self.dev_cases_path}")
+        candidate_paths = [
+            self.dev_cases_path,
+            Path(__file__).parent.parent / "data" / "cases_dev.json",
+            Path.cwd() / "data" / "cases_dev.json",
+            Path("/home/user/app/data/cases_dev.json"),
+        ]
+        target_path = None
+        for p in candidate_paths:
+            if p.exists() and "cases_eval" not in p.name:
+                target_path = p
+                break
 
-        with open(self.dev_cases_path, "r", encoding="utf-8") as f:
+        if target_path is None or not target_path.exists():
+            # Graceful fallback: do not crash the entire diagnostic pipeline if dev cases are missing
+            self.cases = []
+            return
+
+        with open(target_path, "r", encoding="utf-8") as f:
             self.cases = json.load(f)
 
     def find_similar(
