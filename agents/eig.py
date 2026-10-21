@@ -132,6 +132,41 @@ TEST_QUESTION_METADATA: Dict[str, Dict[str, Any]] = {
         "default_baseline": {"outlet_significantly_hotter": 0.85, "inlet_hotter_or_same": 0.15},
         "rationale": "Exothermic redox reactions inside a working converter cause outlet temperature to exceed inlet temperature.",
     },
+    "hv_isolation_megohmmeter": {
+        "test_name": "High-Voltage DC Isolation Resistance Test (1000V)",
+        "question_text": "De-energize HV system and apply 1000V DC insulation tester between HV bus and vehicle chassis. Is isolation resistance normal (>10M ohm) or low (<500 ohm/V)?",
+        "possible_answers": ["normal", "low_isolation_fault"],
+        "default_baseline": {"normal": 0.90, "low_isolation_fault": 0.10},
+        "rationale": "Directly verifies dielectric integrity between 400V traction circuits and passenger chassis ground.",
+    },
+    "cell_voltage_delta": {
+        "test_name": "Battery Cell Block Voltage Delta under 40kW Load",
+        "question_text": "Monitor live BMS cell block voltages during 40kW rapid acceleration or regenerative braking. Is maximum cell block delta normal (<35mV) or excessive (>120mV)?",
+        "possible_answers": ["normal", "excessive_imbalance"],
+        "default_baseline": {"normal": 0.88, "excessive_imbalance": 0.12},
+        "rationale": "Deteriorated cell modules experience high internal resistance and severe voltage sag under high current discharge.",
+    },
+    "inverter_phase_resistance": {
+        "test_name": "Inverter 3-Phase Diode & Resistance Balance Test",
+        "question_text": "Perform diode forward drop test across all 6 inverter bridge pairs. Are phase readings balanced (0.35V-0.45V) or showing phase imbalance / short circuit?",
+        "possible_answers": ["balanced", "phase_imbalance"],
+        "default_baseline": {"balanced": 0.90, "phase_imbalance": 0.10},
+        "rationale": "Pinpoints blown IGBT/SiC power half-bridges or gate driver open-circuits causing motor shudder.",
+    },
+    "resolver_excitation_waveform": {
+        "test_name": "Traction Motor Resolver 10kHz Excitation Oscilloscope Scan",
+        "question_text": "Scope motor resolver Sine and Cosine return signals while rotating drive axle. Are waveforms clean sinusoidal or distorted / missing?",
+        "possible_answers": ["clean", "distorted_or_missing"],
+        "default_baseline": {"clean": 0.90, "distorted_or_missing": 0.10},
+        "rationale": "Resolvers provide critical angular feedback for vector FOC inverter commutation; missing pulses prevent drive.",
+    },
+    "battery_cooling_flow": {
+        "test_name": "HV Inverter/Battery Auxiliary Electric Coolant Flow Inspection",
+        "question_text": "Command auxiliary electric coolant pump ON with scan tool. Is active turbulent coolant circulation present in expansion tank, or no circulation?",
+        "possible_answers": ["normal_flow", "no_circulation"],
+        "default_baseline": {"normal_flow": 0.85, "no_circulation": 0.15},
+        "rationale": "Verifies electric coolant pump impeller rotation and circulation through power inverter cold plate.",
+    },
 }
 
 

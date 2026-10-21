@@ -21,6 +21,9 @@
 | **M7** | **Evaluation & Calibration** | **Completed** | Held-out benchmarking across 3 modes, calibration scoring (ECE 0.059, Brier 0.056), 58/58 tests passing. |
 | **Phase 2** | **Multi-Vehicle Support** | **Completed** | Vehicle profile registry, Hyundai i20 Kappa MPI, VW Golf 1.4 TSI GDI, platform TSBs, 67/67 tests passing. |
 | **Phase 3** | **Multi-Subsystem Digital Twin** | **Completed** | Ignition & Combustion + Exhaust & Aftertreatment subsystems, cascading failure hazards, 77/77 tests passing. |
+| **Phase 4** | **EV & Hybrid Electrified Powertrains** | **Completed** | Subsystem 4, Toyota Prius HEV + Tesla Model 3 BEV, BMS & Inverter failure modes, 86/86 tests passing. |
+| **Phase 5** | **Live Telemetry & Streaming Engine** | **Completed** | 10Hz OBD-II stream generator, dynamic signal frequency & trim analyzer, 95/95 tests passing. |
+| **Phase 6** | **Automated Repair & Verification** | **Completed** | Actionable repair plans, Mitchell1 labor hours, NFPA 70E HV safety, post-repair drive cycles, 107/107 tests passing. |
 
 ---
 
@@ -395,6 +398,128 @@ Total model dimensions: **15 core components, 17 representative failure modes ac
   - Multi-subsystem RAG retrieval.
   - End-to-end LangGraph diagnosis with review gate passage (`PASSED`).
 - **Complete Test Suite: 77 passed in 6.87s**.
+
+---
+
+## 12. Phase 4 — EV & Hybrid Electrified Powertrain Subsystem
+
+### Subsystem Scope & Architectural Additions
+- Added **Subsystem 4 (`high_voltage_battery_and_ev_powertrain`)** to [`model/catalogue.yaml`](model/catalogue.yaml):
+  - **4 New Components**:
+    1. `battery_management_system` (BMS controller, cell shunt balancing, contactor drive)
+    2. `high_voltage_battery_pack` (Series-parallel 200V-400V DC energy storage pack)
+    3. `traction_inverter` (3-phase IGBT/MOSFET power inverter module)
+    4. `electric_traction_motor` (Permanent Magnet Synchronous Motor with resolver feedback)
+  - **5 New Failure Modes**:
+    1. `bms_cell_voltage_imbalance` (`P0A7F`, `P0A80` — delta > 120 mV under high load, acceleration derated)
+    2. `high_voltage_isolation_loss` (`P0AA6` — chassis insulation resistance loss < 500 kOhm)
+    3. `inverter_phase_loss` (`P0A1B` — IGBT gate short / open causing severe drive stutter)
+    4. `traction_motor_resolver_fault` (`P0A40` — commutation angle drift and sensor fault)
+    5. `battery_cooling_pump_failure` (`P0A93` — loss of inverter/pack coolant circulation)
+
+### Vehicle Platform Profiles
+- Created **Toyota Prius 1.8L Hybrid Synergy Drive** ([`model/vehicles/toyota_prius_18_hybrid.yaml`](model/vehicles/toyota_prius_18_hybrid.yaml)):
+  - Split architecture: 1.8L Atkinson Cycle 2ZR-FXE + 201.6V NiMH Traction Battery + Dual Motor-Generators (MG1/MG2).
+  - Configured platform prior overrides elevating inverter coolant pump failure to 14.0% prior based on known TSB patterns.
+- Created **Tesla Model 3 Long Range Dual Motor BEV** ([`model/vehicles/tesla_model_3_bev.yaml`](model/vehicles/tesla_model_3_bev.yaml)):
+  - Pure BEV architecture: 350V Lithium-Ion NCA Pack + Dual PMSM/Induction Inverter Drive + Pyrotechnic Fuse & BMS.
+  - Configured platform prior overrides elevating high-voltage isolation loss to 12.0% prior.
+
+### Self-Review & EIG Updates
+- Updated `SUPPORTED_SUBSYSTEMS` in `agents/review.py` to validate all 4 subsystems.
+- Updated `VALID_COMPONENTS` to all 19 components across the platform.
+- Registered 5 EV-specific diagnostic inspection procedures in `agents/eig.py`:
+  - `cell_voltage_delta`: BMS cell block divergence under load.
+  - `chassis_isolation_resistance`: 1000V megohmmeter chassis insulation test.
+  - `inverter_temp`: Inverter heat sink operational temperature.
+  - `battery_cooling_flow`: Visible coolant reservoir agitation / active pump command.
+  - `motor_resolver_jitter`: Scope analysis of resolver sine/cosine waveforms.
+
+### Technical Documents Ingested
+- Ingested 5 OEM and SAE technical reference documents in `rag/documents.yaml`:
+  - `DOC-OBD-P0AA6`: High-Voltage Isolation Loss fault isolation tree.
+  - `DOC-OBD-P0A7F`: Hybrid Battery Pack Deterioration and delta V analysis.
+  - `DOC-OBD-P0A40`: Motor Resolver Position Sensor commutation calibration.
+  - `DOC-TSB-PRIUS-2021`: Prius Inverter Coolant Pump cavitation & thermal degradation.
+  - `DOC-TSB-TESLA-2022`: Tesla Model 3 HV Harness water-ingress isolation fault.
+
+### Verification (`tests/test_ev_powertrain.py`)
+- 9 dedicated unit and integration tests passing:
+  - Prius profile loading and hybrid architecture validation.
+  - Tesla Model 3 profile loading and BEV component boundaries.
+  - BMS cell voltage imbalance Bayesian diagnosis.
+  - High-voltage isolation loss diagnosis on Tesla Model 3.
+  - Inverter cooling pump failure diagnosis on Toyota Prius.
+  - Review gate validation for EV components (`PASSED`).
+  - EV EIG adaptive test candidate generation.
+  - Technical RAG document retrieval with citations.
+  - Dual-platform comparison sanity checks.
+
+---
+
+## 13. Phase 5 — Real-Time Live Sensor Telemetry & Time-Series Streaming Engine
+
+### Architecture (`stream/`)
+- **`TelemetryFrame` & `TelemetryStream` (`stream/schema.py`)**:
+  - High-frequency temporal snapshots containing standard PIDs (RPM, Speed, Throttle, MAF, MAP, ECT, STFT, LTFT, O2 Upstream, O2 Downstream) and EV PIDs (Pack Voltage, Pack Current, Cell Max Delta, Inverter Temp).
+- **Physical Drive Cycle Simulator (`stream/generator.py`)**:
+  - 10Hz continuous signal generator modeling warm curb idle (0-7s), steady 60 km/h cruise (7-15s), and acceleration regimes.
+  - Injects deterministic physical fault signatures: intake vacuum leak, MAF underreporting, sluggish O2 response, downstream O2 catalyst tracking, EV cell voltage sag, and inverter thermal runaway.
+- **Time-Series Stream Analyzer (`stream/analyzer.py`)**:
+  - Zero-crossing frequency detection for upstream O2 sensor (identifying sluggish sensors < 0.6 Hz).
+  - Downstream O2 standard deviation calculation (detecting catalyst pass-through oscillation > 0.12V).
+  - Idle vs Cruise LTFT divergence comparison (isolating intake vacuum leaks vs global MAF bias).
+  - Automated conversion into structured `Observations` with corresponding DTCs.
+
+### Verification (`tests/test_stream_telemetry.py`)
+- 9 automated tests passing:
+  - Healthy baseline stream generation and analysis.
+  - Vacuum leak LTFT idle/cruise divergence and end-to-end diagnosis.
+  - MAF contamination detection and dual DTC generation.
+  - Sluggish O2 sensor switching frequency thresholding.
+  - Degraded catalyst downstream O2 mirror detection (`P0420`).
+  - EV battery cell delta under load detection (`P0A7F`).
+  - EV inverter thermal overheating detection (`P0A93`).
+  - Empty and short stream edge case resilience.
+
+---
+
+## 14. Phase 6 — Automated Repair Action Plan, Labor/Parts Cost Estimator & Post-Repair Verification Drive Cycle Engine
+
+### Architecture (`repair/`)
+- **Standardized Schemas (`repair/schema.py`)**:
+  - `PartEstimate`: OEM part numbers, component descriptions, quantity, unit pricing, categorization.
+  - `LaborEstimate`: Flat-rate Mitchell1 / Alldata book hours, hourly shop rate, ASE certification requirement (`ASE_A8_ENGINE_PERFORMANCE`, `ASE_L3_HYBRID_EV_SPECIALIST`).
+  - `SafetyWarning`: Critical warnings emphasizing NFPA 70E High Voltage depowering protocols, Class 0 1000V gloves, and depressurization procedures.
+  - `RepairStep`: Standard Operating Procedure (SOP) across prep, disassembly, component service, and reassembly phases with explicit torque specifications.
+  - `VerificationProtocol` & `DriveCycleStep`: Prescribed post-repair drive cycle regimes (cold soak, idle, steady cruise, decel fuel cut-off) with monitor readiness checks.
+  - `RepairPlan`: Unified work order and estimate model.
+- **Repair Procedure Database (`repair/catalogue.yaml`)**:
+  - Comprehensive repair definitions covering all 22 core failure modes across the 4 subsystems.
+- **Repair Planner (`repair/planner.py`)**:
+  - `generate_repair_plan(diagnosis, hourly_rate_usd)`: Synthesizes diagnostic findings into actionable work orders with customizable shop labor rates. Automatically injects NFPA 70E High-Voltage protocols for EV platforms.
+- **Post-Repair Verification Engine (`repair/verification.py`)**:
+  - `verify_post_repair_drive_cycle(fault_id, stream)`: Evaluates post-service telemetry against physical criteria (e.g. idle LTFT normalization, O2 flatline, cell delta balance, inverter temp control) and verifies OBD-II monitor readiness.
+
+### Verification (`tests/test_repair_workflow.py`)
+- 9 automated tests passing:
+  - Repair catalogue integrity and failure mode coverage.
+  - ICE intake vacuum leak repair plan, torque specs (10 Nm), and labor calculations.
+  - EV High-Voltage safety protocols (NFPA 70E, 1000V PPE, L3 Specialist requirements).
+  - Exhaust catalyst replacement plan and EPA Federal drive cycle.
+  - Hourly shop labor rate scalability ($80/hr vs $160/hr).
+  - Successful post-repair verification with normalized telemetry (monitors set to READY).
+  - Unresolved fault detection in post-repair verification.
+  - EV inverter cooling pump post-repair verification.
+  - Generic fallback resilience for uncatalogued faults.
+
+### Total Platform Metrics
+- **Supported Subsystems**: 4
+- **Supported Components**: 19
+- **Supported Failure Modes**: 22
+- **Supported Vehicle Platforms**: 5 (Generic Petrol, Hyundai i20 MPI, VW Golf EA211 TSI, Toyota Prius HEV, Tesla Model 3 BEV)
+- **Total Automated Unit & Integration Tests**: **107 passed across 12 test modules** (100% pass rate in 7.19s).
+
 
 
 

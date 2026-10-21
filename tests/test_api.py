@@ -158,3 +158,72 @@ def test_telemetry_traces_endpoint(client: TestClient):
     assert "trace_id" in last_trace
     assert "duration_ms" in last_trace
     assert "output_metrics" in last_trace
+
+
+# -----------------------------------------------------------------------------
+# Phase 5 & 6 Endpoints
+# -----------------------------------------------------------------------------
+
+def test_stream_simulate_and_analyze_api(client: TestClient):
+    """Verify time-series simulation and analysis endpoints."""
+    # Simulate
+    sim_res = client.post(
+        "/stream/simulate",
+        json={"vehicle_id": "toyota_prius_18_hybrid", "fault_type": "bms_cell_imbalance", "duration_s": 10.0},
+    )
+    assert sim_res.status_code == 200
+    stream_data = sim_res.json()
+    assert len(stream_data["frames"]) == 100
+
+    # Analyze
+    analyze_res = client.post("/stream/analyze", json=stream_data)
+    assert analyze_res.status_code == 200
+    analysis = analyze_res.json()
+    assert "P0A7F" in analysis["extracted_observations"]["dtc_codes"]
+    assert any("HV Battery cell" in a for a in analysis["detected_anomalies"])
+
+
+def test_stream_diagnose_api(client: TestClient):
+    """Verify full end-to-end telemetry streaming into Bayesian diagnosis."""
+    sim_res = client.post(
+        "/stream/simulate",
+        json={"vehicle_id": "vw_golf_14_tsi", "fault_type": "vacuum_leak", "duration_s": 15.0},
+    )
+    stream_data = sim_res.json()
+
+    diag_res = client.post("/stream/diagnose", json=stream_data)
+    assert diag_res.status_code == 200
+    data = diag_res.json()
+    assert data["diagnostic_report"]["top_fault_id"] == "intake_vacuum_leak"
+    assert data["diagnostic_report"]["confidence_score"] >= 0.80
+
+
+def test_repair_plan_and_verify_api(client: TestClient):
+    """Verify automated repair plan generation and post-repair verification."""
+    # Repair plan endpoint
+    plan_res = client.get(
+        "/repair/plan/bms_cell_voltage_imbalance",
+        params={"vehicle_id": "toyota_prius_18_hybrid", "hourly_rate_usd": 125.0},
+    )
+    assert plan_res.status_code == 200
+    plan = plan_res.json()
+    assert plan["fault_id"] == "bms_cell_voltage_imbalance"
+    assert plan["urgency_level"] == "CRITICAL_IMMEDIATE_STOP"
+    assert any(w["severity"] == "DANGER_HIGH_VOLTAGE" for w in plan["safety_warnings"])
+
+    # Post-repair verification with healthy stream
+    sim_res = client.post(
+        "/stream/simulate",
+        json={"vehicle_id": "toyota_prius_18_hybrid", "fault_type": "healthy", "duration_s": 10.0},
+    )
+    healthy_stream = sim_res.json()
+
+    verify_res = client.post(
+        "/repair/verify",
+        json={"fault_id": "bms_cell_voltage_imbalance", "stream": healthy_stream},
+    )
+    assert verify_res.status_code == 200
+    verification = verify_res.json()
+    assert verification["verified"] is True
+    assert verification["readiness_status"] == "PASSED_VERIFIED"
+

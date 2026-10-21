@@ -27,6 +27,7 @@ SUPPORTED_SUBSYSTEMS = {
     "air_intake_and_fuel_control",
     "ignition_and_combustion",
     "exhaust_and_aftertreatment",
+    "high_voltage_battery_and_ev_powertrain",
 }
 SUPPORTED_SUBSYSTEM = "air_intake_and_fuel_control"
 VALID_COMPONENTS = {
@@ -49,6 +50,11 @@ VALID_COMPONENTS = {
     # Subsystem 3: Exhaust & Aftertreatment
     "catalytic_converter",
     "downstream_oxygen_sensor",
+    # Subsystem 4: High-Voltage Battery & EV/Hybrid Powertrain
+    "battery_management_system",
+    "high_voltage_battery_pack",
+    "traction_inverter",
+    "electric_traction_motor",
 }
 
 

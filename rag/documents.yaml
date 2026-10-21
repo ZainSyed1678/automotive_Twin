@@ -459,3 +459,71 @@ documents:
       Cross-Subsystem Correlation:
       When an ignition coil fails, the fuel injector continues injecting raw gasoline. This liquid fuel enters the exhaust header and reaches the 600°C catalytic converter, where it ignites directly on the ceramic substrate. Internal temperatures exceed 950°C within minutes, sintering the ceria/platinum washcoat and permanently destroying oxygen storage capacity.
       Diagnostic Rule: Never replace a catalytic converter for P0420 without first inspecting and addressing upstream misfires and fuel trims.
+
+  # ----------------------------------------------------------------------------
+  # Subsystem 4: High-Voltage Battery & EV/Hybrid Technical Documents & TSBs
+  # ----------------------------------------------------------------------------
+  - doc_id: "DOC-OBD-P0AA6"
+    title: "OBD-II Code P0AA6: High Voltage System Isolation Fault"
+    doc_type: "obd_code"
+    component_id: "high_voltage_battery_pack"
+    related_dtcs: ["P0AA6", "P0A92"]
+    summary: "BMS insulation detection circuit detects loss of electrical isolation between 400V DC bus and 12V chassis ground."
+    content: |
+      DTC Description: Hybrid / EV Battery Voltage System Isolation Fault.
+      Safety Mandatory: Follow OSHA / NFPA 70E electrical safety rules. Wear Class 0 1000V rated insulated gloves with leather protectors. Disconnect 12V auxiliary battery and pull manual service disconnect (MSD) plug before touching high-voltage wiring.
+      Diagnostic Logic: The BMS measures leakage current across a high-resistance bridge to chassis. If isolation resistance drops below 500 ohms/volt (200k ohms on 400V system), the ECU opens main contactors and inhibits READY state.
+      Isolation Sub-tree Procedure:
+      1. Disconnect high-voltage A/C compressor connector and re-test.
+      2. Disconnect high-voltage PTC cabin heater connector and re-test.
+      3. Disconnect transaxle/motor 3-phase harness and re-test.
+      4. If isolation fault persists, internal battery pack moisture or contactor degradation is confirmed.
+
+  - doc_id: "DOC-OBD-P0A7F"
+    title: "OBD-II Code P0A7F: Hybrid Battery Pack Deterioration / Cell Imbalance"
+    doc_type: "obd_code"
+    component_id: "battery_management_system"
+    related_dtcs: ["P0A7F", "P0A80"]
+    summary: "BMS internal resistance calculation or cell block delta exceeds manufacturer maximum limit (>120mV)."
+    content: |
+      DTC Description: Hybrid / EV Battery Pack Deterioration.
+      Enabling Conditions: Traction pack state of charge between 30% and 75%, battery temperature between 10°C and 45°C.
+      Diagnostic Logic: The BMS samples all individual series cell block voltages at 100Hz. During high-current acceleration (discharge) or regenerative braking (charge), an aging cell block exhibits higher internal resistance (IR), causing a pronounced voltage dip or spike relative to healthy blocks. If delta V between highest and lowest cell blocks exceeds 120mV for >3 consecutive seconds, P0A7F sets and electric drive power is throttled.
+
+  - doc_id: "DOC-OBD-P0A40"
+    title: "OBD-II Code P0A40: Drive Motor 'A' Position Sensor (Resolver) Range/Performance"
+    doc_type: "obd_code"
+    component_id: "electric_traction_motor"
+    related_dtcs: ["P0A40", "P0A41"]
+    summary: "Inverter vector control detects angular error between resolver sine/cosine feedback and stator magnetic field."
+    content: |
+      DTC Description: Drive Motor 'A' Position Sensor Circuit Range/Performance.
+      Diagnostic Logic: The traction inverter utilizes an analog resolver (rotary transformer with primary excitation and dual secondary Sine/Cosine windings) to determine rotor electrical angle for synchronous commutation. If the resolver return signal amplitude is attenuated, phase-shifted, or missing pulses, the inverter cannot calculate flux vector angle, triggering sudden motor shudder and drive cutoff.
+
+  - doc_id: "DOC-TSB-PRIUS-2021"
+    title: "Toyota TSB 0021-21: Prius Dedicated Inverter Electric Coolant Pump Failure (P0A93)"
+    doc_type: "tsb"
+    component_id: "high_voltage_battery_pack"
+    applicable_vehicles: ["toyota_prius_18_hybrid"]
+    related_dtcs: ["P0A93", "P0A94"]
+    summary: "Dedicated inverter electric water pump impeller seizure causing thermal shutdown and hybrid warning lamp."
+    content: |
+      Applicability: Toyota Prius Hybrid (XW30/XW50 series).
+      Condition: Master warning triangle illuminated with DTC P0A93 (Inverter Cooling System Performance) stored after sustained highway driving.
+      Mechanism: The inverter cooling circuit is completely separate from the internal combustion engine radiator. The 12V brushless electric inverter water pump experiences internal stator potting failure or bushing wear, causing intermittent stall.
+      Verification: Switch ignition to READY mode. Remove inverter coolant expansion tank cap. Inspect for rapid, turbulent coolant fluid swirl. If fluid surface is completely calm, electric pump has failed.
+
+  - doc_id: "DOC-TSB-TESLA-2022"
+    title: "Tesla TSB SB-22-17-005: Model 3 Penthouse Moisture Ingress and Isolation Fault P0AA6"
+    doc_type: "tsb"
+    component_id: "high_voltage_battery_pack"
+    applicable_vehicles: ["tesla_model_3_bev"]
+    related_dtcs: ["P0AA6"]
+    summary: "Moisture or coolant vapor ingress past battery penthouse cover seal producing conductive path to chassis."
+    content: |
+      Applicability: Tesla Model 3 RWD and Dual Motor vehicles.
+      Condition: Vehicle alerts 'Unable to drive - High voltage isolation issue'. Vehicle refuses to close contactors and enter drive.
+      Diagnostic Verification:
+      1. Access low-voltage service disconnect behind rear seat.
+      2. Inspect penthouse Gortex breather valve and seal perimeter for coolant residue.
+      3. Using a calibrated Megohmmeter, test insulation between positive HV bus bar and chassis ground (spec: > 10M ohms). A reading below 200k ohms indicates internal penthouse contamination or pyrotechnic disconnect squib tracking.

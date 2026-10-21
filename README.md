@@ -130,11 +130,29 @@ digital/
 ├── model/                     # M1: Digital Twin Fault Model & Engine
 │   ├── __init__.py
 │   ├── schema.py              # Pydantic schemas (Component, Fault, Observations)
-│   ├── catalogue.yaml         # Declarative causal graph and likelihood distributions
-│   └── engine.py              # FaultModel class with simulate_fault() and score_hypotheses()
+│   ├── catalogue.yaml         # Declarative causal graph across 4 subsystems
+│   ├── engine.py              # FaultModel class with simulate_fault() and score_hypotheses()
+│   ├── vehicle_profile.py     # Vehicle platform schema and specifications
+│   └── vehicle_registry.py    # Vehicle registry for generic, Hyundai, VW, Toyota, Tesla
+├── stream/                    # Phase 5: Live Sensor Telemetry & Streaming Engine
+│   ├── __init__.py
+│   ├── schema.py              # TelemetryFrame, TelemetryStream, StreamAnalysisResult
+│   ├── generator.py           # 10Hz OBD-II and EV live telemetry generator
+│   └── analyzer.py            # Time-series signal processing, O2 freq, LTFT divergence
+├── repair/                    # Phase 6: Automated Repair & Verification Engine
+│   ├── __init__.py
+│   ├── schema.py              # RepairPlan, PartEstimate, LaborEstimate, VerificationProtocol
+│   ├── catalogue.yaml         # Database of OEM parts, book times, torque specs, safety
+│   ├── planner.py             # Work order generator with NFPA 70E HV safety
+│   └── verification.py        # Post-repair drive cycle & OBD-II monitor reset engine
 ├── tests/
 │   ├── test_model.py          # M1 unit and diagnostic scenario tests
-│   └── test_casegen.py        # M2 schema, isolation, reproducibility, and leakage tests
+│   ├── test_casegen.py        # M2 schema, isolation, reproducibility, and leakage tests
+│   ├── test_multi_vehicle.py  # Phase 2 multi-vehicle profile tests
+│   ├── test_multi_subsystem.py# Phase 3 ignition & exhaust tests
+│   ├── test_ev_powertrain.py  # Phase 4 EV & Hybrid powertrain tests
+│   ├── test_stream_telemetry.py # Phase 5 10Hz live streaming tests
+│   └── test_repair_workflow.py# Phase 6 repair plan & verification tests
 ├── generate_data.py           # CLI script to regenerate datasets
 ├── run_demo.py                # Interactive CLI demonstration
 ├── pytest.ini                 # Pytest configuration (pythonpath = .)
@@ -157,7 +175,7 @@ python run_demo.py
 ```
 
 ### 2. Run the Full Test Suite
-Runs all 77 automated tests across Phase 1, Phase 2, and Phase 3:
+Runs all 107 automated tests across Phase 1 through Phase 6:
 ```powershell
 pytest -v
 ```
@@ -166,12 +184,13 @@ Expected output:
 ```text
 tests/test_adaptive_questioning.py::test_entropy_calculation PASSED      [  1%]
 tests/test_adaptive_questioning.py::test_eig_prioritizes_fuel_pressure_on_lean_ambiguity PASSED [  3%]
-tests/test_calibration_and_m7.py::test_brier_score_perfect_prediction PASSED [ 33%]
-tests/test_multi_vehicle.py::test_hyundai_evap_purge_valve_surfacing PASSED [ 48%]
-tests/test_multi_subsystem.py::test_ignition_coil_breakdown_scoring PASSED [ 62%]
-tests/test_multi_subsystem.py::test_cross_subsystem_cascade_simulation PASSED [ 68%]
-tests/test_rag_and_mcp.py::test_mcp_score_hypotheses PASSED              [100%]
-============================= 77 passed in 6.87s =============================
+tests/test_calibration_and_m7.py::test_brier_score_perfect_prediction PASSED [ 28%]
+tests/test_multi_vehicle.py::test_hyundai_evap_purge_valve_surfacing PASSED [ 42%]
+tests/test_multi_subsystem.py::test_cross_subsystem_cascade_simulation PASSED [ 55%]
+tests/test_ev_powertrain.py::test_prius_inverter_cooling_pump_prior_override PASSED [ 68%]
+tests/test_stream_telemetry.py::test_vacuum_leak_telemetry_and_diagnosis PASSED [ 82%]
+tests/test_repair_workflow.py::test_ev_high_voltage_safety_and_specialist_skills PASSED [ 95%]
+============================= 107 passed in 7.19s =============================
 ```
 
 ### 3. Run the Final Held-Out Evaluation Benchmark
@@ -212,5 +231,7 @@ docker-compose up --build
 | | **M7: Evaluation & Audit** | Full held-out benchmark across 3 modes, calibration (ECE/Brier), honest audit | **Complete** |
 | **Phase 2** | **Multi-Vehicle Support** | Vehicle profile registry (Hyundai i20 MPI, VW Golf 1.4 TSI GDI), platform TSBs | **Complete** |
 | **Phase 3** | **Multi-Subsystem Expansion** | Ignition & Combustion + Exhaust & Aftertreatment subsystems, cross-subsystem cascading hazards | **Complete** |
-| **Phase 4** | Advanced Powertrain | Transmission & EV/Hybrid powertrain digital twin modules | Future |
+| **Phase 4** | **EV & Hybrid Powertrains** | High-Voltage Battery BMS, Traction Inverter, PMSM Motor, Toyota Prius HEV + Tesla Model 3 BEV | **Complete** |
+| **Phase 5** | **Live Telemetry Streaming** | 10Hz continuous OBD-II stream, O2 switching frequency, LTFT idle/cruise divergence, anomaly engine | **Complete** |
+| **Phase 6** | **Automated Repair & Verification** | Parts & labor cost estimator (Mitchell1 flat-rate), NFPA 70E safety protocols, post-repair drive cycles | **Complete** |
 

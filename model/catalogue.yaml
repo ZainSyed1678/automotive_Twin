@@ -88,6 +88,29 @@ components:
     subsystem: "exhaust_and_aftertreatment"
     description: "Post-catalyst zirconia oxygen sensor monitoring catalytic converter conversion efficiency and oxygen retention."
 
+  # ----------------------------------------------------------------------------
+  # Subsystem 4: High-Voltage Battery & EV/Hybrid Powertrain Components
+  # ----------------------------------------------------------------------------
+  - id: "battery_management_system"
+    name: "Battery Management System (BMS)"
+    subsystem: "high_voltage_battery_and_ev_powertrain"
+    description: "Electronic controller monitoring cell block voltages, pack current shunt, contactor control, and thermal thresholds."
+
+  - id: "high_voltage_battery_pack"
+    name: "High-Voltage Traction Battery Pack"
+    subsystem: "high_voltage_battery_and_ev_powertrain"
+    description: "Series-parallel lithium-ion or NiMH battery assembly (200V–400V) with main positive/negative contactors and service disconnect plug."
+
+  - id: "traction_inverter"
+    name: "Traction Power Inverter Module (PIM)"
+    subsystem: "high_voltage_battery_and_ev_powertrain"
+    description: "High-power electronic module utilizing IGBT/SiC MOSFET bridges to invert DC battery voltage into 3-phase AC motor drive."
+
+  - id: "electric_traction_motor"
+    name: "Permanent Magnet Electric Traction Motor (PMSM)"
+    subsystem: "high_voltage_battery_and_ev_powertrain"
+    description: "3-phase AC synchronous motor-generator with stator windings, rotor permanent magnets, and resolver position sensor."
+
 faults:
   - fault_id: "maf_contamination"
     name: "MAF Sensor Hot-Wire Contamination"
@@ -512,3 +535,120 @@ faults:
     distinguishing_tests:
       - "Measure downstream O2S2 heater circuit resistance with multimeter (open circuit confirms dead heater element)."
       - "Observe O2S2 sensor voltage during sudden deceleration fuel cut (voltage must drop below 0.1V; failure to drop confirms sensor bias)."
+
+  # ----------------------------------------------------------------------------
+  # Subsystem 4: High-Voltage Battery & EV/Hybrid Powertrain Failure Modes
+  # ----------------------------------------------------------------------------
+  - fault_id: "bms_cell_voltage_imbalance"
+    name: "Traction Battery Cell Block Voltage Imbalance"
+    component_id: "battery_management_system"
+    description: "Series cell block capacity variance exceeding 120mV under load due to accelerated dendrite growth or internal micro-shorts."
+    prior: 0.08
+    dtcs:
+      P0A7F: 0.94
+      P0A80: 0.88
+    symptoms:
+      cell_voltage_delta:
+        excessive_imbalance: 0.95
+        normal: 0.05
+      hybrid_system_warning:
+        present: 0.92
+        absent: 0.08
+      ev_acceleration:
+        derated: 0.90
+        normal: 0.10
+    cascading_effects:
+      - target_fault: "battery_cooling_pump_failure"
+        risk_level: "medium"
+        mechanism: "Degraded cell block experiences excessive localized resistive I2R heating during high-current charging."
+    distinguishing_tests:
+      - "Connect factory scanner to BMS live data; record all individual cell block voltages under 40kW rapid acceleration (delta V > 120mV confirms defect)."
+      - "Perform high-voltage pack capacity discharge test to determine degraded module location."
+
+  - fault_id: "high_voltage_isolation_loss"
+    name: "High-Voltage Isolation Resistance Loss to Chassis"
+    component_id: "high_voltage_battery_pack"
+    description: "Breakdown of dielectric barrier between 400V DC bus conductors and vehicle metal chassis ground (< 500 ohms/volt)."
+    prior: 0.06
+    dtcs:
+      P0AA6: 0.96
+      P0A92: 0.72
+    symptoms:
+      hv_isolation_megohmmeter:
+        low_isolation_fault: 0.96
+        normal: 0.04
+      vehicle_ready_state:
+        no_ready_interlock_open: 0.94
+        normal_ready: 0.06
+      hybrid_system_warning:
+        present: 0.95
+        absent: 0.05
+    distinguishing_tests:
+      - "Disconnect 12V auxiliary battery and manual service disconnect plug. Test insulation resistance with 1000V Megohmmeter (spec: > 10M ohms)."
+      - "Systematically isolate high-voltage AC compressor, PTC cabin heater, and battery pack to localize isolation fault."
+
+  - fault_id: "inverter_phase_loss"
+    name: "Traction Inverter Power Module (IGBT/SiC) Phase Loss"
+    component_id: "traction_inverter"
+    description: "Thermal fatigue or gate driver failure in one of the 3-phase high-power switching legs causing single-phasing of traction motor."
+    prior: 0.05
+    dtcs:
+      P0A1A: 0.92
+      P0A3F: 0.86
+    symptoms:
+      motor_shudder:
+        severe_vibration_under_torque: 0.95
+        smooth: 0.05
+      inverter_phase_resistance:
+        phase_imbalance: 0.92
+        balanced: 0.08
+      ev_acceleration:
+        shutoff_under_load: 0.90
+        normal: 0.10
+    distinguishing_tests:
+      - "Measure diode forward voltage drop across all 6 inverter IGBT/SiC half-bridges using DMM (spec: 0.35V–0.45V; 0.0V indicates shorted bridge)."
+      - "Monitor 3-phase AC current on 3-channel current clamp during low-speed stall torque test."
+
+  - fault_id: "traction_motor_resolver_fault"
+    name: "Electric Traction Motor Rotor Resolver Drift"
+    component_id: "electric_traction_motor"
+    description: "Rotor angular position resolver excitation coil failure or sine/cosine signal distortion preventing field-oriented vector control."
+    prior: 0.05
+    dtcs:
+      P0A40: 0.94
+      P0A41: 0.82
+    symptoms:
+      resolver_excitation_waveform:
+        distorted_or_missing: 0.95
+        clean: 0.05
+      motor_shudder:
+        severe_vibration_under_torque: 0.88
+        smooth: 0.12
+      vehicle_ready_state:
+        drive_inhibited: 0.92
+        normal_ready: 0.08
+    distinguishing_tests:
+      - "Probe resolver 10kHz reference excitation and Sine/Cosine return leads with differential oscilloscope while manually rotating wheels."
+      - "Execute resolver offset learn calibration using diagnostic scan tool."
+
+  - fault_id: "battery_cooling_pump_failure"
+    name: "Traction Battery / Inverter Electric Coolant Pump Failure"
+    component_id: "high_voltage_battery_pack"
+    description: "Brushless DC electric auxiliary coolant circulation pump bearing seizure or internal drive electronics open-circuit."
+    prior: 0.07
+    dtcs:
+      P0A93: 0.95
+      P0A94: 0.78
+    symptoms:
+      battery_cooling_flow:
+        no_circulation: 0.94
+        normal_flow: 0.06
+      inverter_temp:
+        abnormally_high: 0.92
+        normal: 0.08
+      ev_acceleration:
+        thermal_derated: 0.88
+        normal: 0.12
+    distinguishing_tests:
+      - "Actuate electric coolant pump via scanner bi-directional control; observe coolant swirl in inverter surge tank."
+      - "Verify 12V power, chassis ground, and PWM duty cycle command at pump wiring harness connector."

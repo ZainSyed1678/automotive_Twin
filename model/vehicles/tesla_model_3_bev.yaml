@@ -1,0 +1,53 @@
+id: tesla_model_3_bev
+name: "Tesla Model 3 RWD (Pure BEV Architecture)"
+make: "Tesla"
+model: "Model 3"
+engine_code: "3D6-PMSRM"
+year_range: "2018-2024"
+fuel_system: "BEV"
+aspiration: "Electric"
+displacement_l: 0.0
+description: "Pure battery electric vehicle featuring 400V structural traction battery pack, silicon carbide (SiC) power inverter, and permanent magnet switched reluctance motor (PMSRM)."
+nominal_specs:
+  hv_pack_voltage_nominal:
+    min: 345.0
+    max: 403.2
+    unit: "V"
+    description: "400V traction pack DC terminal voltage"
+  cell_block_delta_max:
+    min: 0.0
+    max: 0.025
+    unit: "V"
+    description: "Maximum allowable cell brick delta spread under 80kW acceleration"
+  hv_isolation_min_mohm:
+    min: 10.0
+    max: 500.0
+    unit: "M_ohm"
+    description: "Minimum HV isolation resistance to vehicle metal structure"
+  inverter_temp_max:
+    min: 15.0
+    max: 75.0
+    unit: "deg_C"
+    description: "SiC inverter phase bridge operating thermal limit"
+prior_overrides:
+  high_voltage_isolation_loss: 0.12
+  inverter_phase_loss: 0.09
+  traction_motor_resolver_fault: 0.08
+additional_faults:
+  - fault_id: "tesla_pyro_fuse_blown"
+    name: "High-Voltage Pyrotechnic Safety Fuse Tripped"
+    component_id: "high_voltage_battery_pack"
+    description: "Pyrotechnic squib fuse inside battery penthouse detonated due to over-current surge or crash signal, isolating 400V bus."
+    prior: 0.10
+    dtcs:
+      P0AA6: 0.88
+      BMS_a027: 0.95
+    symptoms:
+      vehicle_ready_state:
+        no_ready_interlock_open: 0.98
+        normal_ready: 0.02
+      hybrid_system_warning:
+        present: 0.96
+        absent: 0.04
+    distinguishing_tests:
+      - "Measure 12V squib continuity resistance through BMS low-voltage service pigtail connector (spec: 1.8 to 2.2 ohms; open circuit indicates blown pyro-fuse)."

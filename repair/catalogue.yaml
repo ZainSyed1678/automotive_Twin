@@ -1,0 +1,932 @@
+# ==============================================================================
+# Standard Repair Catalogue: Procedures, Parts, Labor Book Times, and Drive Cycles
+# ==============================================================================
+
+repairs:
+  # ----------------------------------------------------------------------------
+  # Air Intake & Fuel Control Subsystem
+  # ----------------------------------------------------------------------------
+  maf_contamination:
+    component_id: "maf_sensor"
+    urgency_level: "MODERATE_SCHEDULE_SERVICE"
+    parts:
+      - part_number: "CRC-05110"
+        description: "Specialized Mass Air Flow Sensor Cleaner Spray"
+        quantity: 1
+        unit_cost_usd: 14.50
+        category: "aftermarket"
+      - part_number: "OEM-MAF-897"
+        description: "OEM Replacement MAF Sensor Assembly"
+        quantity: 1
+        unit_cost_usd: 165.00
+        category: "oem"
+    labor:
+      operation: "Clean / Replace Mass Air Flow Sensor & Reset Fuel Trims"
+      book_hours: 0.8
+      technician_skill: "ASE_A8_ENGINE_PERFORMANCE"
+    safety_warnings:
+      - severity: "CAUTION"
+        standard: "OSHA 1910.133"
+        instruction: "Flammable solvent. Allow MAF sensor element to completely dry for 10 minutes before reapplying ignition power."
+    procedure_steps:
+      - step_number: 1
+        phase: "PREP_SAFETY"
+        instruction: "Turn ignition OFF, disconnect negative 12V battery terminal, and let engine cool down."
+        required_tools: ["10mm socket wrench"]
+      - step_number: 2
+        phase: "DISASSEMBLY"
+        instruction: "Disconnect MAF sensor harness locking connector. Loosen intake duct retaining clamp and remove 2x T20 Torx mounting screws."
+        required_tools: ["T20 Torx driver", "Flathead screwdriver"]
+      - step_number: 3
+        phase: "COMPONENT_SERVICE"
+        instruction: "Inspect hot wire for contamination. Spray 10-15 bursts of MAF cleaner onto platinum sensing element. Never touch wire with brushes or fingers."
+        required_tools: ["Nitrile gloves"]
+      - step_number: 4
+        phase: "REASSEMBLY"
+        instruction: "Ensure O-ring seal is seated evenly. Reinstall MAF into housing and torque mounting screws to spec. Reconnect harness."
+        torque_spec: "2.5 Nm (22 in-lbs)"
+        required_tools: ["Torque screwdriver"]
+    verification_protocol:
+      monitor_target: "Fuel Trim & MAF In-Range Monitor"
+      drive_cycle_steps:
+        - step_number: 1
+          phase_name: "Cold Start Idle"
+          condition: "Allow engine to idle in Park until ECT reaches 82°C"
+          duration_s: 300.0
+          target_speed_kmh: 0.0
+          target_rpm: 750.0
+          monitor_readiness_check: "Closed Loop Fuel Status Active"
+        - step_number: 2
+          phase_name: "Steady State Cruise"
+          condition: "Drive at 60-80 km/h with steady throttle"
+          duration_s: 480.0
+          target_speed_kmh: 70.0
+          target_rpm: 2200.0
+          monitor_readiness_check: "LTFT remains within [-7%, +7%]"
+      pass_criteria:
+        - "LTFT stabilized within +/- 5% at idle and cruise"
+        - "MAF reading at warm idle reads 2.0 - 2.8 g/s for 1.4-1.8L engine"
+        - "DTC P0101 and P0171 cleared with no pending fault codes"
+      reset_instructions:
+        - "Perform OBD-II DTC clear Mode $04"
+        - "Perform ECM/PCM learned fuel trim KAM (Keep Alive Memory) reset"
+
+  intake_vacuum_leak:
+    component_id: "intake_vacuum_line"
+    urgency_level: "HIGH_SERVICE_SOON"
+    parts:
+      - part_number: "OEM-MAN-GSK-402"
+        description: "Intake Manifold Runner Gasket Set (Fluoroelastomer)"
+        quantity: 1
+        unit_cost_usd: 38.00
+        category: "oem"
+      - part_number: "OEM-VAC-HOSE-KIT"
+        description: "Reinforced Silicone Engine Vacuum Hose Assortment"
+        quantity: 1
+        unit_cost_usd: 24.50
+        category: "oem_equivalent"
+    labor:
+      operation: "Smoke Test Intake Tract & Replace Intake Manifold Gaskets"
+      book_hours: 2.2
+      technician_skill: "ASE_A8_ENGINE_PERFORMANCE"
+    safety_warnings:
+      - severity: "CAUTION"
+        standard: "Shop Safety Standard"
+        instruction: "Ensure engine is cold before removing intake manifold to prevent warpage of aluminum or composite cylinder heads."
+    procedure_steps:
+      - step_number: 1
+        phase: "PREP_SAFETY"
+        instruction: "Relieve residual fuel system pressure if disconnecting fuel rail. Disconnect negative battery cable."
+        required_tools: ["Fuel pressure gauge", "10mm wrench"]
+      - step_number: 2
+        phase: "DISASSEMBLY"
+        instruction: "Label and disconnect PCV hose, brake booster vacuum line, EVAP purge line, and throttle body harness. Unbolt intake manifold fasteners in reverse torque sequence."
+        required_tools: ["8mm, 10mm sockets", "Hose clamp pliers"]
+      - step_number: 3
+        phase: "COMPONENT_SERVICE"
+        instruction: "Clean cylinder head and intake mating faces with solvent and non-abrasive lint-free cloth. Inspect plastic plenum for cracks."
+        required_tools: ["Lint-free rags", "Brake cleaner"]
+      - step_number: 4
+        phase: "REASSEMBLY"
+        instruction: "Install new intake manifold gaskets dry. Reinstall intake manifold and torque bolts in cross-pattern sequence to spec."
+        torque_spec: "10 Nm (89 in-lbs)"
+        required_tools: ["1/4-inch drive torque wrench"]
+    verification_protocol:
+      monitor_target: "Fuel System & Idle Air Trim Monitor"
+      drive_cycle_steps:
+        - step_number: 1
+          phase_name: "Warm Curb Idle Verification"
+          condition: "Monitor STFT and LTFT at 750 RPM warm idle"
+          duration_s: 240.0
+          target_speed_kmh: 0.0
+          target_rpm: 750.0
+          monitor_readiness_check: "LTFT < 6.0%"
+        - step_number: 2
+          phase_name: "Moderate Acceleration Run"
+          condition: "Accelerate 0-60 km/h under 30% throttle"
+          duration_s: 180.0
+          target_speed_kmh: 60.0
+          target_rpm: 2400.0
+          monitor_readiness_check: "Smooth MAP and TPS progression"
+      pass_criteria:
+        - "Idle LTFT drops below +5% (previously elevated > +18%)"
+        - "MAP sensor reads 30-36 kPa at warm curb idle"
+        - "No smoke leakage detected at 1.5 psi intake pressurization"
+      reset_instructions:
+        - "Clear DTCs and ECM adaptive idle throttle position calibration"
+
+  o2_sensor_slow_response:
+    component_id: "oxygen_sensor"
+    urgency_level: "MODERATE_SCHEDULE_SERVICE"
+    parts:
+      - part_number: "BOSCH-15733"
+        description: "Upstream Heated Wideband / Zirconia Oxygen Sensor"
+        quantity: 1
+        unit_cost_usd: 115.00
+        category: "oem_equivalent"
+    labor:
+      operation: "Replace Upstream O2 Sensor & Validate Closed-Loop Cycling"
+      book_hours: 1.0
+      technician_skill: "ASE_A8_ENGINE_PERFORMANCE"
+    safety_warnings:
+      - severity: "WARNING"
+        standard: "Thermal Safety"
+        instruction: "Exhaust manifold reaches > 500°C. Allow vehicle to cool for minimum 45 minutes before servicing."
+    procedure_steps:
+      - step_number: 1
+        phase: "PREP_SAFETY"
+        instruction: "Confirm exhaust temperature is below 40°C. Apply penetrating fluid to exhaust bung threads."
+        required_tools: ["Infrared thermometer", "Aerosol penetrant"]
+      - step_number: 2
+        phase: "DISASSEMBLY"
+        instruction: "Unclip sensor wiring pigtail from heat shield bracket. Use slotted 22mm O2 socket to break sensor loose."
+        required_tools: ["22mm slotted O2 sensor socket", "Breaker bar"]
+      - step_number: 3
+        phase: "COMPONENT_SERVICE"
+        instruction: "Inspect exhaust bung threads for galling. Apply high-temp anti-seize paste to threads of new sensor (do not contaminate sensor tip)."
+        required_tools: ["Copper anti-seize"]
+      - step_number: 4
+        phase: "REASSEMBLY"
+        instruction: "Thread sensor in by hand to prevent cross-threading. Torque to spec and secure harness routing away from exhaust pipes."
+        torque_spec: "44 Nm (32 ft-lbs)"
+        required_tools: ["Torque wrench"]
+    verification_protocol:
+      monitor_target: "Oxygen Sensor Readiness Monitor"
+      drive_cycle_steps:
+        - step_number: 1
+          phase_name: "Closed-Loop Transition"
+          condition: "Idle until O2 heater achieves operating temperature"
+          duration_s: 180.0
+          target_speed_kmh: 0.0
+          target_rpm: 800.0
+          monitor_readiness_check: "Upstream O2 oscillation 0.1V - 0.9V"
+        - step_number: 2
+          phase_name: "Highway Decel Fuel Cut-Off"
+          condition: "Cruise at 80 km/h then lift off throttle for 5 seconds"
+          duration_s: 300.0
+          target_speed_kmh: 80.0
+          target_rpm: 2600.0
+          monitor_readiness_check: "DFCO lean drop < 0.1V"
+      pass_criteria:
+        - "Upstream O2 sensor switching frequency >= 1.2 Hz"
+        - "Sensor response time from rich-to-lean < 120 ms"
+        - "DTC P0133 eliminated"
+      reset_instructions:
+        - "Clear DTCs and verify O2 heater monitor status reads 'Ready'"
+
+  fuel_pump_low_pressure:
+    component_id: "fuel_pump"
+    urgency_level: "HIGH_SERVICE_SOON"
+    parts:
+      - part_number: "OEM-FP-928"
+        description: "In-Tank High-Pressure Electric Fuel Pump & Strainer Module"
+        quantity: 1
+        unit_cost_usd: 245.00
+        category: "oem"
+      - part_number: "OEM-TANK-SEAL"
+        description: "Fuel Tank Access Flange Lock-Ring O-Ring Gasket"
+        quantity: 1
+        unit_cost_usd: 12.00
+        category: "oem"
+    labor:
+      operation: "Drop Fuel Tank / Service Access Hatch & Replace Pump Module"
+      book_hours: 2.5
+      technician_skill: "ASE_A8_ENGINE_PERFORMANCE"
+    safety_warnings:
+      - severity: "WARNING"
+        standard: "NFPA / OSHA Flammable Liquids"
+        instruction: "Flammable gasoline vapors present. Ensure class B fire extinguisher on hand. Disconnect 12V battery and work in ventilated area."
+    procedure_steps:
+      - step_number: 1
+        phase: "PREP_SAFETY"
+        instruction: "Pull fuel pump fuse, crank engine to depressurize fuel lines. Disconnect battery negative cable."
+        required_tools: ["Fuse puller", "Safety glasses"]
+      - step_number: 2
+        phase: "DISASSEMBLY"
+        instruction: "Remove rear seat bottom cushion to access sender hatch. Clean dirt around flange before unbolting lock-ring."
+        required_tools: ["Fuel lock-ring tool", "Brass drift punch"]
+      - step_number: 3
+        phase: "COMPONENT_SERVICE"
+        instruction: "Carefully lift pump module out without bending float arm. Install new pre-filter sock and pump assembly."
+        required_tools: ["Drain pan"]
+      - step_number: 4
+        phase: "REASSEMBLY"
+        instruction: "Install new flange gasket dry. Realign arrow marks on sender cover, torque lock-ring, and reconnect quick-connect fuel lines."
+        torque_spec: "Lock ring engaged to stop notch"
+        required_tools: ["Lock ring tool"]
+    verification_protocol:
+      monitor_target: "Fuel Rail Hydraulic Pressure & High-Load Trim"
+      drive_cycle_steps:
+        - step_number: 1
+          phase_name: "Key-On Prime Cycle"
+          condition: "Cycle ignition ON 3 times without cranking to prime lines"
+          duration_s: 30.0
+          target_speed_kmh: 0.0
+          target_rpm: 0.0
+          monitor_readiness_check: "Fuel pressure reaches 3.5 - 4.2 bar"
+        - step_number: 2
+          phase_name: "Wide-Open Throttle Acceleration"
+          condition: "Perform 40-80 km/h acceleration under heavy load"
+          duration_s: 180.0
+          target_speed_kmh: 70.0
+          target_rpm: 3800.0
+          monitor_readiness_check: "Fuel pressure holds steady without drop"
+      pass_criteria:
+        - "Fuel rail pressure maintains >= 380 kPa (55 psi) under full load"
+        - "LTFT under acceleration remains <= +5%"
+        - "No fuel leaks detected at quick-connect fittings"
+      reset_instructions:
+        - "Clear DTC P0087 and cycle fuel prime"
+
+  fuel_injector_clogged:
+    component_id: "fuel_injector"
+    urgency_level: "HIGH_SERVICE_SOON"
+    parts:
+      - part_number: "OEM-INJ-SET4"
+        description: "Direct / Port Fuel Injector Assembly with O-Rings"
+        quantity: 1
+        unit_cost_usd: 185.00
+        category: "oem"
+    labor:
+      operation: "Remove Intake Rail, Ultrasonic Clean or Replace Injectors"
+      book_hours: 2.0
+      technician_skill: "ASE_A8_ENGINE_PERFORMANCE"
+    safety_warnings:
+      - severity: "CAUTION"
+        standard: "OSHA Fuel Handling"
+        instruction: "Lubricate injector O-rings exclusively with clean engine oil. Never use silicone grease or petroleum jelly."
+    procedure_steps:
+      - step_number: 1
+        phase: "PREP_SAFETY"
+        instruction: "Relieve fuel rail pressure and disconnect battery negative lead."
+        required_tools: ["Pressure release valve"]
+      - step_number: 2
+        phase: "DISASSEMBLY"
+        instruction: "Unplug electrical connectors from injectors. Unbolt fuel rail hold-down bolts."
+        required_tools: ["10mm deep socket"]
+      - step_number: 3
+        phase: "COMPONENT_SERVICE"
+        instruction: "Pull rail and injectors straight out. Replace suspect injector and all O-rings."
+        required_tools: ["Injector seal guide tool"]
+      - step_number: 4
+        phase: "REASSEMBLY"
+        instruction: "Press injectors into cylinder head cups, bolt fuel rail down, and check for leaks with fuel prime."
+        torque_spec: "21 Nm (15 ft-lbs)"
+        required_tools: ["Torque wrench"]
+    verification_protocol:
+      monitor_target: "Cylinder Balance & Individual Fuel Trims"
+      drive_cycle_steps:
+        - step_number: 1
+          phase_name: "Smooth Idle Check"
+          condition: "Idle engine warm and verify cylinder misfire counts remain zero"
+          duration_s: 300.0
+          target_speed_kmh: 0.0
+          target_rpm: 750.0
+          monitor_readiness_check: "Misfire counter = 0 across all cylinders"
+      pass_criteria:
+        - "Cylinder roughness count 0 across 1000 engine revolutions"
+        - "No lean misfire DTCs P0300/P0171"
+      reset_instructions:
+        - "Clear DTCs and reset misfire adaptation table"
+
+  # ----------------------------------------------------------------------------
+  # Ignition & Combustion Subsystem
+  # ----------------------------------------------------------------------------
+  spark_plug_fouling:
+    component_id: "spark_plug"
+    urgency_level: "HIGH_SERVICE_SOON"
+    parts:
+      - part_number: "NGK-ILKAR7B11"
+        description: "Laser Iridium Fine-Wire Spark Plug Set (4-pack)"
+        quantity: 1
+        unit_cost_usd: 58.00
+        category: "oem"
+    labor:
+      operation: "Remove Coil Packs & Replace Spark Plugs with Anti-Seize"
+      book_hours: 1.0
+      technician_skill: "ASE_A8_ENGINE_PERFORMANCE"
+    safety_warnings:
+      - severity: "CAUTION"
+        standard: "Engine Mechanical Standard"
+        instruction: "Thread plugs into cold cylinder head aluminum threads by hand using rubber hose tool to prevent cross-threading."
+    procedure_steps:
+      - step_number: 1
+        phase: "PREP_SAFETY"
+        instruction: "Ensure engine is cold. Blow compressed air around coil boots to clear debris."
+        required_tools: ["Compressed air blow gun"]
+      - step_number: 2
+        phase: "DISASSEMBLY"
+        instruction: "Unbolt 10mm coil pack retaining bolts. Twist coil boots gently and pull straight out."
+        required_tools: ["10mm socket", "Coil puller"]
+      - step_number: 3
+        phase: "COMPONENT_SERVICE"
+        instruction: "Verify spark plug gap on new plugs with wire-type feeler gauge (spec: 1.1 mm). Inspect old plugs for oil or carbon fouling."
+        required_tools: ["14mm / 16mm magnetic thin-wall plug socket", "Feeler gauge"]
+      - step_number: 4
+        phase: "REASSEMBLY"
+        instruction: "Hand thread plugs. Torque to 25 Nm. Apply thin film of dielectric grease to inside of coil boots before reinstallation."
+        torque_spec: "25 Nm (18 ft-lbs)"
+        required_tools: ["Torque wrench", "Dielectric grease"]
+    verification_protocol:
+      monitor_target: "Misfire Detection Readiness Monitor"
+      drive_cycle_steps:
+        - step_number: 1
+          phase_name: "Warm Idle & Neutral Rev"
+          condition: "Warm engine to 85°C and hold steady 750 RPM"
+          duration_s: 180.0
+          target_speed_kmh: 0.0
+          target_rpm: 750.0
+          monitor_readiness_check: "Cylinder misfire counts = 0"
+        - step_number: 2
+          phase_name: "Highway Cruise & Deceleration"
+          condition: "Accelerate to 90 km/h, maintain 3 minutes, then decelerate without brake down to 40 km/h"
+          duration_s: 360.0
+          target_speed_kmh: 90.0
+          target_rpm: 2500.0
+          monitor_readiness_check: "Misfire Monitor status shows Complete"
+      pass_criteria:
+        - "Zero misfires logged across 2000 engine cycles"
+        - "Misfire Monitor completed successfully"
+        - "DTC P0300/P0301-P0304 cleared"
+      reset_instructions:
+        - "Clear DTCs and perform Crankshaft Position Sensor Relearn if prompted"
+
+  ignition_coil_primary_short:
+    component_id: "ignition_coil"
+    urgency_level: "HIGH_SERVICE_SOON"
+    parts:
+      - part_number: "DENSO-673-1301"
+        description: "Direct Ignition Coil Pack (COP)"
+        quantity: 1
+        unit_cost_usd: 88.00
+        category: "oem"
+    labor:
+      operation: "Test Primary/Secondary Coil Resistance & Replace Defective Coil"
+      book_hours: 0.6
+      technician_skill: "ASE_A8_ENGINE_PERFORMANCE"
+    safety_warnings:
+      - severity: "CAUTION"
+        standard: "Electrical Shock Safety"
+        instruction: "Secondary ignition voltage exceeds 30,000V. Never probe ignition terminals while engine is cranking."
+    procedure_steps:
+      - step_number: 1
+        phase: "PREP_SAFETY"
+        instruction: "Switch off ignition. Release connector lock tab."
+        required_tools: ["Small flathead pick"]
+      - step_number: 2
+        phase: "DISASSEMBLY"
+        instruction: "Remove 10mm fastener. Extract defective coil pack."
+        required_tools: ["10mm socket"]
+      - step_number: 3
+        phase: "COMPONENT_SERVICE"
+        instruction: "Verify primary resistance with digital multimeter (spec 0.6 - 1.2 Ohms)."
+        required_tools: ["Digital Multimeter (DMM)"]
+      - step_number: 4
+        phase: "REASSEMBLY"
+        instruction: "Install new coil pack, tighten bolt to 9 Nm, reconnect harness until distinct click is heard."
+        torque_spec: "9 Nm (80 in-lbs)"
+        required_tools: ["Torque wrench"]
+    verification_protocol:
+      monitor_target: "Ignition Primary Circuit & Misfire Monitor"
+      drive_cycle_steps:
+        - step_number: 1
+          phase_name: "Transient Load Cycle"
+          condition: "Apply quick throttle blips from idle to 3500 RPM"
+          duration_s: 120.0
+          target_speed_kmh: 0.0
+          target_rpm: 3500.0
+          monitor_readiness_check: "Zero secondary misfire spikes"
+      pass_criteria:
+        - "No ignition breakdown under high cylinder peak pressure"
+        - "DTC P0351-P0354 cleared"
+      reset_instructions:
+        - "Clear fault memory"
+
+  crankshaft_position_sensor_drift:
+    component_id: "crankshaft_position_sensor"
+    urgency_level: "HIGH_SERVICE_SOON"
+    parts:
+      - part_number: "OEM-CKP-3312"
+        description: "Magnetic / Hall-Effect Crankshaft Position Sensor"
+        quantity: 1
+        unit_cost_usd: 72.00
+        category: "oem"
+    labor:
+      operation: "Replace Crankshaft Sensor & Perform ECM Crank Relearn / Synchronization"
+      book_hours: 1.2
+      technician_skill: "ASE_A8_ENGINE_PERFORMANCE"
+    safety_warnings:
+      - severity: "CAUTION"
+        standard: "Mechanical Clearance"
+        instruction: "Ensure proper air gap between sensor tip and reluctor wheel teeth (spec: 0.8 - 1.2 mm)."
+    procedure_steps:
+      - step_number: 1
+        phase: "PREP_SAFETY"
+        instruction: "Raise vehicle safely on hoist and secure with jack stands. Disconnect battery."
+        required_tools: ["Automotive lift / Jack stands"]
+      - step_number: 2
+        phase: "DISASSEMBLY"
+        instruction: "Locate CKP sensor near bellhousing/front pulley. Remove splash guard and unbolt sensor."
+        required_tools: ["10mm socket, ratchet"]
+      - step_number: 3
+        phase: "COMPONENT_SERVICE"
+        instruction: "Clean mounting bore. Check O-ring lubrication with clean oil."
+        required_tools: ["Clean rag"]
+      - step_number: 4
+        phase: "REASSEMBLY"
+        instruction: "Insert sensor squarely and torque bolt. Reconnect harness."
+        torque_spec: "8 Nm (71 in-lbs)"
+        required_tools: ["Torque wrench"]
+    verification_protocol:
+      monitor_target: "CKP / CMP Synchronization & Misfire Profile Correction"
+      drive_cycle_steps:
+        - step_number: 1
+          phase_name: "Crank Relearn Procedure"
+          condition: "Hold engine at 4000 RPM in neutral until fuel cut-off triggered by diagnostic scanner"
+          duration_s: 60.0
+          target_speed_kmh: 0.0
+          target_rpm: 4000.0
+          monitor_readiness_check: "Crankshaft adaptive variation learn complete"
+      pass_criteria:
+        - "Crank sensor pattern jitter < 0.5 degrees"
+        - "Instant engine start within 1.2 seconds of cranking"
+        - "DTC P0335 cleared"
+      reset_instructions:
+        - "Execute bi-directional Crankshaft Angle Offset Learn via scan tool"
+
+  # ----------------------------------------------------------------------------
+  # Exhaust & Emissions Subsystem
+  # ----------------------------------------------------------------------------
+  catalyst_efficiency_degraded:
+    component_id: "catalytic_converter"
+    urgency_level: "MODERATE_SCHEDULE_SERVICE"
+    parts:
+      - part_number: "OEM-CAT-EXH-091"
+        description: "Direct-Fit Three-Way Catalytic Converter Assembly with Flange Gaskets"
+        quantity: 1
+        unit_cost_usd: 620.00
+        category: "oem"
+      - part_number: "OEM-EXH-HDW-KIT"
+        description: "High-Temperature Exhaust Flange Studs & Copper Locknuts"
+        quantity: 1
+        unit_cost_usd: 28.00
+        category: "oem"
+    labor:
+      operation: "Replace Catalytic Converter Assembly & Perform EPA Federal Drive Cycle"
+      book_hours: 2.8
+      technician_skill: "ASE_A8_ENGINE_PERFORMANCE"
+    safety_warnings:
+      - severity: "WARNING"
+        standard: "Environmental & Burn Hazard"
+        instruction: "Catalytic converter operates up to 800°C. Never touch exhaust tubing without verifying ambient temperature."
+    procedure_steps:
+      - step_number: 1
+        phase: "PREP_SAFETY"
+        instruction: "Soak exhaust flange bolts with penetrant for 1 hour. Disconnect downstream O2 sensor pigtail."
+        required_tools: ["Penetrating oil", "Safety goggles"]
+      - step_number: 2
+        phase: "DISASSEMBLY"
+        instruction: "Remove upstream and downstream exhaust flange fasteners using 6-point sockets. Support exhaust pipe."
+        required_tools: ["Impact wrench / Breaker bar", "Exhaust stand"]
+      - step_number: 3
+        phase: "COMPONENT_SERVICE"
+        instruction: "Clean exhaust pipe mating flanges with wire brush. Install new multi-layer steel (MLS) gaskets."
+        required_tools: ["Wire brush"]
+      - step_number: 4
+        phase: "REASSEMBLY"
+        instruction: "Mount replacement catalytic converter. Hand tighten flange nuts evenly, then torque in stages to spec."
+        torque_spec: "48 Nm (35 ft-lbs)"
+        required_tools: ["Torque wrench"]
+    verification_protocol:
+      monitor_target: "EPA OBD-II Catalyst Monitor Readiness"
+      drive_cycle_steps:
+        - step_number: 1
+          phase_name: "Pre-Conditioning Highway Cruise"
+          condition: "Cruise between 85-95 km/h with steady throttle for 10 minutes"
+          duration_s: 600.0
+          target_speed_kmh: 90.0
+          target_rpm: 2300.0
+          monitor_readiness_check: "Catalyst bed temp reaches > 450°C"
+        - step_number: 2
+          phase_name: "Deceleration Fuel Shut-Off"
+          condition: "Release accelerator and coast for 8 seconds without braking"
+          duration_s: 180.0
+          target_speed_kmh: 60.0
+          target_rpm: 1800.0
+          monitor_readiness_check: "Downstream O2 sensor switches to flatline 0.65V"
+      pass_criteria:
+        - "OBD-II Catalyst Monitor status changes to 'Ready'"
+        - "Downstream O2 voltage standard deviation < 0.05V during cruise (steady flatline)"
+        - "DTC P0420 cleared"
+      reset_instructions:
+        - "Clear DTCs and allow 8-hour cold soak before drive cycle validation"
+
+  downstream_o2_sensor_heater_fault:
+    component_id: "downstream_oxygen_sensor"
+    urgency_level: "MODERATE_SCHEDULE_SERVICE"
+    parts:
+      - part_number: "DENSO-234-4509"
+        description: "Downstream Heated Oxygen Sensor (Bank 1 Sensor 2)"
+        quantity: 1
+        unit_cost_usd: 85.00
+        category: "oem"
+    labor:
+      operation: "Replace Post-Catalytic O2 Sensor & Test Heater Resistance"
+      book_hours: 0.8
+      technician_skill: "ASE_A8_ENGINE_PERFORMANCE"
+    safety_warnings:
+      - severity: "CAUTION"
+        standard: "Wiring Protection"
+        instruction: "Route sensor wiring through all factory heat-shield clips to prevent melting against exhaust pipe."
+    procedure_steps:
+      - step_number: 1
+        phase: "PREP_SAFETY"
+        instruction: "Ensure exhaust is cool. Disconnect wiring harness."
+        required_tools: ["Gloves"]
+      - step_number: 2
+        phase: "DISASSEMBLY"
+        instruction: "Use 22mm oxygen sensor wrench to remove downstream sensor."
+        required_tools: ["22mm sensor wrench"]
+      - step_number: 3
+        phase: "COMPONENT_SERVICE"
+        instruction: "Check heater circuit continuity (spec: 9 - 16 Ohms across heater pins)."
+        required_tools: ["Multimeter"]
+      - step_number: 4
+        phase: "REASSEMBLY"
+        instruction: "Install replacement sensor with anti-seize. Torque to 40 Nm."
+        torque_spec: "40 Nm (30 ft-lbs)"
+        required_tools: ["Torque wrench"]
+    verification_protocol:
+      monitor_target: "Oxygen Sensor Heater Monitor"
+      drive_cycle_steps:
+        - step_number: 1
+          phase_name: "Key-On Heater Test"
+          condition: "Turn key to ON position; ECM commands O2 heater PWM duty cycle"
+          duration_s: 120.0
+          target_speed_kmh: 0.0
+          target_rpm: 0.0
+          monitor_readiness_check: "O2S2 heater current draws 1.2 - 1.8 Amperes"
+      pass_criteria:
+        - "O2 Heater Monitor shows Complete"
+        - "DTC P0141 eliminated"
+      reset_instructions:
+        - "Clear DTCs"
+
+  # ----------------------------------------------------------------------------
+  # Subsystem 4: High-Voltage Battery & EV / Hybrid Powertrain Subsystem
+  # ----------------------------------------------------------------------------
+  bms_cell_voltage_imbalance:
+    component_id: "battery_management_system"
+    urgency_level: "CRITICAL_IMMEDIATE_STOP"
+    parts:
+      - part_number: "OEM-BMS-MOD-108"
+        description: "HV Traction Battery Cell Balancing & Monitoring Unit (BMS)"
+        quantity: 1
+        unit_cost_usd: 480.00
+        category: "oem"
+    labor:
+      operation: "Perform HV Depower Protocol, Remove Pack Lid, Balance / Replace Module"
+      book_hours: 4.5
+      technician_skill: "ASE_L3_HYBRID_EV_SPECIALIST"
+    safety_warnings:
+      - severity: "DANGER_HIGH_VOLTAGE"
+        standard: "NFPA 70E / OSHA 1910.333 / SAE J1772"
+        instruction: "HIGH VOLTAGE SYSTEM EXCEEDS 200V-400V DC. FATAL ELECTROCUTION HAZARD. Wear Class 0 1000V rated insulated rubber gloves with leather protectors. Pull Service Disconnect Plug (SDP) and WAIT 10 MINUTES for inverter capacitor discharge. Verify 0.0V DC with CAT III/IV 1000V rated multimeter before touching internal terminals."
+    procedure_steps:
+      - step_number: 1
+        phase: "PREP_SAFETY"
+        instruction: "Set up shop safety barrier and HV warning signage. Don 1000V rated gloves and face shield. Pull high-voltage manual service disconnect (orange plug) and store in locked lock-out box."
+        required_tools: ["Class 0 1000V Gloves", "Face shield", "Lock-out tag-out kit"]
+      - step_number: 2
+        phase: "DISASSEMBLY"
+        instruction: "Remove 12V auxiliary battery ground. Remove HV battery pack casing bolts. Measure HV bus voltage to confirm < 5.0V residual."
+        torque_spec: "Confirm 0V with CAT IV DMM"
+        required_tools: ["Insulated socket set (1000V rated)", "Fluke CAT IV 1000V DMM"]
+      - step_number: 3
+        phase: "COMPONENT_SERVICE"
+        instruction: "Connect high-voltage cell cycler/balancer. Perform controlled equalization discharge/charge or replace degraded battery cell block."
+        required_tools: ["HV Cell Module Balancer / Analyzer"]
+      - step_number: 4
+        phase: "REASSEMBLY"
+        instruction: "Reinstall pack cover with new environmental gasket, torque all enclosure fasteners. Reinsert Service Disconnect Plug and lock down lever."
+        torque_spec: "8.5 Nm (75 in-lbs)"
+        required_tools: ["1000V Insulated torque wrench"]
+    verification_protocol:
+      monitor_target: "HV Battery State of Charge & Cell Differential Monitor"
+      drive_cycle_steps:
+        - step_number: 1
+          phase_name: "Regenerative Braking Cycle"
+          condition: "Perform 3 successive deceleration cycles from 70 km/h using maximum regenerative braking (high charge rate)"
+          duration_s: 300.0
+          target_speed_kmh: 70.0
+          target_rpm: 2000.0
+          monitor_readiness_check: "Max cell voltage delta < 25 mV under 120A charge"
+        - step_number: 2
+          phase_name: "Heavy EV Electric Launch"
+          condition: "Full throttle EV mode acceleration from 0 to 50 km/h (high discharge rate)"
+          duration_s: 180.0
+          target_speed_kmh: 50.0
+          target_rpm: 3200.0
+          monitor_readiness_check: "Max cell voltage delta < 30 mV under discharge"
+      pass_criteria:
+        - "Maximum cell voltage delta < 30 mV across all operating current regimes"
+        - "BMS internal resistance variation < 5% across blocks"
+        - "DTC P0A7F / P0A80 cleared"
+      reset_instructions:
+        - "Execute BMS battery capacity learned value reset via OEM diagnostic software"
+
+  high_voltage_isolation_loss:
+    component_id: "high_voltage_battery_pack"
+    urgency_level: "CRITICAL_IMMEDIATE_STOP"
+    parts:
+      - part_number: "OEM-HV-SEAL-PKG"
+        description: "High-Voltage Harness Waterproof Conduit & Bulkhead Seal Kit"
+        quantity: 1
+        unit_cost_usd: 125.00
+        category: "oem"
+      - part_number: "OEM-HV-CABLE-OR"
+        description: "Orange High-Voltage Shielded Cable Assembly with Interlock"
+        quantity: 1
+        unit_cost_usd: 310.00
+        category: "oem"
+    labor:
+      operation: "Perform Megohmmeter 1000V Insulation Test, Locate Chassis Leak & Reseal"
+      book_hours: 3.8
+      technician_skill: "ASE_L3_HYBRID_EV_SPECIALIST"
+    safety_warnings:
+      - severity: "DANGER_HIGH_VOLTAGE"
+        standard: "NFPA 70E / ISO 6469-3"
+        instruction: "ISOLATION LEAKAGE TO VEHICLE CHASSIS DETECTED. RISK OF SEVERE ELECTRIC SHOCK UPON TOUCHING VEHICLE BODY. Wear 1000V rated PPE. Isolate battery before performing megohmmeter insulation resistance test."
+    procedure_steps:
+      - step_number: 1
+        phase: "PREP_SAFETY"
+        instruction: "Isolate High-Voltage battery pack using Service Disconnect. Verify zero voltage on HV rails."
+        required_tools: ["1000V Insulated Gloves", "CAT IV Multimeter"]
+      - step_number: 2
+        phase: "DISASSEMBLY"
+        instruction: "Disconnect A/C electric compressor, inverter, and battery pack HV connectors one at a time."
+        required_tools: ["1000V insulated hand tools"]
+      - step_number: 3
+        phase: "COMPONENT_SERVICE"
+        instruction: "Perform 1000V DC insulation resistance test between positive/negative conductors and chassis ground. Minimum spec is 500 Ohms/Volt (> 200 kOhm; nominal > 10 MOhm)."
+        required_tools: ["1000V Megohmmeter (Insulation Tester)"]
+      - step_number: 4
+        phase: "REASSEMBLY"
+        instruction: "Replace damaged HV cable / water-ingress grommet. Re-torque weather-pack terminals and verify HVIL (High Voltage Interlock Loop) continuity."
+        torque_spec: "12 Nm (106 in-lbs) for HV lugs"
+        required_tools: ["Insulated torque wrench"]
+    verification_protocol:
+      monitor_target: "High-Voltage Isolation Resistance Monitoring Circuit"
+      drive_cycle_steps:
+        - step_number: 1
+          phase_name: "Insulation Monitor Power-Up Test"
+          condition: "Close main HV contactors; let onboard BMS isolation detection run self-test"
+          duration_s: 120.0
+          target_speed_kmh: 0.0
+          target_rpm: 0.0
+          monitor_readiness_check: "Isolation resistance reading > 10 Megohms"
+      pass_criteria:
+        - "Vehicle chassis-to-HV rail resistance > 5 Megohms (spec > 500 kOhms)"
+        - "High-voltage interlock circuit resistance < 1.0 Ohm"
+        - "DTC P0AA6 cleared and permanent code reset"
+      reset_instructions:
+        - "Perform OEM HV crash and isolation fault clear sequence"
+
+  battery_cooling_pump_failure:
+    component_id: "battery_management_system"
+    urgency_level: "HIGH_SERVICE_SOON"
+    parts:
+      - part_number: "OEM-INV-PUMP-G9020"
+        description: "Electric Inverter / HV Battery Coolant Circulation Pump"
+        quantity: 1
+        unit_cost_usd: 175.00
+        category: "oem"
+      - part_number: "TOYOTA-SLLC-5050"
+        description: "Toyota Super Long Life Coolant (Premixed 50/50, 1 Gallon)"
+        quantity: 1
+        unit_cost_usd: 28.50
+        category: "oem"
+    labor:
+      operation: "Drain Inverter Coolant, Replace Electric Pump, Vacuum Bleed Air Pockets"
+      book_hours: 1.8
+      technician_skill: "ASE_L3_HYBRID_EV_SPECIALIST"
+    safety_warnings:
+      - severity: "CAUTION"
+        standard: "Inverter Cooling System"
+        instruction: "Inverter coolant must be thoroughly vacuum-purged. Air pockets in inverter heat exchanger cause immediate IGBT thermal destruction."
+    procedure_steps:
+      - step_number: 1
+        phase: "PREP_SAFETY"
+        instruction: "Ensure vehicle is powered off and coolant is cool. Disconnect 12V battery ground."
+        required_tools: ["Safety glasses", "Nitrile gloves"]
+      - step_number: 2
+        phase: "DISASSEMBLY"
+        instruction: "Open inverter coolant drain petcock into clean drain pan. Remove left headlight or splash shield for access to pump bracket."
+        required_tools: ["Drain bucket", "10mm socket"]
+      - step_number: 3
+        phase: "COMPONENT_SERVICE"
+        instruction: "Clamp coolant hoses with pinch pliers, unbolt pump bracket, swap electric pump."
+        required_tools: ["Hose pinch pliers", "Hose clamp pliers"]
+      - step_number: 4
+        phase: "REASSEMBLY"
+        instruction: "Connect vacuum refiller tool to inverter reservoir, draw 25 in-Hg vacuum, and fill system with fresh coolant. Trigger scan tool active pump bleed mode."
+        torque_spec: "8 Nm bracket bolts"
+        required_tools: ["Cooling system vacuum refiller", "Scan tool with active test support"]
+    verification_protocol:
+      monitor_target: "Inverter Thermal Monitoring & Coolant Flow Validation"
+      drive_cycle_steps:
+        - step_number: 1
+          phase_name: "Active Test Pump Agitation"
+          condition: "Command electric coolant pump ON for 10 minutes; inspect reservoir swirl"
+          duration_s: 600.0
+          target_speed_kmh: 0.0
+          target_rpm: 0.0
+          monitor_readiness_check: "Vigorous coolant turbulence in reservoir"
+        - step_number: 2
+          phase_name: "Continuous Hill Climb / High-Load Cruise"
+          condition: "Drive at 80 km/h under sustained electrical load"
+          duration_s: 600.0
+          target_speed_kmh: 80.0
+          target_rpm: 2400.0
+          monitor_readiness_check: "Inverter temperature stabilizes below 55°C"
+      pass_criteria:
+        - "Inverter temperature remains < 55°C under sustained cruise"
+        - "Visible fluid circulation in inverter coolant reservoir"
+        - "DTC P0A93 cleared"
+      reset_instructions:
+        - "Clear DTCs and verify inverter over-temp counter reset"
+
+  inverter_phase_loss:
+    component_id: "traction_inverter"
+    urgency_level: "CRITICAL_IMMEDIATE_STOP"
+    parts:
+      - part_number: "OEM-INV-MOD-441"
+        description: "3-Phase IGBT Inverter Power Stage Module Assembly"
+        quantity: 1
+        unit_cost_usd: 1250.00
+        category: "oem"
+    labor:
+      operation: "Depower HV System, Replace Inverter Power Module & Test Gate Drive"
+      book_hours: 4.0
+      technician_skill: "ASE_L3_HYBRID_EV_SPECIALIST"
+    safety_warnings:
+      - severity: "DANGER_HIGH_VOLTAGE"
+        standard: "NFPA 70E"
+        instruction: "High-voltage capacitors store lethal charge even when battery is unplugged. Allow 10 min bleed-off and verify zero voltage on all 3 phases (U, V, W)."
+    procedure_steps:
+      - step_number: 1
+        phase: "PREP_SAFETY"
+        instruction: "Remove Service Disconnect Plug. Confirm 0V on DC bus and AC terminals."
+        required_tools: ["1000V Gloves", "CAT IV Multimeter"]
+      - step_number: 2
+        phase: "DISASSEMBLY"
+        instruction: "Disconnect U, V, W motor busbars and drain inverter coolant."
+        required_tools: ["1000V Insulated sockets"]
+      - step_number: 3
+        phase: "COMPONENT_SERVICE"
+        instruction: "Replace damaged IGBT gate driver stage and apply fresh thermal interface grease."
+        required_tools: ["Thermal paste applicator"]
+      - step_number: 4
+        phase: "REASSEMBLY"
+        instruction: "Torque 3-phase busbars to spec, bleed coolant, and verify gate signals with oscilloscope."
+        torque_spec: "10 Nm for phase lugs"
+        required_tools: ["Insulated torque wrench"]
+    verification_protocol:
+      monitor_target: "Motor Phase Current Symmetry"
+      drive_cycle_steps:
+        - step_number: 1
+          phase_name: "Low Speed Crawl & Reverse"
+          condition: "Smooth forward and reverse creep on dyno or flat lot"
+          duration_s: 180.0
+          target_speed_kmh: 15.0
+          target_rpm: 600.0
+          monitor_readiness_check: "Equal current on U, V, W phases within 3%"
+      pass_criteria:
+        - "Zero phase imbalance error"
+        - "Smooth motor torque without cogging or stutter"
+        - "DTC P0A1B cleared"
+      reset_instructions:
+        - "Clear DTCs and perform resolver calibration"
+
+  traction_motor_resolver_fault:
+    component_id: "electric_traction_motor"
+    urgency_level: "HIGH_SERVICE_SOON"
+    parts:
+      - part_number: "OEM-RES-MTR-88"
+        description: "Rotary Variable Differential Transformer (RVDT) Resolver Assembly"
+        quantity: 1
+        unit_cost_usd: 215.00
+        category: "oem"
+    labor:
+      operation: "Replace Rotor Angle Resolver & Calibrate Motor Commutation Offset"
+      book_hours: 3.5
+      technician_skill: "ASE_L3_HYBRID_EV_SPECIALIST"
+    safety_warnings:
+      - severity: "CAUTION"
+        standard: "Magnetic Field Safety"
+        instruction: "Permanent magnet rotor creates intense magnetic fields. Keep ferrous tools and magnetic storage media away."
+    procedure_steps:
+      - step_number: 1
+        phase: "PREP_SAFETY"
+        instruction: "De-energize high-voltage powertrain."
+        required_tools: ["1000V PPE"]
+      - step_number: 2
+        phase: "DISASSEMBLY"
+        instruction: "Remove motor end bell cover."
+        required_tools: ["Metric socket set"]
+      - step_number: 3
+        phase: "COMPONENT_SERVICE"
+        instruction: "Install new resolver stator ring aligning alignment dowels."
+        required_tools: ["Alignment pins"]
+      - step_number: 4
+        phase: "REASSEMBLY"
+        instruction: "Reassemble cover and perform scan tool Motor Angle Offset Learn."
+        torque_spec: "6 Nm"
+        required_tools: ["Torque screwdriver"]
+    verification_protocol:
+      monitor_target: "Motor Resolver Angle & Commutation Sync"
+      drive_cycle_steps:
+        - step_number: 1
+          phase_name: "Motor Angle Self-Calibration"
+          condition: "Execute automated motor angle learn routine"
+          duration_s: 60.0
+          target_speed_kmh: 0.0
+          target_rpm: 500.0
+          monitor_readiness_check: "Resolver offset calibration status: SUCCESS"
+      pass_criteria:
+        - "Motor angle signal jitter < 0.2 degrees"
+        - "DTC P0A40 cleared"
+      reset_instructions:
+        - "Clear DTCs"
+
+  # Generic fallback for any other failure mode
+  default_generic:
+    component_id: "ecu"
+    urgency_level: "MODERATE_SCHEDULE_SERVICE"
+    parts:
+      - part_number: "GEN-SERVICE-KIT"
+        description: "OEM Diagnostic & Component Service Kit"
+        quantity: 1
+        unit_cost_usd: 75.00
+        category: "oem_equivalent"
+    labor:
+      operation: "Inspect, Test, and Service Component According to OEM Manual"
+      book_hours: 1.5
+      technician_skill: "ASE_A8_ENGINE_PERFORMANCE"
+    safety_warnings:
+      - severity: "CAUTION"
+        standard: "General Workshop Safety"
+        instruction: "Follow manufacturer service manual specifications and safety procedures."
+    procedure_steps:
+      - step_number: 1
+        phase: "PREP_SAFETY"
+        instruction: "Turn off vehicle ignition and disconnect battery ground."
+        required_tools: ["10mm wrench"]
+      - step_number: 2
+        phase: "DISASSEMBLY"
+        instruction: "Gain access to component and inspect for physical damage or loose connections."
+        required_tools: ["General hand tool set"]
+      - step_number: 3
+        phase: "COMPONENT_SERVICE"
+        instruction: "Test circuit continuity and component performance using multimeter."
+        required_tools: ["Multimeter"]
+      - step_number: 4
+        phase: "REASSEMBLY"
+        instruction: "Reassemble component and reconnect harness."
+        torque_spec: "Torque to OEM service specification"
+        required_tools: ["Hand tools"]
+    verification_protocol:
+      monitor_target: "System In-Range Verification"
+      drive_cycle_steps:
+        - step_number: 1
+          phase_name: "Warm-Up & Verification Drive"
+          condition: "Drive vehicle for 10 minutes in mixed city and highway conditions"
+          duration_s: 600.0
+          target_speed_kmh: 60.0
+          target_rpm: 2000.0
+          monitor_readiness_check: "All monitors set to Ready"
+      pass_criteria:
+        - "No active or pending fault codes"
+        - "Vehicle operates within nominal engineering parameters"
+      reset_instructions:
+        - "Clear DTCs using OBD-II scanner"

@@ -1,0 +1,53 @@
+id: toyota_prius_18_hybrid
+name: "Toyota Prius 1.8L Hybrid Synergy Drive (XW30/XW50)"
+make: "Toyota"
+model: "Prius"
+engine_code: "2ZR-FXE"
+year_range: "2010-2022"
+fuel_system: "HEV"
+aspiration: "Naturally Aspirated"
+displacement_l: 1.8
+description: "Toyota full parallel-series hybrid combining Atkinson-cycle petrol engine with 201.6V high-voltage traction pack, P410 transaxle inverter, and dual motor-generators (MG1/MG2)."
+nominal_specs:
+  hv_pack_voltage_nominal:
+    min: 201.6
+    max: 235.0
+    unit: "V"
+    description: "Series traction pack DC potential at nominal state of charge"
+  cell_block_delta_max:
+    min: 0.0
+    max: 0.035
+    unit: "V"
+    description: "Maximum allowable cell block voltage spread under 35kW discharge"
+  inverter_temp_max:
+    min: 20.0
+    max: 65.0
+    unit: "deg_C"
+    description: "Power Inverter Module internal thermal limit"
+  fuel_pressure_bar:
+    min: 3.0
+    max: 3.5
+    unit: "bar"
+    description: "ICE low-pressure port fuel delivery line"
+prior_overrides:
+  battery_cooling_pump_failure: 0.14
+  bms_cell_voltage_imbalance: 0.11
+  high_voltage_isolation_loss: 0.08
+additional_faults:
+  - fault_id: "prius_mg2_stator_insulation_breakdown"
+    name: "Transaxle Motor-Generator 2 (MG2) Stator Winding Breakdown"
+    component_id: "electric_traction_motor"
+    description: "Internal transaxle ATF degradation causing dielectric breakdown between MG2 stator coils and transaxle casing."
+    prior: 0.08
+    dtcs:
+      P0AA6: 0.92
+      P0A92: 0.85
+    symptoms:
+      hv_isolation_megohmmeter:
+        low_isolation_fault: 0.96
+        normal: 0.04
+      vehicle_ready_state:
+        no_ready_interlock_open: 0.92
+        normal_ready: 0.08
+    distinguishing_tests:
+      - "Disconnect 3-phase orange cabling at transaxle; measure insulation resistance directly at transaxle terminal block."

@@ -24,6 +24,17 @@ from model.engine import FaultModel
 from model.schema import Observations, SimulationResult
 from model.vehicle_registry import vehicle_registry
 from rag.store import KnowledgeBase
+from stream import (
+    TelemetryStream,
+    StreamAnalysisResult,
+    generate_telemetry_stream,
+    analyze_telemetry_stream,
+)
+from repair import (
+    RepairPlan,
+    generate_repair_plan,
+    verify_post_repair_drive_cycle,
+)
 from .tracing import get_tracer
 
 
@@ -255,3 +266,87 @@ def get_telemetry_traces(limit: int = Query(25, ge=1, le=100)) -> List[Dict[str,
     """Returns recent structured diagnostic traces with latency and decision audits."""
     tracer = get_tracer()
     return tracer.get_recent_traces(limit=limit)
+
+
+# -----------------------------------------------------------------------------
+# Phase 5: Live Sensor Telemetry & Streaming Endpoints
+# -----------------------------------------------------------------------------
+
+class SimulateStreamRequest(BaseModel):
+    vehicle_id: str = Field(default="generic_petrol")
+    fault_type: str = Field(default="healthy")
+    duration_s: float = Field(default=20.0, ge=5.0, le=60.0)
+    sampling_rate_hz: float = Field(default=10.0, ge=1.0, le=20.0)
+
+
+@app.post("/stream/simulate", response_model=TelemetryStream)
+def simulate_stream_endpoint(request: SimulateStreamRequest) -> TelemetryStream:
+    """
+    Simulates a continuous 10Hz physical OBD-II / EV sensor stream with deterministic fault dynamics.
+    """
+    return generate_telemetry_stream(
+        vehicle_id=request.vehicle_id,
+        fault_type=request.fault_type,
+        duration_s=request.duration_s,
+        sampling_rate_hz=request.sampling_rate_hz,
+    )
+
+
+@app.post("/stream/analyze", response_model=StreamAnalysisResult)
+def analyze_stream_endpoint(stream: TelemetryStream) -> StreamAnalysisResult:
+    """
+    Performs time-series signal processing, O2 frequency extraction, LTFT idle/cruise divergence,
+    and automatic observation generation from telemetry frames.
+    """
+    return analyze_telemetry_stream(stream)
+
+
+@app.post("/stream/diagnose")
+def diagnose_from_stream(stream: TelemetryStream) -> Dict[str, Any]:
+    """
+    Ingests continuous telemetry, extracts physical anomalies and DTCs,
+    and executes the full Bayesian digital twin diagnostic engine.
+    """
+    analysis = analyze_telemetry_stream(stream)
+    report = run_diagnosis(analysis.extracted_observations)
+    return {
+        "analysis": analysis.model_dump(),
+        "diagnostic_report": report.model_dump(),
+    }
+
+
+# -----------------------------------------------------------------------------
+# Phase 6: Automated Repair Action Plan & Verification Endpoints
+# -----------------------------------------------------------------------------
+
+class VerifyRepairRequest(BaseModel):
+    fault_id: str
+    stream: TelemetryStream
+
+
+@app.get("/repair/plan/{fault_id}", response_model=RepairPlan)
+def get_repair_plan_endpoint(
+    fault_id: str,
+    vehicle_id: str = Query("generic_petrol", description="Vehicle platform ID"),
+    hourly_rate_usd: float = Query(110.0, ge=40.0, le=300.0, description="Shop labor rate per hour"),
+) -> RepairPlan:
+    """
+    Generates an actionable repair plan with OEM part numbers, standard flat-rate book hours,
+    NFPA 70E / High Voltage safety protocols, torque specs, and verification drive cycles.
+    """
+    # Create a synthetic report to route to repair planner
+    report = DiagnosticReport(
+        top_fault_id=fault_id,
+        vehicle_id=vehicle_id,
+    )
+    return generate_repair_plan(report, hourly_rate_usd=hourly_rate_usd)
+
+
+@app.post("/repair/verify")
+def verify_repair_endpoint(request: VerifyRepairRequest) -> Dict[str, Any]:
+    """
+    Evaluates post-repair verification drive cycle telemetry to verify whether
+    the remedial action successfully cleared fault symptoms and set OBD-II monitors to READY.
+    """
+    return verify_post_repair_drive_cycle(fault_id=request.fault_id, stream=request.stream)
+
